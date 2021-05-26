@@ -11,7 +11,8 @@ def feature_extractor(func):
     def wrapper(X, y=None):
         try:
             result = func(X, y)
-        except:
+        except Exception as e:
+            print(e)
             result = None
             # raise
 
@@ -129,7 +130,7 @@ def covariance_avg(X, y=None):
     As a measure of the covariance of an entire dataset, the average of the covariance
     over all distinct pairs of numerical attributes could be considered.
     """
-    return X.cov().mean()
+    return np.cov(X).mean()
 
 
 @feature_extractor
@@ -140,7 +141,7 @@ def linear_corr_coef(X, y=None):
     by means of a single value.
     """
     rho, _ = stats.spearmanr(X)
-    return rho
+    return rho.mean()
 
 
 @feature_extractor
@@ -168,7 +169,8 @@ def variance_fraction_coeff(X, y=None):
     eigenvalue of the attribute covariance matrix and it measures the
     representation quality of the first principal component.
     """
-    cov_matrix = X.cov()
+    # NOTE: This can return a complex number
+    cov_matrix = np.cov(X)
     largest_eigenval, _ = np.linalg.eig(cov_matrix)
     return max(largest_eigenval) / cov_matrix.trace()
 
@@ -202,12 +204,12 @@ def normalized_attr_entropy(X, y=None):
     The attribute entropy value H(X) of a random variable measures the information
     content related to the values that X may assume.
     """
-    attributes = [X[:, j] for j in X.shape[1]]
+    attributes = [X[:, j] for j in range(X.shape[1])]
     return np.array([_attr_i_entropy(xi) for xi in attributes]).mean()
 
 
 def _attr_i_joint_entropy(x_i, y):
-    _, counts = np.unique(zip(x_i, y), return_counts=True)
+    _, counts = np.unique(list(zip(x_i, y)), return_counts=True)
     return stats.entropy(counts)
 
 
@@ -227,7 +229,7 @@ def joint_entropy(X, y=None):
     of variables (C, X), which could be represented by a class variable and one of
     the m discretized inputs attributes, respectively.
     """
-    attributes_labels = [(X[:, j], y) for j in X.shape[1]]
+    attributes_labels = [(X[:, j], y) for j in range(X.shape[1])]
     return np.array([_attr_i_joint_entropy(attr_i, y) for attr_i, y in attributes_labels]).mean()
 
 
