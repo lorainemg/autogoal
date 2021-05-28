@@ -35,9 +35,9 @@ def has_numeric_features(X, y=None):
     return any([xi for xi in X[0] if isinstance(xi, (float, int))])
 
 
-@feature_extractor
-def average_number_of_words(X, y=None):
-    return sum(len(sentence.split(" ")) for sentence in X) / len(X)
+# @feature_extractor
+# def average_number_of_words(X, y=None):
+#     return sum(len(sentence.split(" ")) for sentence in X) / len(X)
 
 
 @feature_extractor
@@ -141,6 +141,8 @@ def linear_corr_coef(X, y=None):
     by means of a single value.
     """
     rho, _ = stats.spearmanr(X)
+    if isinstance(rho, (float, int)):
+        return rho
     return rho.mean()
 
 

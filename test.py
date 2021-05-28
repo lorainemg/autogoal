@@ -6,7 +6,7 @@ from autogoal.experimental.metalearning import MetaLearner, DatasetExtractor
 
 
 def test_automl(X, y):
-    X_train, y_train, X_test, y_test = train_test_split(X1, y1, test_size=0.15)
+    X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.15)
 
     automl = AutoML(
             input=(MatrixContinuousDense,

@@ -12,23 +12,24 @@ class Dataset:
 
     def load(self, *args, **kwargs):
         result = self._load(*args, **kwargs)
-        X, y = None, None
+        X_train, y_train, X_test, y_test = None, None, None, None
         if len(result) == 1:
-            X = result
-            y = None
+            X_train, X_test = train_test_split(result, test_size=0.15)
+            y_train, y_test = None, None
         elif len(result) == 2:
             X, y = result
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
         elif len(result) == 4:
             X_train, y_train, X_test, y_test = result
-            try:
-                X = np.concatenate((X_train, X_test))
-            except ValueError:
-                X = np.concatenate((X_train.todense(), X_test.todense()))
-            try:
-                y = np.concatenate((y_train, y_test))
-            except ValueError:
-                y = np.concatenate((y_train.todense(), y_test.todense()))
-        return X, y
+            # try:
+            #     X = np.concatenate((X_train, X_test))
+            # except ValueError:
+            #     X = np.concatenate((X_train.todense(), X_test.todense()))
+            # try:
+            #     y = np.concatenate((y_train, y_test))
+            # except ValueError:
+            #     y = np.concatenate((y_train.todense(), y_test.todense()))
+        return np.array(X_train), np.array(y_train), np.array(X_test), np.array(y_test)
 
 
 class DatasetExtractor:
