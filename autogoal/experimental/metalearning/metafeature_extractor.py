@@ -162,17 +162,17 @@ def kurtosis(X, y=None):
     return stats.kurtosis(X).mean()
 
 
-@feature_extractor
-def variance_fraction_coeff(X, y=None):
-    """
-    This coefficient indicates the relative importance of the largest
-    eigenvalue of the attribute covariance matrix and it measures the
-    representation quality of the first principal component.
-    """
-    # NOTE: This can return a complex number
-    cov_matrix = np.cov(X)
-    largest_eigenval, _ = np.linalg.eig(cov_matrix)
-    return max(largest_eigenval) / cov_matrix.trace()
+# @feature_extractor
+# def variance_fraction_coeff(X, y=None):
+#     """
+#     This coefficient indicates the relative importance of the largest
+#     eigenvalue of the attribute covariance matrix and it measures the
+#     representation quality of the first principal component.
+#     """
+#     # NOTE: This can return a complex number
+#     cov_matrix = np.cov(X)
+#     largest_eigenval, _ = np.linalg.eig(cov_matrix)
+#     return max(largest_eigenval) / cov_matrix.trace()
 
 
 """

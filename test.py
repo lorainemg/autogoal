@@ -2,7 +2,7 @@ from autogoal.ml import AutoML
 from autogoal.kb import MatrixContinuousDense, VectorCategorical, Supervised
 
 from sklearn.model_selection import train_test_split
-
+from autogoal.experimental.metalearning import MetaLearner, DatasetExtractor
 
 
 def test_automl(X, y):
@@ -29,6 +29,10 @@ def test_automl(X, y):
 
 
 if __name__ == '__main__':
-    dateset_ext = DatasetExtractor()
+    learner = MetaLearner()
+    datasets = DatasetExtractor().datasets
+    # metafeatures = learner.extract_metafeatures(datasets)
+    metatargets = learner.extract_metatargets(datasets)
+    print(metatargets)
 
 

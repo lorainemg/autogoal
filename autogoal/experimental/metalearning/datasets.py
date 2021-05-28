@@ -9,21 +9,26 @@ class Dataset:
     def __init__(self, name: str, load):
         self.name = name
         self._load = load
-        self.X, self.y = None, None
-        self.load()
 
     def load(self, *args, **kwargs):
         result = self._load(*args, **kwargs)
+        X, y = None, None
         if len(result) == 1:
-            self.X = result
-            self.y = None
+            X = result
+            y = None
         elif len(result) == 2:
-            self.X, self.y = result
+            X, y = result
         elif len(result) == 4:
             X_train, y_train, X_test, y_test = result
-            self.X = np.concatenate((X_train, X_test))
-            self.y = np.concatenate((y_train, y_test))
-        return self.X, self.y
+            try:
+                X = np.concatenate((X_train, X_test))
+            except ValueError:
+                X = np.concatenate((X_train.todense(), X_test.todense()))
+            try:
+                y = np.concatenate((y_train, y_test))
+            except ValueError:
+                y = np.concatenate((y_train.todense(), y_test.todense()))
+        return X, y
 
 
 class DatasetExtractor:

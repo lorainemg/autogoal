@@ -1,5 +1,8 @@
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
-from autogoal.experimental.metalearning.datasets import DatasetExtractor, Dataset
+from autogoal.experimental.metalearning.datasets import Dataset
+from autogoal.contrib import find_classes
+from autogoal.ml import AutoML
+
 from typing import List
 
 
@@ -17,5 +20,31 @@ class MetaLearner:
     def test(self, datasets: List[Dataset]):
         return [self.predict(dataset) for dataset in datasets]
 
-    def extract_features(self, datasets: List[Dataset]):
-        return [self.metafeature_extractor.extract_features(d.X, d.y) for d in datasets]
+    def extract_metafeatures(self, datasets: List[Dataset]):
+        """Extracts the features of the datasets"""
+        return [self._extract_metafeatures(d) for d in datasets]
+
+    def _extract_metafeatures(self, dataset: Dataset):
+        X, y = dataset.load()
+        return self.metafeature_extractor.extract_features(X, y)
+
+    def extract_metatargets(self, datasets: List[Dataset], algorithms=None):
+        """
+        Extracts the features of the solution.
+        For this, a list of algorithms is trained with the datasets.
+        """
+        return [self._extract_metatargets(d, algorithms) for d in datasets]
+
+    def _extract_metatargets(self, dataset: Dataset, algorithms):
+        """
+        Hay 3 formas posibles de entrenar:
+        1. Entrenar con todos los algoritmos con sus parámetros por defecto
+        2. Entrenanr con todoos los posibles parámetros a maximizar
+        3. Entrenar usando automl para buscar el mejor pipeline.
+        Esta versión usará la 3ra opción.
+        """
+        X, y = dataset.load()
+        automl = AutoML(registry=algorithms)
+        automl.fit(X, y)
+        # creo que lo ideal no sería coger el mejor pipeline, si no los k mejores.
+        return [automl.best_pipeline_, automl.best_score_]
