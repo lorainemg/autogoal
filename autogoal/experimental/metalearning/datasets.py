@@ -21,6 +21,11 @@ class Dataset:
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
         elif len(result) == 4:
             X_train, y_train, X_test, y_test = result
+            try:
+                X_train = X_train.todense()
+                X_test = X_test.todense()
+            except:
+                pass
             # try:
             #     X = np.concatenate((X_train, X_test))
             # except ValueError:
@@ -46,6 +51,8 @@ class DatasetExtractor:
         datasets = []
         for fn in dataset_folder.glob('*.py'):
             name = fn.name[:-3]
+            if name == 'haha':
+                continue
             try:
                 mod = import_module(f'.{name}', '.'.join(fn.parts[:-1]))
                 datasets.append(Dataset(name, mod.load))

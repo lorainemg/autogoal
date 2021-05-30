@@ -31,8 +31,9 @@ def test_automl(X, y):
 if __name__ == '__main__':
     learner = MetaLearner()
     datasets = DatasetExtractor().datasets
-    # metafeatures = learner.extract_metafeatures(datasets)
-    metatargets = learner.extract_metatargets(datasets)
-    print(metatargets)
+    metafeatures = learner.preprocess_metafeatures(datasets)
+    learner.save()
+    # metatargets = learner.extract_metatargets(datasets)
+    # print(metatargets)
 
 

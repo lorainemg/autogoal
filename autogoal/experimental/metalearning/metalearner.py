@@ -1,15 +1,19 @@
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset
-from autogoal.contrib import find_classes
 from autogoal.ml import AutoML
 
+from sklearn.feature_extraction import DictVectorizer
+from pathlib import Path
 from typing import List
+import pickle
+import json
 
 
 class MetaLearner:
     def __init__(self, k=5, features_extractor=None):
         self.k = k  # the numbers of possible algorithms to predict
         self.metafeature_extractor = MetaFeatureExtractor(features_extractor)
+        self.vectorizer = DictVectorizer()
 
     def train(self, datasets: List[Dataset]):
         raise NotImplementedError
@@ -32,8 +36,17 @@ class MetaLearner:
         """
         Extracts the features of the solution.
         For this, a list of algorithms is trained with the datasets.
+
+        Returns a list of the labels with the best pipelines and
+        a list of metatargets (features of the training process)
         """
-        return [self._extract_metatargets(d, algorithms) for d in datasets]
+        meta_labels = []
+        meta_targets = []
+        for d in datasets:
+            meta_label, meta_target = self._extract_metatargets(d, algorithms)
+            meta_labels.append(meta_label)
+            meta_targets.append(meta_target)
+        return meta_labels, meta_targets
 
     def _extract_metatargets(self, dataset: Dataset, algorithms):
         """
@@ -50,10 +63,43 @@ class MetaLearner:
             # creo que lo ideal no sería coger el mejor pipeline, si no los k mejores.
             score = automl.score(X_test, y_test)
             # todo: buscar una manera de representar los pipeline
-            return {
-                'pipeline': automl.best_pipeline_,
+            # missing more metatargets, maybe training time
+            # more features about the pipeline...
+            return automl.best_pipeline_, {
                 'score': score
             }
         except TypeError as e:
             print(f'Error {dataset.name}: {e}')
 
+    def preprocess_features(self, metafeatures: List[dict], metatargets: List[dict], training=False):
+        features = []
+        for meta_feat, meta_tar in zip(metafeatures, metatargets):
+            meta_feat.update(meta_tar)
+            features.append(meta_feat)
+        if training:
+            self.vectorizer.fit(features)
+        return self.vectorizer.transform(features)
+
+    def get_training_samples(self, datasets: List[Dataset]):
+        """
+        Returns all the features vectorized and the labels.
+        """
+        metafeatures = self.extract_metafeatures(datasets)
+        json.dump(metafeatures, open(Path('metafeatures.json'), 'r'))
+        metalabels, metatargets = self.extract_metatargets(datasets)
+        return self.preprocess_features(metafeatures, metatargets, training=True), metalabels
+
+    def preprocess_metafeatures(self, datasets: List[Dataset]):
+        metafeatures = self.extract_metafeatures(datasets)
+        self.vectorizer.fit(metafeatures)
+        return self.vectorizer.transform(metafeatures)
+
+    def preprocess_metafeature(self, dataset: Dataset):
+        metafeature = self._extract_metafeatures(dataset)
+        return self.vectorizer.transform([metafeature])[0]
+
+    def save(self):
+        pickle.dump(self.vectorizer, open(Path('metafeatures.vct'), 'wb'))
+
+    def load(self):
+        self.vectorizer = pickle.load(open(Path('metafeatures.vct'), 'rb'))
