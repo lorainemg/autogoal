@@ -328,7 +328,7 @@ class ReplaySampler:
 
         >>> import io
         >>> fp = io.BytesIO()
-        >>> sampler.replay().save(fp)
+        >>> sampler.replay().save_vectorizer(fp)
         >>> len(fp.getvalue())
         183
 
@@ -358,10 +358,10 @@ class ReplaySampler:
 
         >>> import io
         >>> fp = io.BytesIO()
-        >>> sampler.replay().save(fp)
+        >>> sampler.replay().save_vectorizer(fp)
         >>> fp.seek(0)
         0
-        >>> other_sampler = ReplaySampler.load(fp)
+        >>> other_sampler = ReplaySampler.load_vectorizer(fp)
         >>> [other_sampler.discrete(0, 10) for _ in range(5)]
         [2, 9, 1, 4, 1]
         >>> [other_sampler.discrete(0, 10) for _ in range(5)]

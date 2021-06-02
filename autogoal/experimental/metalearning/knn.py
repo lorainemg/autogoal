@@ -1,7 +1,8 @@
 from sklearn.neighbors import KNeighborsClassifier
 from typing import List
+from pathlib import Path
+from tensorflow.keras.utils import to_categorical
 from autogoal.experimental.metalearning.datasets import Dataset
-
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 
 
@@ -18,10 +19,9 @@ class KNNMetaLearner(MetaLearner):
         self.n_results = number_of_results
 
     def train(self, datasets: List[Dataset]):
-        self.samples = datasets
-        features = self.preprocess_metafeatures(datasets)
-        labels, _ = self.extract_metatargets(datasets)
+        features, labels = self.get_training_samples(datasets)
         self.samples_labels = labels
+        labels = to_categorical(labels)
         self.model.fit(features, labels)
 
     def predict(self, dataset: Dataset):

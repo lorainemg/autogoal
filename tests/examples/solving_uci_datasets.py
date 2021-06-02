@@ -137,7 +137,7 @@ for epoch in range(args.epochs):
         print("=============================================")
         print(" Running dataset: %s - Epoch: %s" % (dataset, epoch))
         print("=============================================")
-        data = getattr(datasets, dataset).load()
+        data = getattr(datasets, dataset).load_vectorizer()
 
         # Here we dynamically load the corresponding dataset and,
         # if necesary, split it into training and testing sets.

@@ -2,11 +2,13 @@ from autogoal.ml import AutoML
 from autogoal.kb import MatrixContinuousDense, VectorCategorical, Supervised
 
 from sklearn.model_selection import train_test_split
-from autogoal.experimental.metalearning import MetaLearner, DatasetExtractor
+from autogoal.search import RichLogger
+from autogoal.experimental.metalearning import KNNMetaLearner, DatasetExtractor
+from autogoal.datasets import cars
 
 
 def test_automl(X, y):
-    X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.15)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
 
     automl = AutoML(
             input=(MatrixContinuousDense,
@@ -14,7 +16,7 @@ def test_automl(X, y):
             output=VectorCategorical
     )
 
-    # automl.fit(X_train, y_train, logger=RichLogger())
+    automl.fit(X_train, y_train, logger=RichLogger())
 
     print(automl.best_pipeline_)
     print(automl.best_score_)
@@ -29,10 +31,16 @@ def test_automl(X, y):
 
 
 if __name__ == '__main__':
-    learner = MetaLearner()
-    datasets = DatasetExtractor().datasets
-    metafeatures = learner.preprocess_metafeatures(datasets)
-    learner.save()
+    # X, y = cars.load()
+    # test_automl(X, y)
+
+    datasets = DatasetExtractor().datasets[:2]
+    learner = KNNMetaLearner()
+    learner.train(datasets)
+
+    # datasets = DatasetExtractor().datasets
+    # metafeatures = learner.preprocess_metafeatures(datasets)
+    # learner.save()
     # metatargets = learner.extract_metatargets(datasets)
     # print(metatargets)
 

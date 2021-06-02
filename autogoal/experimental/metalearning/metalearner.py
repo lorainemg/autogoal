@@ -14,6 +14,8 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.metafeature_extractor = MetaFeatureExtractor(features_extractor)
         self.vectorizer = DictVectorizer()
+        self._vectorizer_path = Path('metafeatures.vct')
+        self._features_vect_path = Path('metafeatures_vect.pkl')
 
     def train(self, datasets: List[Dataset]):
         raise NotImplementedError
@@ -80,26 +82,50 @@ class MetaLearner:
             self.vectorizer.fit(features)
         return self.vectorizer.transform(features)
 
+    # def get_training_samples(self, datasets: List[Dataset]):
+    #     """
+    #     Returns all the features vectorized and the labels.
+    #     """
+    #     metafeatures = self.extract_metafeatures(datasets)
+    #     json.dump(metafeatures, open(Path('metafeatures.json'), 'w'))
+    #     metalabels, metatargets = self.extract_metatargets(datasets)
+    #     return self.preprocess_features(metafeatures, metatargets, training=True), metalabels
+
     def get_training_samples(self, datasets: List[Dataset]):
         """
         Returns all the features vectorized and the labels.
         """
-        metafeatures = self.extract_metafeatures(datasets)
-        json.dump(metafeatures, open(Path('metafeatures.json'), 'r'))
-        metalabels, metatargets = self.extract_metatargets(datasets)
-        return self.preprocess_features(metafeatures, metatargets, training=True), metalabels
+        if not self._features_vect_path.exists():
+            metafeatures = self.extract_metafeatures(datasets)
+            metafeatures = self.preprocess_metafeatures(metafeatures)
+            self.save_training_metafeatures(metafeatures)
+        else:
+            metafeatures = self.load_training_metafeatures()
+        metalabels, _ = self.extract_metatargets(datasets)
+        return metafeatures, metalabels
 
-    def preprocess_metafeatures(self, datasets: List[Dataset]):
-        metafeatures = self.extract_metafeatures(datasets)
-        self.vectorizer.fit(metafeatures)
+    def preprocess_metafeatures(self, metafeatures):
+        if not self._vectorizer_path.exists():
+            self.vectorizer.fit(metafeatures)
+            self.save_vectorizer()
+        else:
+            self.load_vectorizer()
         return self.vectorizer.transform(metafeatures)
 
     def preprocess_metafeature(self, dataset: Dataset):
         metafeature = self._extract_metafeatures(dataset)
         return self.vectorizer.transform([metafeature])[0]
 
-    def save(self):
-        pickle.dump(self.vectorizer, open(Path('metafeatures.vct'), 'wb'))
+    def save_vectorizer(self):
+        pickle.dump(self.vectorizer, open(self._vectorizer_path, 'wb'))
 
-    def load(self):
-        self.vectorizer = pickle.load(open(Path('metafeatures.vct'), 'rb'))
+    def load_vectorizer(self):
+        self.vectorizer = pickle.load(open(self._vectorizer_path, 'rb'))
+
+    def save_training_metafeatures(self, metafeatures):
+        pickle.dump(metafeatures, open(self._features_vect_path, 'wb'))
+
+    def load_training_metafeatures(self):
+        return pickle.load(open(self._features_vect_path, 'rb'))
+
+
