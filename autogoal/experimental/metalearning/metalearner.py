@@ -13,7 +13,7 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.metafeature_extractor = MetaFeatureExtractor(features_extractor)
         self.vectorizer = DictVectorizer()
-        self._features_path = Path('autogoal/experimental/metalearning')
+        self._features_path = Path('autogoal/experimental/metalearning/metafeatures.json')
 
     def train(self, datasets: List[Dataset]):
         raise NotImplementedError

@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    datasets = DatasetExtractor().datasets[-3:-2]
+    datasets = DatasetExtractor().datasets
     learner = KNNMetaLearner()
     learner.train(datasets)
 
