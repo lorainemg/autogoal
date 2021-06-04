@@ -130,7 +130,7 @@ def covariance_avg(X, y=None):
     As a measure of the covariance of an entire dataset, the average of the covariance
     over all distinct pairs of numerical attributes could be considered.
     """
-    return np.cov(X).mean()
+    return np.cov(X, rowvar=False).mean()
 
 
 @feature_extractor
@@ -159,7 +159,7 @@ def skewness(X, y=None):
 @feature_extractor
 def kurtosis(X, y=None):
     """
-    It measures the peakdness in the distribution of a random variable X.
+    It measures the peakness in the distribution of a random variable X.
     """
     return stats.kurtosis(X).mean()
 

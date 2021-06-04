@@ -5,7 +5,6 @@ from autogoal.ml import AutoML
 from sklearn.feature_extraction import DictVectorizer
 from pathlib import Path
 from typing import List
-import pickle
 import json
 
 
@@ -14,8 +13,7 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.metafeature_extractor = MetaFeatureExtractor(features_extractor)
         self.vectorizer = DictVectorizer()
-        self._vectorizer_path = Path('metafeatures.vct')
-        self._features_vect_path = Path('metafeatures_vect.pkl')
+        self._features_path = Path('autogoal/experimental/metalearning')
 
     def train(self, datasets: List[Dataset]):
         raise NotImplementedError
@@ -95,9 +93,8 @@ class MetaLearner:
         """
         Returns all the features vectorized and the labels.
         """
-        if not self._features_vect_path.exists():
+        if not self._features_path.exists():
             metafeatures = self.extract_metafeatures(datasets)
-            metafeatures = self.preprocess_metafeatures(metafeatures)
             self.save_training_metafeatures(metafeatures)
         else:
             metafeatures = self.load_training_metafeatures()
@@ -105,27 +102,17 @@ class MetaLearner:
         return metafeatures, metalabels
 
     def preprocess_metafeatures(self, metafeatures):
-        if not self._vectorizer_path.exists():
-            self.vectorizer.fit(metafeatures)
-            self.save_vectorizer()
-        else:
-            self.load_vectorizer()
+        self.vectorizer.fit(metafeatures)
         return self.vectorizer.transform(metafeatures)
 
     def preprocess_metafeature(self, dataset: Dataset):
         metafeature = self._extract_metafeatures(dataset)
         return self.vectorizer.transform([metafeature])[0]
 
-    def save_vectorizer(self):
-        pickle.dump(self.vectorizer, open(self._vectorizer_path, 'wb'))
-
-    def load_vectorizer(self):
-        self.vectorizer = pickle.load(open(self._vectorizer_path, 'rb'))
-
     def save_training_metafeatures(self, metafeatures):
-        pickle.dump(metafeatures, open(self._features_vect_path, 'wb'))
+        json.dump(metafeatures, open(self._features_path, 'w'))
 
     def load_training_metafeatures(self):
-        return pickle.load(open(self._features_vect_path, 'rb'))
+        return json.load(open(self._features_path, 'r'))
 
 
