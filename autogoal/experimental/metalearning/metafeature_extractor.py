@@ -3,6 +3,8 @@ import operator
 import numpy as np
 from scipy import stats
 
+from autogoal.kb import SemanticType
+
 _EXTRACTORS = []
 
 
@@ -23,6 +25,10 @@ def feature_extractor(func):
 
 
 ### Feature extractor methods ###
+"""
+Autogoal features
+Features specific to the autogoal characteristics
+"""
 
 @feature_extractor
 def is_supervised(X, y=None):
@@ -43,6 +49,16 @@ def has_numeric_features(X, y=None):
 @feature_extractor
 def has_text_features(X, y=None):
     return isinstance(X[0], str)
+
+
+@feature_extractor
+def semantic_input_types(X, y=None):
+    return str(SemanticType.infer(X))
+
+
+@feature_extractor
+def semantic_output_types(X, y=None):
+    return str(SemanticType.infer(y))
 
 
 """
