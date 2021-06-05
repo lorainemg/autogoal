@@ -16,13 +16,13 @@ def test_automl(X, y):
     #         output=VectorCategorical
     # )
 
-    # automl = AutoML()
+    automl = AutoML()
 
-    automl = AutoML(
-            input=(Tensor[2, Continuous, Dense],
-                   Supervised[Tensor[1, Categorical, Dense]]),
-            output=Tensor[1, Categorical, Dense]
-    )
+    # automl = AutoML(
+    #         input=(Tensor[2, Continuous, Dense],
+    #                Supervised[Tensor[1, Categorical, Dense]]),
+    #         output=Tensor[1, Categorical, Dense]
+    # )
 
     automl.fit(X_train, y_train, logger=RichLogger())
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    datasets = DatasetExtractor().datasets[:1]
+    datasets = DatasetExtractor().datasets
     learner = KNNMetaLearner()
     learner.train(datasets)
 

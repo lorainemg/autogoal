@@ -5,7 +5,7 @@ import statistics
 import numpy as np
 from autogoal.contrib import find_classes
 
-from autogoal.kb import build_pipeline_graph, SemanticType
+from autogoal.kb import build_pipeline_graph, SemanticType, Supervised
 from autogoal.ml.metrics import accuracy
 from autogoal.search import PESearch
 from autogoal.utils import nice_repr
@@ -74,6 +74,14 @@ class AutoML:
     def fit(self, X, y, **kwargs):
         self.input = self._input_type(X)
         self.output = self._output_type(y)
+
+        if not issubclass(Supervised, self.input):
+            try:
+               if all([not issubclass(in_type, Supervised) for in_type in self.input]):
+                   self.input = tuple(list(self.input) + [Supervised[self.output]])
+            except TypeError:
+                self.input = (self.input, Supervised[self.output])
+
 
         search = self.search_algorithm(
             self.make_pipeline_builder(),
