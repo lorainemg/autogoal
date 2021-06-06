@@ -5,7 +5,7 @@ import statistics
 import numpy as np
 from autogoal.contrib import find_classes
 
-from autogoal.kb import build_pipeline_graph, SemanticType, Supervised
+from autogoal.kb import build_pipeline_graph, SemanticType, Supervised, Seq, Word, Label
 from autogoal.ml.metrics import accuracy
 from autogoal.search import PESearch
 from autogoal.utils import nice_repr
@@ -92,12 +92,28 @@ class AutoML:
         self.fit_pipeline(X, y)
 
     def _add_supervised_as_input(self):
-        if not issubclass(Supervised, self.input):
+        """
+        Add Supervised annotation to input to supervised algorithms.
+
+        This is not done with Semantic infer and is necessary to build pipelines.
+        """
+        if self.output and not issubclass(Supervised, self.input):
             try:
                 if all([not issubclass(in_type, Supervised) for in_type in self.input]):
                     self.input = tuple(list(self.input) + [Supervised[self.output]])
             except TypeError:
                 self.input = (self.input, Supervised[self.output])
+
+    def _check_output(self):
+        """
+        Semantic infer returns Seq[Word] to a sequence of labels, this is fixed.
+
+        Semantic infer never matches with Seq[Label] and this is necessary to allow the algorithms to work properly.
+        """
+        if isinstance(Seq[Seq[Word]], self.output):
+            self.output = Seq[Seq[Label]]
+        elif isinstance(Seq[Word], self.output):
+            self.output = Seq[Label]
 
     def fit_pipeline(self, X, y):
         self._check_fitted()

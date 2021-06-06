@@ -3,6 +3,7 @@ from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
+from autogoal.kb import Seq, Word, Label, Supervised
 
 from sklearn.feature_extraction import DictVectorizer
 from pathlib import Path
@@ -60,6 +61,8 @@ class MetaLearner:
         """
         X_train, y_train, X_test, y_test = dataset.load()
         automl = AutoML(
+            input=(Seq[Seq[Word]], Supervised[Seq[Seq[Label]]]),
+            output=Seq[Seq[Label]],
             registry=algorithms,
             evaluation_timeout=5 * Min,
             search_timeout=20 * Min,
