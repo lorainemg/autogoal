@@ -61,8 +61,8 @@ class MetaLearner:
         """
         X_train, y_train, X_test, y_test = dataset.load()
         automl = AutoML(
-            input=(Seq[Seq[Word]], Supervised[Seq[Seq[Label]]]),
-            output=Seq[Seq[Label]],
+            # input=(Seq[Seq[Word]], Supervised[Seq[Seq[Label]]]),
+            # output=Seq[Seq[Label]],
             registry=algorithms,
             evaluation_timeout=5 * Min,
             search_timeout=20 * Min,

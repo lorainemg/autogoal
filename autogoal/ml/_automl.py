@@ -75,6 +75,7 @@ class AutoML:
         self.input = self._input_type(X)
         self.output = self._output_type(y)
 
+        self._check_output()
         self._add_supervised_as_input()
 
         search = self.search_algorithm(
@@ -110,9 +111,9 @@ class AutoML:
 
         Semantic infer never matches with Seq[Label] and this is necessary to allow the algorithms to work properly.
         """
-        if isinstance(Seq[Seq[Word]], self.output):
+        if issubclass(Seq[Seq[Word]], self.output):
             self.output = Seq[Seq[Label]]
-        elif isinstance(Seq[Word], self.output):
+        elif issubclass(Seq[Word], self.output):
             self.output = Seq[Label]
 
     def fit_pipeline(self, X, y):
