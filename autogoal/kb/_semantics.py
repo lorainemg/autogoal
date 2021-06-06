@@ -277,8 +277,20 @@ class Seq(SemanticType):
         return SeqImp
 
 
-SeqSent1 = Seq[Seq[Word]]
+# We add some basic sequential type implemented, we can add some aliases here.
+# These aliases mostly serve for `SemanticType.infer` to work, and also to simplify imports
+# Sequent of words
+SeqDoc1 = Seq[Seq[Word]]
+SeqDoc2 = Seq[Sentence]
+SeqSent = Seq[Word]
 
+# Sequent of Labels
+SeqLabel = Seq[Label]
+SeqSentLabel = Seq[Seq[Label]]
+
+# Others
+SeqSynset = Seq[Synset]
+SeqSentSynset = Seq[Seq[Synset]]
 
 # Now let's move to the algebraic types, vectors, matrices, and tensors.
 # These wrap numpy arrays of different dimensionalities
