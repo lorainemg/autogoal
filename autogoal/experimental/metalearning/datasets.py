@@ -21,20 +21,7 @@ class Dataset:
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
         elif len(result) == 4:
             X_train, y_train, X_test, y_test = result
-            try:
-                X_train = X_train.todense()
-                X_test = X_test.todense()
-            except:
-                pass
-            # try:
-            #     X = np.concatenate((X_train, X_test))
-            # except ValueError:
-            #     X = np.concatenate((X_train.todense(), X_test.todense()))
-            # try:
-            #     y = np.concatenate((y_train, y_test))
-            # except ValueError:
-            #     y = np.concatenate((y_train.todense(), y_test.todense()))
-        return np.array(X_train), np.array(y_train), np.array(X_test), np.array(y_test)
+        return X_train, y_train, X_test, y_test
 
 
 class DatasetExtractor:

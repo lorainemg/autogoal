@@ -21,21 +21,21 @@ class AutoML:
     """
 
     def __init__(
-        self,
-        input=None,
-        output=None,
-        random_state=None,
-        search_algorithm=None,
-        search_iterations=100,
-        include_filter=".*",
-        exclude_filter=None,
-        validation_split=0.3,
-        errors="warn",
-        cross_validation="median",
-        cross_validation_steps=3,
-        registry=None,
-        score_metric=None,
-        **search_kwargs
+            self,
+            input=None,
+            output=None,
+            random_state=None,
+            search_algorithm=None,
+            search_iterations=100,
+            include_filter=".*",
+            exclude_filter=None,
+            validation_split=0.3,
+            errors="warn",
+            cross_validation="median",
+            cross_validation_steps=3,
+            registry=None,
+            score_metric=None,
+            **search_kwargs
     ):
         self.input = input
         self.output = output
@@ -75,13 +75,7 @@ class AutoML:
         self.input = self._input_type(X)
         self.output = self._output_type(y)
 
-        if not issubclass(Supervised, self.input):
-            try:
-               if all([not issubclass(in_type, Supervised) for in_type in self.input]):
-                   self.input = tuple(list(self.input) + [Supervised[self.output]])
-            except TypeError:
-                self.input = (self.input, Supervised[self.output])
-
+        self._add_supervised_as_input()
 
         search = self.search_algorithm(
             self.make_pipeline_builder(),
@@ -96,6 +90,14 @@ class AutoML:
         )
 
         self.fit_pipeline(X, y)
+
+    def _add_supervised_as_input(self):
+        if not issubclass(Supervised, self.input):
+            try:
+                if all([not issubclass(in_type, Supervised) for in_type in self.input]):
+                    self.input = tuple(list(self.input) + [Supervised[self.output]])
+            except TypeError:
+                self.input = (self.input, Supervised[self.output])
 
     def fit_pipeline(self, X, y):
         self._check_fitted()

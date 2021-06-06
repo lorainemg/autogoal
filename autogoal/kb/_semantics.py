@@ -251,7 +251,8 @@ class Seq(SemanticType):
 
             @classmethod
             def _match(cls, x):
-                return isinstance(x, (list, tuple)) and internal_type._match(x[0])
+                return isinstance(x, (list, tuple))  \
+                       and internal_type._match(x[0])
 
             @classmethod
             def _conforms(cls, other):
@@ -274,6 +275,9 @@ class Seq(SemanticType):
         Seq.__internal_types[internal_type] = SeqImp
 
         return SeqImp
+
+
+SeqSent1 = Seq[Seq[Word]]
 
 
 # Now let's move to the algebraic types, vectors, matrices, and tensors.

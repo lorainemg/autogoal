@@ -2,6 +2,7 @@ from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
+from autogoal.utils import Hour, Min
 
 from sklearn.feature_extraction import DictVectorizer
 from pathlib import Path
@@ -58,7 +59,13 @@ class MetaLearner:
         Esta versión usará la 3ra opción.
         """
         X_train, y_train, X_test, y_test = dataset.load()
-        automl = AutoML(registry=algorithms)
+        automl = AutoML(
+            registry=algorithms,
+            evaluation_timeout=5 * Min,
+            search_timeout=20 * Min,
+            search_iterations=1000,
+            errors="warn",
+        )
         try:
             automl.fit(X_train, y_train, logger=RichLogger())
             # creo que lo ideal no sería coger el mejor pipeline, si no los k mejores.
@@ -71,6 +78,7 @@ class MetaLearner:
             }
         except TypeError as e:
             print(f'Error {dataset.name}: {e}')
+            return None, None
 
     def preprocess_features(self, metafeatures: List[dict], metatargets: List[dict], training=False):
         features = []
@@ -99,7 +107,7 @@ class MetaLearner:
             self.save_training_metafeatures(metafeatures)
         else:
             metafeatures = self.load_training_metafeatures()
-        metalabels, _ = self.extract_metatargets(datasets[2:])
+        metalabels, _ = self.extract_metatargets(datasets[6:])
         return metafeatures, metalabels
 
     def preprocess_metafeatures(self, metafeatures):

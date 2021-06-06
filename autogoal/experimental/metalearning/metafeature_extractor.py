@@ -12,6 +12,9 @@ def feature_extractor(func):
     @functools.wraps(func)
     def wrapper(X, y=None):
         try:
+            X = convert_to_np_arrays(X)
+            y = convert_to_np_arrays(y)
+
             result = func(X, y)
         except Exception as e:
             print(e)
@@ -22,6 +25,17 @@ def feature_extractor(func):
 
     _EXTRACTORS.append(wrapper)
     return wrapper
+
+
+def convert_to_np_arrays(X):
+    """
+    Converts the input arrays to dense numpy arrays to allow the methods to work properly
+    """
+    try:
+        X = X.todense()
+    except:
+        pass
+    return np.array(X)
 
 
 ### Feature extractor methods ###
