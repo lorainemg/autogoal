@@ -108,7 +108,7 @@ class MetaLearner:
             self.save_training_metafeatures(metafeatures)
         else:
             metafeatures = self.load_training_metafeatures()
-        metalabels, _ = self.extract_metatargets(datasets[3:])
+        metalabels, _ = self.extract_metatargets(datasets[2:])
         return metafeatures, metalabels
 
     def preprocess_metafeatures(self, metafeatures):

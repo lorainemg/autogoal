@@ -5,7 +5,7 @@ import statistics
 import numpy as np
 from autogoal.contrib import find_classes
 
-from autogoal.kb import build_pipeline_graph, SemanticType, Supervised, Seq, Word, Label
+from autogoal.kb import build_pipeline_graph, SemanticType, Supervised, Seq, Word, Label, VectorDiscrete, VectorCategorical
 from autogoal.ml.metrics import accuracy
 from autogoal.search import PESearch
 from autogoal.utils import nice_repr
@@ -115,6 +115,8 @@ class AutoML:
             self.output = Seq[Seq[Label]]
         elif issubclass(Seq[Word], self.output):
             self.output = Seq[Label]
+        elif issubclass(VectorDiscrete, self.output):
+            self.output = VectorCategorical
 
     def fit_pipeline(self, X, y):
         self._check_fitted()
