@@ -280,9 +280,10 @@ class Seq(SemanticType):
 # We add some basic sequential type implemented, we can add some aliases here.
 # These aliases mostly serve for `SemanticType.infer` to work, and also to simplify imports
 # Sequent of words
-SeqDoc1 = Seq[Seq[Word]]
-SeqDoc2 = Seq[Sentence]
-SeqSent = Seq[Word]
+SeqSents1 = Seq[Seq[Word]]
+SeqSents2 = Seq[Sentence]
+SeqWords = Seq[Word]
+SeqDocs = Seq[Document]
 
 # Sequent of Labels
 SeqLabel = Seq[Label]
