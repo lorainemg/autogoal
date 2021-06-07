@@ -17,7 +17,6 @@ class MetaFeatureExtractor:
     def extract_features(self, X, y=None):
         features = {}
 
-
         if y is not None and len(y.shape) > 2:
             y = reduce_shape(y)
 
@@ -63,10 +62,9 @@ def convert_to_np_arrays(X):
 
 
 ### Feature extractor methods ###
-"""
-Autogoal features
-Features specific to the autogoal characteristics
-"""
+
+# Autogoal features
+# Features specific to the autogoal characteristics
 
 @feature_extractor
 def is_supervised(X, y=None):
@@ -99,12 +97,10 @@ def semantic_output_types(X, y=None):
     return str(SemanticType.infer(y))
 
 
-"""
-General features
-General meta-features include general information related to the dataset at hand
-and, to a certain extent, they are conceived to measure the complexity and/or
-the size of the underlying problem.
-"""
+# General features
+# General meta-features include general information related to the dataset at hand
+# and, to a certain extent, they are conceived to measure the complexity and/or
+# the size of the underlying problem.
 
 
 @feature_extractor
@@ -149,13 +145,11 @@ def dataset_dimensionality(X, y=None):
     return input_dimensionality.__wrapped__(X, y) / number_of_samples.__wrapped__(X, y)
 
 
-"""
-Statistical metafeatures
-Statistical metafeatures describe the numerical properties of a distribution of data.
-Can be employed to take into account the number of properties, which enable a learner
-to discriminate the degree of correlation of numerical attributes and estimate their
-distribution
-"""
+# Statistical metafeatures
+# Statistical metafeatures describe the numerical properties of a distribution of data.
+# Can be employed to take into account the number of properties, which enable a learner
+# to discriminate the degree of correlation of numerical attributes and estimate their
+# distribution
 
 
 @feature_extractor
@@ -225,12 +219,10 @@ def kurtosis(X, y=None):
 #     return max(largest_eigenval) / cov_matrix.trace()
 
 
-"""
-Information-Theoretic Meta-Features
-Information-theoretic meta-features are particularly appropriate to describe
-(categorical) attributes, but they also fit continuous (categorical) ones.
-# TODO: A discretization of the input and outputs value should be done
-"""
+# Information-Theoretic Meta-Features
+# Information-theoretic meta-features are particularly appropriate to describe
+# (categorical) attributes, but they also fit continuous (categorical) ones.
+# # TODO: A discretization of the input and outputs value should be done
 
 
 @feature_extractor
@@ -306,4 +298,3 @@ def noise_signal_ratio(X, y=None):
     useful_information = mutual_information.__wrapped__(X, y)
     non_useful_information = normalized_attr_entropy.__wrapped__(X, y) - mutual_information.__wrapped__(X, y)
     return non_useful_information / useful_information
-

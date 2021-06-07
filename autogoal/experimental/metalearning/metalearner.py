@@ -61,6 +61,8 @@ class MetaLearner:
         """
         X_train, y_train, X_test, y_test = dataset.load()
         automl = AutoML(
+            input=dataset.input_type,
+            output=dataset.output_type,
             registry=algorithms,
             evaluation_timeout=5 * Min,
             search_timeout=20 * Min,
@@ -108,7 +110,7 @@ class MetaLearner:
             self.save_training_metafeatures(metafeatures)
         else:
             metafeatures = self.load_training_metafeatures()
-        metalabels, _ = self.extract_metatargets(datasets[2:])
+        metalabels, _ = self.extract_metatargets(datasets)
         return metafeatures, metalabels
 
     def preprocess_metafeatures(self, metafeatures):
@@ -124,5 +126,3 @@ class MetaLearner:
 
     def load_training_metafeatures(self):
         return json.load(open(self._features_path, 'r'))
-
-
