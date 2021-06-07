@@ -3,7 +3,7 @@ from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
-from autogoal.kb import Seq, Word, Label, Supervised, Postag
+from autogoal.kb import MatrixContinuousDense
 
 from sklearn.feature_extraction import DictVectorizer
 from pathlib import Path
@@ -108,7 +108,7 @@ class MetaLearner:
             self.save_training_metafeatures(metafeatures)
         else:
             metafeatures = self.load_training_metafeatures()
-        metalabels, _ = self.extract_metatargets(datasets)
+        metalabels, _ = self.extract_metatargets(datasets[3:])
         return metafeatures, metalabels
 
     def preprocess_metafeatures(self, metafeatures):

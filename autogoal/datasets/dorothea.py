@@ -29,9 +29,9 @@ def load():
     valid_data = open(datapath("dorothea") / "dorothea_valid.data", "r")
     valid_labels = open(datapath("dorothea") / "dorothea_valid.labels", "r")
 
-    Xtrain = sp.lil_matrix((800, 100000), dtype=int)
+    Xtrain = sp.lil_matrix((800, 100000), dtype=float)
     ytrain = []
-    Xvalid = sp.lil_matrix((350, 100000), dtype=int)
+    Xvalid = sp.lil_matrix((350, 100000), dtype=float)
     yvalid = []
 
     for row, line in enumerate(train_data):
