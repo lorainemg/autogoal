@@ -1,0 +1,269 @@
+[{
+    "features": {
+        "LinearSVC": [1],
+        "End": [1],
+        "LinearSVC_penalty": [0],
+        "LinearSVC_loss": [0],
+        "LinearSVC_dual": [false],
+        "LinearSVC_C": [8.939961162660552],
+        "LinearSVC_multi_class": [0],
+        "LinearSVC_fit_intercept": [true]
+    },
+    "features_types": {
+        "LinearSVC": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "LinearSVC_penalty": "DistributionParam(weights=[1.0])",
+        "LinearSVC_loss": "DistributionParam(weights=[0.5, 0.5])",
+        "LinearSVC_dual": "WeightParam(value=0.5)",
+        "LinearSVC_C": "MeanDevParam(\n    mean=4.998, dev=9.985999999999999, initial_params=(4.998, 9.985999999999999)\n)",
+        "LinearSVC_multi_class": "DistributionParam(weights=[0.5, 0.5])",
+        "LinearSVC_fit_intercept": "WeightParam(value=0.5)"
+    },
+    "name": "abalone"
+}, {
+    "features": {
+        "SVC": [1],
+        "End": [1],
+        "SVC_C": [9.991],
+        "SVC_degree": [5],
+        "SVC_gamma": [1],
+        "SVC_coef0": [-0.17727285729539963],
+        "SVC_shrinking": [true],
+        "SVC_probability": [false],
+        "SVC_cache_size": [1],
+        "SVC_decision_function_shape": [1],
+        "SVC_break_ties": [false]
+    },
+    "features_types": {
+        "SVC": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "SVC_C": "MeanDevParam(\n    mean=4.998, dev=9.985999999999999, initial_params=(4.998, 9.985999999999999)\n)",
+        "SVC_degree": "MeanDevParam(mean=3.0, dev=4, initial_params=(3.0, 4))",
+        "SVC_gamma": "DistributionParam(weights=[0.5, 0.5])",
+        "SVC_coef0": "MeanDevParam(mean=0.0, dev=1.984, initial_params=(0.0, 1.984))",
+        "SVC_shrinking": "WeightParam(value=0.5)",
+        "SVC_probability": "WeightParam(value=0.5)",
+        "SVC_cache_size": "MeanDevParam(mean=200.0, dev=398, initial_params=(200.0, 398))",
+        "SVC_decision_function_shape": "DistributionParam(weights=[0.5, 0.5])",
+        "SVC_break_ties": "WeightParam(value=0.5)"
+    },
+    "name": "cars"
+}, {
+    "features": {
+        "KerasImageClassifier": [1],
+        "End": [1],
+        "KerasImagePreprocessor_featurewise_center": [true],
+        "KerasImagePreprocessor_samplewise_center": [true],
+        "KerasImagePreprocessor_featurewise_std_normalization": [false],
+        "KerasImagePreprocessor_samplewise_std_normalization": [false],
+        "KerasImagePreprocessor_rotation_range": [5],
+        "KerasImagePreprocessor_width_shift_range": [0.25],
+        "KerasImagePreprocessor_height_shift_range": [0],
+        "KerasImagePreprocessor_shear_range": [15],
+        "KerasImagePreprocessor_zoom_range": [0.24750282615300545],
+        "KerasImagePreprocessor_horizontal_flip": [false],
+        "KerasImagePreprocessor_vertical_flip": [true],
+        "KerasImageClassifier_optimizer": [1],
+        "production_0": [1],
+        "production_2": [1],
+        "production_3": [1],
+        "production_6": [1],
+        "production_7": [1]
+    },
+    "features_types": {
+        "KerasImageClassifier": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "KerasImagePreprocessor_featurewise_center": "WeightParam(value=0.5)",
+        "KerasImagePreprocessor_samplewise_center": "WeightParam(value=0.5)",
+        "KerasImagePreprocessor_featurewise_std_normalization": "WeightParam(value=0.5)",
+        "KerasImagePreprocessor_samplewise_std_normalization": "WeightParam(value=0.5)",
+        "KerasImagePreprocessor_rotation_range": "MeanDevParam(mean=7.5, dev=15, initial_params=(7.5, 15))",
+        "KerasImagePreprocessor_width_shift_range": "MeanDevParam(mean=0.125, dev=0.25, initial_params=(0.125, 0.25))",
+        "KerasImagePreprocessor_height_shift_range": "MeanDevParam(mean=0.125, dev=0.25, initial_params=(0.125, 0.25))",
+        "KerasImagePreprocessor_shear_range": "MeanDevParam(mean=7.5, dev=15, initial_params=(7.5, 15))",
+        "KerasImagePreprocessor_zoom_range": "MeanDevParam(mean=0.125, dev=0.25, initial_params=(0.125, 0.25))",
+        "KerasImagePreprocessor_horizontal_flip": "WeightParam(value=0.5)",
+        "KerasImagePreprocessor_vertical_flip": "WeightParam(value=0.5)",
+        "KerasImageClassifier_optimizer": "DistributionParam(weights=[0.3333333333333333, 0.3333333333333333, 0.3333333333333333])",
+        "production_0": "UnormalizedWeightParam(value=1)",
+        "production_2": "UnormalizedWeightParam(value=1)",
+        "production_3": "UnormalizedWeightParam(value=1)",
+        "production_6": "UnormalizedWeightParam(value=1)",
+        "production_7": "UnormalizedWeightParam(value=1)"
+    },
+    "name": "cifar10"
+}, {
+    "features": {
+        "LocalOutlierFactor": [1],
+        "SGDClassifier": [1],
+        "End": [1],
+        "LocalOutlierFactor_n_neighbors": [39],
+        "LocalOutlierFactor_algorithm": [1],
+        "LocalOutlierFactor_leaf_size": [10],
+        "LocalOutlierFactor_p": [1],
+        "LocalOutlierFactor_contamination": [0],
+        "LocalOutlierFactor_novelty": [true],
+        "SGDClassifier_loss": [7],
+        "SGDClassifier_penalty": [2],
+        "SGDClassifier_l1_ratio": [0.1934675883377056],
+        "SGDClassifier_fit_intercept": [true],
+        "SGDClassifier_tol": [-0.004573965332969808],
+        "SGDClassifier_shuffle": [false],
+        "SGDClassifier_epsilon": [0.12988773914972074],
+        "SGDClassifier_learning_rate": [0],
+        "SGDClassifier_eta0": [0.992],
+        "SGDClassifier_power_t": [0.718318224771855],
+        "SGDClassifier_early_stopping": [false],
+        "SGDClassifier_validation_fraction": [0.006],
+        "SGDClassifier_n_iter_no_change": [9],
+        "SGDClassifier_average": [true]
+    },
+    "features_types": {
+        "SGDClassifier": "UnormalizedWeightParam(value=1.05)",
+        "LocalOutlierFactor": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1.4)",
+        "SGDClassifier_loss": "DistributionParam(\n    weights=[\n        0.10582010582010581,\n        0.10582010582010581,\n        0.10582010582010581,\n        0.10582010582010581,\n        0.1534391534391534,\n        0.10582010582010581,\n        0.10582010582010581,\n        0.10582010582010581,\n        0.10582010582010581,\n    ]\n)",
+        "SGDClassifier_penalty": "DistributionParam(weights=[0.3650793650793651, 0.3174603174603175, 0.3174603174603175])",
+        "SGDClassifier_l1_ratio": "MeanDevParam(mean=0.52495, dev=0.9480999999999999, initial_params=(0.5, 0.998))",
+        "SGDClassifier_fit_intercept": "WeightParam(value=0.525)",
+        "SGDClassifier_tol": "MeanDevParam(mean=-0.0018503365308361385, dev=0.0057, initial_params=(-0.002, 0.006))",
+        "SGDClassifier_shuffle": "WeightParam(value=0.475)",
+        "SGDClassifier_epsilon": "MeanDevParam(\n    mean=-0.049125,\n    dev=1.8857499999999998,\n    initial_params=(0.0005000000000000004, 1.9849999999999999),\n)",
+        "SGDClassifier_learning_rate": "DistributionParam(weights=[1.0])",
+        "SGDClassifier_eta0": "MeanDevParam(\n    mean=-0.0015513221693552362, dev=1.8847999999999998, initial_params=(0.0, 1.984)\n)",
+        "SGDClassifier_power_t": "MeanDevParam(\n    mean=0.2476499999999998, dev=9.4867, initial_params=(-0.002000000000000224, 9.986)\n)",
+        "SGDClassifier_early_stopping": "WeightParam(value=0.475)",
+        "SGDClassifier_validation_fraction": "MeanDevParam(mean=0.474825, dev=0.93765, initial_params=(0.4995, 0.987))",
+        "SGDClassifier_n_iter_no_change": "MeanDevParam(mean=4.8, dev=7.6, initial_params=(5.0, 8))",
+        "SGDClassifier_average": "WeightParam(value=0.475)",
+        "LocalOutlierFactor_n_neighbors": "MeanDevParam(mean=20.0, dev=38, initial_params=(20.0, 38))",
+        "LocalOutlierFactor_algorithm": "DistributionParam(weights=[0.25, 0.25, 0.25, 0.25])",
+        "LocalOutlierFactor_leaf_size": "MeanDevParam(mean=30.0, dev=58, initial_params=(30.0, 58))",
+        "LocalOutlierFactor_p": "MeanDevParam(mean=2.0, dev=2, initial_params=(2.0, 2))",
+        "LocalOutlierFactor_contamination": "DistributionParam(weights=[1.0])",
+        "LocalOutlierFactor_novelty": "WeightParam(value=0.5)"
+    },
+    "name": "dorothea"
+}, {
+    "features": {
+        "FeatureAgglomeration": [1],
+        "BernoulliNB": [1],
+        "End": [1],
+        "FeatureAgglomeration_n_clusters": [1],
+        "FeatureAgglomeration_affinity": [0],
+        "FeatureAgglomeration_compute_full_tree": [0],
+        "FeatureAgglomeration_linkage": [0],
+        "BernoulliNB_alpha": [0.0],
+        "BernoulliNB_binarize": [-0.992],
+        "BernoulliNB_fit_prior": [false]
+    },
+    "features_types": {
+        "FeatureAgglomeration": "UnormalizedWeightParam(value=1)",
+        "BernoulliNB": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "FeatureAgglomeration_n_clusters": "MeanDevParam(mean=2.0, dev=2, initial_params=(2.0, 2))",
+        "FeatureAgglomeration_affinity": "DistributionParam(weights=[1.0])",
+        "FeatureAgglomeration_compute_full_tree": "DistributionParam(weights=[1.0])",
+        "FeatureAgglomeration_linkage": "DistributionParam(weights=[0.25, 0.25, 0.25, 0.25])",
+        "BernoulliNB_alpha": "MeanDevParam(mean=4.9955, dev=9.991, initial_params=(4.9955, 9.991))",
+        "BernoulliNB_binarize": "MeanDevParam(mean=0.0, dev=1.984, initial_params=(0.0, 1.984))",
+        "BernoulliNB_fit_prior": "WeightParam(value=0.5)"
+    },
+    "name": "german_credit"
+}, {
+    "features": {
+        "SeqAlgorithm[FeatureSeqExtractor]": [1],
+        "CRFTagger": [1],
+        "End": [1],
+        "CRFTagger_algorithm": [2]
+    },
+    "features_types": {
+        "SeqAlgorithm[FeatureSeqExtractor]": "UnormalizedWeightParam(value=1)",
+        "CRFTagger": "UnormalizedWeightParam(value=1.05)",
+        "End": "UnormalizedWeightParam(value=1.05)",
+        "CRFTagger_algorithm": "DistributionParam(weights=[0.2, 0.2, 0.2, 0.2, 0.2])"
+    },
+    "name": "meddocan"
+}, {
+    "features": {
+        "KNeighborsClassifier": [1],
+        "End": [1],
+        "KNeighborsClassifier_n_neighbors": [1],
+        "KNeighborsClassifier_weights": [0],
+        "KNeighborsClassifier_algorithm": [0],
+        "KNeighborsClassifier_leaf_size": [1],
+        "KNeighborsClassifier_p": [1],
+        "KNeighborsClassifier_metric": [0]
+    },
+    "features_types": {
+        "KNeighborsClassifier": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "KNeighborsClassifier_n_neighbors": "MeanDevParam(mean=5.0, dev=8, initial_params=(5.0, 8))",
+        "KNeighborsClassifier_weights": "DistributionParam(weights=[0.5, 0.5])",
+        "KNeighborsClassifier_algorithm": "DistributionParam(weights=[0.25, 0.25, 0.25, 0.25])",
+        "KNeighborsClassifier_leaf_size": "MeanDevParam(mean=30.0, dev=58, initial_params=(30.0, 58))",
+        "KNeighborsClassifier_p": "MeanDevParam(mean=2.0, dev=2, initial_params=(2.0, 2))",
+        "KNeighborsClassifier_metric": "DistributionParam(weights=[1.0])"
+    },
+    "name": "shuttle"
+}, {
+    "features": {
+        "PCA": [1],
+        "KNeighborsRegressor": [1],
+        "End": [1],
+        "PCA_whiten": [true],
+        "PCA_svd_solver": [1],
+        "PCA_tol": [-0.992],
+        "PCA_iterated_power": [1],
+        "KNeighborsRegressor_n_neighbors": [1],
+        "KNeighborsRegressor_weights": [1],
+        "KNeighborsRegressor_algorithm": [0],
+        "KNeighborsRegressor_leaf_size": [39],
+        "KNeighborsRegressor_p": [2],
+        "KNeighborsRegressor_metric": [0]
+    },
+    "features_types": {
+        "PCA": "UnormalizedWeightParam(value=1)",
+        "KNeighborsRegressor": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "PCA_whiten": "WeightParam(value=0.5)",
+        "PCA_svd_solver": "DistributionParam(weights=[0.25, 0.25, 0.25, 0.25])",
+        "PCA_tol": "MeanDevParam(mean=0.0, dev=1.984, initial_params=(0.0, 1.984))",
+        "PCA_iterated_power": "DistributionParam(weights=[0.5, 0.5])",
+        "KNeighborsRegressor_n_neighbors": "MeanDevParam(mean=5.0, dev=8, initial_params=(5.0, 8))",
+        "KNeighborsRegressor_weights": "DistributionParam(weights=[0.5, 0.5])",
+        "KNeighborsRegressor_algorithm": "DistributionParam(weights=[0.25, 0.25, 0.25, 0.25])",
+        "KNeighborsRegressor_leaf_size": "MeanDevParam(mean=30.0, dev=58, initial_params=(30.0, 58))",
+        "KNeighborsRegressor_p": "MeanDevParam(mean=2.0, dev=2, initial_params=(2.0, 2))",
+        "KNeighborsRegressor_metric": "DistributionParam(weights=[1.0])"
+    },
+    "name": "wine_quality"
+}, {
+    "features": {
+        "SVC": [1],
+        "End": [1],
+        "SVC_C": [5.444146390328341],
+        "SVC_degree": [1],
+        "SVC_gamma": [1],
+        "SVC_coef0": [-0.992],
+        "SVC_shrinking": [false],
+        "SVC_probability": [true],
+        "SVC_cache_size": [399],
+        "SVC_decision_function_shape": [1],
+        "SVC_break_ties": [false]
+    },
+    "features_types": {
+        "SVC": "UnormalizedWeightParam(value=1)",
+        "End": "UnormalizedWeightParam(value=1)",
+        "SVC_C": "MeanDevParam(\n    mean=4.998, dev=9.985999999999999, initial_params=(4.998, 9.985999999999999)\n)",
+        "SVC_degree": "MeanDevParam(mean=3.0, dev=4, initial_params=(3.0, 4))",
+        "SVC_gamma": "DistributionParam(weights=[0.5, 0.5])",
+        "SVC_coef0": "MeanDevParam(mean=0.0, dev=1.984, initial_params=(0.0, 1.984))",
+        "SVC_shrinking": "WeightParam(value=0.5)",
+        "SVC_probability": "WeightParam(value=0.5)",
+        "SVC_cache_size": "MeanDevParam(mean=200.0, dev=398, initial_params=(200.0, 398))",
+        "SVC_decision_function_shape": "DistributionParam(weights=[0.5, 0.5])",
+        "SVC_break_ties": "WeightParam(value=0.5)"
+    },
+    "name": "yeast"
+}]

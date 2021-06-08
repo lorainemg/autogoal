@@ -76,11 +76,11 @@ class Dataset:
         Semantic infer never matches with Seq[Label] and this is necessary to allow the algorithms to work properly.
         """
         if issubclass(Seq[Seq[Word]], self.output_type):
-            self.output = Seq[Seq[Label]]
+            self.output_type = Seq[Seq[Label]]
         elif issubclass(Seq[Word], self.output_type):
-            self.output = Seq[Label]
+            self.output_type = Seq[Label]
         elif issubclass(VectorDiscrete, self.output_type):
-            self.output = VectorCategorical
+            self.output_type = VectorCategorical
 
 
 # Dataset extractor that extracts all .py files in a given folder

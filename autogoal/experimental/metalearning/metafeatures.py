@@ -17,34 +17,14 @@ class MetaFeatureExtractor:
     def extract_features(self, X, y=None):
         features = {}
 
-        if y is not None and len(y.shape) > 2:
-            y = reduce_shape(y)
+        X = convert_to_np_arrays(X)
+        if y is not None:
+            y = convert_to_np_arrays(y)
 
         for extractor in self.feature_extractors:
             features.update(**extractor(X, y))
 
         return features
-
-
-# Meta-features
-
-def feature_extractor(func):
-    @functools.wraps(func)
-    def wrapper(X, y=None):
-        try:
-            X = convert_to_np_arrays(X)
-            y = convert_to_np_arrays(y)
-
-            result = func(X, y)
-        except Exception as e:
-            print(e)
-            result = None
-            # raise
-
-        return {func.__name__: result}
-
-    _EXTRACTORS.append(wrapper)
-    return wrapper
 
 
 def convert_to_np_arrays(X):
@@ -59,6 +39,24 @@ def convert_to_np_arrays(X):
     if len(X.shape) > 2:
         X = reduce_shape(X)
     return X
+
+
+# Meta-features
+
+def feature_extractor(func):
+    @functools.wraps(func)
+    def wrapper(X, y=None):
+        try:
+            result = func(X, y)
+        except Exception as e:
+            print(e)
+            result = None
+            # raise
+
+        return {func.__name__: result}
+
+    _EXTRACTORS.append(wrapper)
+    return wrapper
 
 
 ### Feature extractor methods ###

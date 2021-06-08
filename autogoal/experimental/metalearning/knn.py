@@ -18,9 +18,8 @@ class KNNMetaLearner(MetaLearner):
         self.n_results = number_of_results
 
     def train(self, datasets: List[Dataset]):
-        features, labels = self.get_training_samples(datasets)
+        features, labels, targets = self.get_training_samples(datasets)
         self.samples_labels = labels
-        self.model.fit(features, labels)
 
     def predict(self, dataset: Dataset):
         features = self.preprocess_metafeature(dataset)
