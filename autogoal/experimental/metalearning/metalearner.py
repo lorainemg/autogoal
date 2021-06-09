@@ -19,9 +19,9 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
-        self._features_path = Path('autogoal/experimental/metalearning/metafeatures.json')
-        self._pipelines_path = Path('meta_labels.json')
-        self._scores_path = Path('meta_targets.json')
+        self._features_path = Path('autogoal/experimental/metalearning/resources/meta_features.json')
+        self._pipelines_path = Path('autogoal/experimental/metalearning/resources/meta_labels.json')
+        self._scores_path = Path('autogoal/experimental/metalearning/resources/meta_targets.json')
         self._pipelines_encoder = LabelEncoder()
 
     def train(self, datasets: List[Dataset]):
@@ -94,6 +94,34 @@ class MetaLearner:
         feature_types = ((k, repr(v)) for k, v in sampler._model.items() if k in features)
         return features, feature_types
 
+    def get_training_samples(self, datasets: List[Dataset]):
+        """
+        Returns all the features vectorized and the labels.
+        """
+        # Extracts meta_features, a processing of the dataset is done
+        if not self._features_path.exists():
+            meta_features = self.extract_metafeatures(datasets)
+            self.save_training_metafeatures(meta_features)
+        else:
+            meta_features = self.load_training_metafeatures()
+
+        # Extracts meta_labels (pipelines) and meta_targets (scores)
+        # For this, training is done across all datasets.
+        if not self._pipelines_path.exists():
+            meta_labels, meta_targets = self.extract_metatargets(datasets)
+            self.save_training_metalabels(meta_labels, meta_targets)
+        else:
+            meta_labels, meta_targets = self.load_training_metalabels()
+
+        # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
+        meta_features = self.preprocess_datasets(meta_features)
+        meta_labels = self.preprocess_pipelines(meta_labels)
+        return meta_features, meta_labels, meta_targets
+
+    def preprocess_datasets(self, meta_features):
+        self._vectorizer.fit(meta_features)
+        return self._vectorizer.transform(meta_features).todense()
+
     def preprocess_pipelines(self, meta_labels):
         pipelines = []
         max_len = 0
@@ -114,64 +142,21 @@ class MetaLearner:
         self._pipelines_encoder.fit(list(chain.from_iterable(padded_pipelines)))
         return [self._pipelines_encoder.transform(p) for p in padded_pipelines]
 
-    def preprocess_features(self, meta_features: List[dict], meta_targets: List[dict], training=False):
-        features = []
-        for meta_feat, meta_tar in zip(meta_features, meta_targets):
-            meta_feat.update(meta_tar)
-            features.append(meta_feat)
-        if training:
-            self._vectorizer.fit(features)
-        return self._vectorizer.transform(features)
-
-    # def get_training_samples(self, datasets: List[Dataset]):
-    #     """
-    #     Returns all the features vectorized and the labels.
-    #     """
-    #     metafeatures = self.extract_metafeatures(datasets)
-    #     json.dump(metafeatures, open(Path('metafeatures.json'), 'w'))
-    #     metalabels, metatargets = self.extract_metatargets(datasets)
-    #     return self.preprocess_features(metafeatures, metatargets, training=True), metalabels
-
-    def get_training_samples(self, datasets: List[Dataset]):
-        """
-        Returns all the features vectorized and the labels.
-        """
-        # Extracts meta_features, a processing of the dataset is done
-        if not self._features_path.exists():
-            meta_features = self.extract_metafeatures(datasets)
-            self.save_training_metafeatures(meta_features)
-        else:
-            meta_features = self.load_training_metafeatures()
-        # Extracts meta_labels (pipelines) and meta_targets (scores)
-        # For this, training is done across all datasets.
-        if not self._pipelines_path.exists():
-            meta_labels, meta_targets = self.extract_metatargets(datasets)
-            self.save_training_metalabels(meta_labels, meta_targets)
-            meta_labels = self.preprocess_pipelines(meta_labels)
-        else:
-            meta_labels, meta_targets = self.load_training_metalabels()
-            meta_labels = self.preprocess_pipelines(meta_labels)
-        return meta_features, meta_labels, meta_targets
-
-    def preprocess_metafeatures(self, metafeatures):
-        self._vectorizer.fit(metafeatures)
-        return self._vectorizer.transform(metafeatures)
-
     def preprocess_metafeature(self, dataset: Dataset):
-        metafeature = self._extract_metafeatures(dataset)
-        return self._vectorizer.transform([metafeature])[0]
+        meta_feature = self._extract_metafeatures(dataset)
+        return self._vectorizer.transform([meta_feature])[0]
 
-    def save_training_metafeatures(self, metafeatures):
-        json.dump(metafeatures, open(self._features_path, 'w'))
+    def save_training_metafeatures(self, meta_features):
+        json.dump(meta_features, open(self._features_path, 'w'))
 
     def load_training_metafeatures(self):
         return json.load(open(self._features_path, 'r'))
 
-    def save_training_metalabels(self, metalabels, metatargets):
-        json.dump(metalabels, open(self._pipelines_path, 'w'))
-        json.dump(metatargets, open(self._scores_path, 'w'))
+    def save_training_metalabels(self, meta_labels, meta_targets):
+        json.dump(meta_labels, open(self._pipelines_path, 'w'))
+        json.dump(meta_targets, open(self._scores_path, 'w'))
 
     def load_training_metalabels(self):
-        metalabels = json.load(open(self._pipelines_path, 'r'))
-        metatargets = json.load(open(self._scores_path, 'r'))
-        return metalabels, metatargets
+        meta_labels = json.load(open(self._pipelines_path, 'r'))
+        meta_targets = json.load(open(self._scores_path, 'r'))
+        return meta_labels, meta_targets
