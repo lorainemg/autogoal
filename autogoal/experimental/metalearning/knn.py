@@ -1,8 +1,9 @@
-from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.neighbors import KNeighborsClassifier
 from typing import List
 from pathlib import Path
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
+import xgboost as xgb
 
 
 class KNNMetaLearner(MetaLearner):
@@ -12,7 +13,18 @@ class KNNMetaLearner(MetaLearner):
         number_of_results: number of results to return in each prediction
         """
         super().__init__()
-        self.model = KNeighborsClassifier(k)
+        self.model = xgb.XGBRanker(
+            tree_method='gpu_hist',
+            booster='gbtree',
+            objective='rank:pairwise',
+            random_state=42,
+            learning_rate=0.1,
+            colsample_bytree=0.9,
+            eta=0.05,
+            max_depth=6,
+            n_estimators=110,
+            subsample=0.75
+        )
         self.samples = None
         self.samples_labels = None
         self.n_results = number_of_results

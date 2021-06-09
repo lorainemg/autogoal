@@ -59,6 +59,7 @@ pylint = { version = "^2.4.4", optional = true }
 pytest = { version = "^5.3.2", optional = true }
 pytest-cov = { version = "^2.8.1", optional = true }
 typer-cli = { version= "^0.0.11", optional = true }
+xgboost = "^1.4.2"
 
 [tool.poetry.extras]
 # Individual contrib packages
@@ -106,3 +107,9 @@ contrib = [
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "uci"
+url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple/"
+default = true
+
