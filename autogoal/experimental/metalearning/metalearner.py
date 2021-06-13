@@ -90,8 +90,8 @@ class MetaLearner:
     def extract_pipelines_features(self, solution):
         """Extracts the features of the pipelines in a comprehensive manner"""
         sampler = solution.sampler_
-        features = ((k, v) for k, v in sampler._updates.items() if isinstance(k, str))
-        feature_types = ((k, repr(v)) for k, v in sampler._model.items() if k in features)
+        features = {k: v for k, v in sampler._updates.items() if isinstance(k, str)}
+        feature_types = {k: repr(v) for k, v in sampler._model.items() if k in features}
         return features, feature_types
 
     def get_training_samples(self, datasets: List[Dataset]):

@@ -153,7 +153,7 @@ def dataset_dimensionality(X, y=None):
 @feature_extractor
 def standard_deviation(X, y=None):
     """This quantity estimates the dispersion of a random variable"""
-    return X.std()
+    return np.std(X)
 
 
 @feature_extractor
@@ -161,7 +161,7 @@ def coefficient_of_variation(X, y=None):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
-    return X.std() / X.mean()
+    return np.std(X) / np.mean(X)
 
 
 @feature_extractor
@@ -193,7 +193,7 @@ def skewness(X, y=None):
     Negative values indicate data is skewed left, while positive skewness values
     denote data that are skewed right.
     """
-    return stats.skew(X).mean()
+    return np.mean(stats.skew(X))
 
 
 @feature_extractor
@@ -201,7 +201,7 @@ def kurtosis(X, y=None):
     """
     It measures the peakness in the distribution of a random variable X.
     """
-    return stats.kurtosis(X).mean()
+    return np.mean(stats.kurtosis(X))
 
 
 # @feature_extractor
