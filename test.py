@@ -38,10 +38,20 @@ def test_automl(X, y):
         print(sentence, "-->", real, "vs", predicted)
 
 
+def test_datasets():
+    datasets = DatasetExtractor().datasets
+    for d in datasets[5:6]:
+        print(d.name)
+        d.load()
+        print(f'input_type: {d.input_type}')
+        print(f'output_type: {d.output_type}')
+
+
 if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
+    test_datasets()
     datasets = DatasetExtractor().datasets
     learner = KNNMetaLearner()
     learner.train(datasets)

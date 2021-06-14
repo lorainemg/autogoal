@@ -10,7 +10,9 @@ from autogoal.kb import (
     Word,
     Label,
     VectorCategorical,
-    VectorDiscrete
+    VectorDiscrete,
+    Document,
+    Sentence
 )
 
 # Class that represent a dataset.
@@ -49,12 +51,22 @@ class Dataset:
 
     def _infer_input_type(self, X):
         self.input_type = SemanticType.infer(X)
+        self._check_input()
         self._add_supervised_as_input()
         return self.input_type
 
     def _infer_output_type(self, y):
         self.output_type = SemanticType.infer(y)
         self._check_output()
+
+    def _check_input(self):
+        """
+        Check input to be valid according to the avalaible algorithms
+        """
+        # For now, there is no avalaible algorithm for sequence of documents
+        # therefore, this type will be changed
+        if issubclass(Seq[Document], self.input_type):
+            self.input_type = Seq[Sentence]
 
     def _add_supervised_as_input(self):
         """
@@ -101,7 +113,7 @@ class DatasetExtractor:
         datasets = []
         for fn in dataset_folder.glob('*.py'):
             name = fn.name[:-3]
-            if name in ('haha', 'movie_reviews', 'gisette'):
+            if name in ('movie_reviews', 'gisette'):
                 continue
             try:
                 mod = import_module(f'.{name}', '.'.join(fn.parts[:-1]))
