@@ -3,7 +3,7 @@ from autogoal.kb import MatrixContinuousDense, VectorCategorical, Supervised, Te
 
 from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
-from autogoal.experimental.metalearning import KNNMetaLearner, DatasetExtractor
+from autogoal.experimental.metalearning import XGBRankerMetaLearner, DatasetExtractor
 from autogoal.datasets import cars
 
 
@@ -40,7 +40,7 @@ def test_automl(X, y):
 
 def test_datasets():
     datasets = DatasetExtractor().datasets
-    for d in datasets[5:6]:
+    for d in datasets:
         print(d.name)
         d.load()
         print(f'input_type: {d.input_type}')
@@ -53,6 +53,6 @@ if __name__ == '__main__':
 
     test_datasets()
     datasets = DatasetExtractor().datasets
-    learner = KNNMetaLearner()
+    learner = XGBRankerMetaLearner()
     learner.train(datasets)
 

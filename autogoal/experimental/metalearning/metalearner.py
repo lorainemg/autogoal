@@ -118,6 +118,17 @@ class MetaLearner:
         meta_labels = self.preprocess_pipelines(meta_labels)
         return meta_features, meta_labels, meta_targets
 
+    def append_features_and_labels(self, meta_features, meta_labels):
+        """
+        Appends the matrix of meta_features and meta_labels to create a join matrix
+        where the labels columns (corresponding to the pipelined algorithms)
+        have to be filled for a new datasets.
+        """
+        features = meta_features.tolist()
+        for i in range(len(meta_features)):
+            features[i].extend(meta_labels[i])
+        return np.array(features)
+
     def preprocess_datasets(self, meta_features):
         self._vectorizer.fit(meta_features)
         return self._vectorizer.transform(meta_features).todense()
