@@ -53,7 +53,16 @@ def feature_extractor(func):
             result = None
             # raise
 
-        return {func.__name__: result}
+        f_name = func.__name__
+        try:
+            # There is more than one result
+            feat = {f_name: result[0]}
+            for i, res in enumerate(result[1:], 1):
+                feat[f'{f_name}_i'] = res
+        except:
+            feat = {f_name: result}
+
+        return feat
 
     _EXTRACTORS.append(wrapper)
     return wrapper
@@ -198,7 +207,8 @@ def skewness(X, y, **kwargs):
     Negative values indicate data is skewed left, while positive skewness values
     denote data that are skewed right.
     """
-    return np.mean(stats.skew(X))
+    skew = stats.skew(X)
+    return np.mean(skew), np.min(skew), np.max(skew), np.std(skew)
 
 
 @feature_extractor
@@ -206,7 +216,8 @@ def kurtosis(X, y, **kwargs):
     """
     It measures the peakness in the distribution of a random variable X.
     """
-    return np.mean(stats.kurtosis(X))
+    kurtosis = stats.kurtosis(X)
+    return np.mean(kurtosis), np.min(kurtosis), np.max(kurtosis), np.std(kurtosis)
 
 
 # @feature_extractor
@@ -250,7 +261,8 @@ def normalized_attr_entropy(X, y, **kwargs):
     content related to the values that X may assume.
     """
     attributes = [X[:, j] for j in range(X.shape[1])]
-    return np.array([_attr_i_entropy(xi) for xi in attributes]).mean()
+    attr_entropy = np.array([_attr_i_entropy(xi) for xi in attributes])
+    return attr_entropy.mean(), np.min(attr_entropy), np.max(attr_entropy), np.std(attr_entropy)
 
 
 def _attr_i_joint_entropy(x_i, y):
@@ -275,7 +287,8 @@ def joint_entropy(X, y, **kwargs):
     the m discretized inputs attributes, respectively.
     """
     attributes_labels = [(X[:, j], y) for j in range(X.shape[1])]
-    return np.array([_attr_i_joint_entropy(attr_i, y) for attr_i, y in attributes_labels]).mean()
+    joint_entropy = np.array([_attr_i_joint_entropy(attr_i, y) for attr_i, y in attributes_labels])
+    return joint_entropy.mean(), np.min(joint_entropy), np.max(joint_entropy), np.std(joint_entropy)
 
 
 @feature_extractor
@@ -309,5 +322,5 @@ def noise_signal_ratio(X, y, features, **kwargs):
         non_useful_information = features['normalized_attr_entropy'] - useful_information
     except KeyError:
         useful_information = mutual_information.__wrapped__(X, y)
-        non_useful_information = normalized_attr_entropy.__wrapped__(X, y) - useful_information
+        non_useful_information = normalized_attr_entropy.__wrapped__(X, y)[0] - useful_information
     return non_useful_information / useful_information
