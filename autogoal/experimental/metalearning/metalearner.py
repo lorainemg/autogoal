@@ -124,14 +124,28 @@ class MetaLearner:
         where the labels columns (corresponding to the pipelined algorithms)
         have to be filled for a new datasets.
         """
-        features = meta_features.tolist()
-        for i in range(len(meta_features)):
+        try:
+            features = meta_features.tolist()
+        except AttributeError:
+            features = list(meta_features)
+        for i in range(len(features)):
             features[i].extend(meta_labels[i])
         return np.array(features)
 
+    def create_duplicate_data_features(self, data_features, n):
+        """
+        Repeats n times the data_features to obtain various instances of the same list.
+
+        Every instance of this features will be joined with a different pipeline.
+        """
+        data_features.tolist()
+        return [list(data_features) for _ in range(n)]
+
     def preprocess_datasets(self, meta_features):
         self._vectorizer.fit(meta_features)
-        return self._vectorizer.transform(meta_features).todense()
+        vect = np.array(self._vectorizer.transform(meta_features).todense())
+        vect[np.isnan(vect)] = 0
+        return vect
 
     def preprocess_pipelines(self, meta_labels):
         pipelines = []
@@ -155,7 +169,12 @@ class MetaLearner:
 
     def preprocess_metafeature(self, dataset: Dataset):
         meta_feature = self._extract_metafeatures(dataset)
-        return self._vectorizer.transform([meta_feature])[0]
+        vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
+        vect[np.isnan(vect)] = 0
+        return vect
+
+    def decode_pipelines(self, pipelines: List[List[int]]) -> List[List[str]]:
+        return [self._pipelines_encoder.inverse_transform(p) for p in pipelines]
 
     def save_training_metafeatures(self, meta_features):
         json.dump(meta_features, open(self._features_path, 'w'))

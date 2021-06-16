@@ -1,6 +1,5 @@
 # from sklearn.neighbors import KNeighborsClassifier
 from typing import List
-from pathlib import Path
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 import xgboost as xgb
@@ -28,13 +27,13 @@ class XGBRankerMetaLearner(MetaLearner):
             predictor='cpu_predictor',
         )
         self.samples = None
-        self.samples_labels = None
         self.n_results = number_of_results
 
     def train(self, datasets: List[Dataset]):
         features, labels, targets = self.get_training_samples(datasets)
-        grp_info = self.make_grp_info(features)
+        self.samples = list(zip(features, labels))
         features = self.append_features_and_labels(features, labels)
+        grp_info = self.make_grp_info(features)
         self.model.fit(features, targets, group=grp_info)
 
     def make_grp_info(self, features):
@@ -42,7 +41,32 @@ class XGBRankerMetaLearner(MetaLearner):
         return counts
 
     def predict(self, dataset: Dataset):
-        features = self.preprocess_metafeature(dataset)
-        samples, distance = self.model.kneighbors(features, self.n_results)
-        # check the samples are sorted by distance
-        return [self.samples_labels[i] for i in samples]
+        data_features = self.preprocess_metafeature(dataset)
+        pipelines = self.get_similar_datasets(data_features, self.cosine_measure)
+        data_features = self.create_duplicate_data_features(data_features, len(pipelines))
+        features = self.append_features_and_labels(data_features, pipelines)
+        y_hat = self.model.predict(features)
+        sort_for_rank = sorted(zip(y_hat, pipelines), key=lambda x: x[0])
+        pipelines = [p for r, p in sort_for_rank]
+        return self.decode_pipelines(pipelines)
+
+    @staticmethod
+    def cosine_measure(vect_i, vect_j):
+        dot_prod = np.dot(vect_i, vect_j)
+        vect_i_l2norm = np.sqrt(np.sum(np.power(vect_i, 2)))
+        vect_j_l2norm = np.sqrt(np.sum(np.power(vect_j, 2)))
+        return dot_prod / (vect_i_l2norm * vect_j_l2norm)
+
+    @staticmethod
+    def _convert_nan_to_zero(vect):
+        vect[np.isnan(vect)] = 0
+
+    def get_similar_datasets(self, features, similarity_measure) -> List:
+        """Get the pipelines of the datasets with similar features of actual dataset"""
+        pipelines = []
+        for feat, pipes in self.samples:
+            similarity = similarity_measure(feat, features)
+            pipelines.append((similarity, pipes))
+        sorted_by_sim = sorted(pipelines, key=lambda x: x[0], reverse=True)
+        best_pipelines = [p for s, p in sorted_by_sim[:10]]
+        return best_pipelines

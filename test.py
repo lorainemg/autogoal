@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    test_datasets()
+    # test_datasets()
     datasets = DatasetExtractor().datasets
     learner = XGBRankerMetaLearner()
     learner.train(datasets)
-
+    learner.test(datasets[:1])
