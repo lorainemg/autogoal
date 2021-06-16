@@ -14,7 +14,7 @@ class MetaFeatureExtractor:
     def __init__(self, features_extractors=None):
         self.feature_extractors = list(features_extractors or _EXTRACTORS)
 
-    def extract_features(self, X, y=None):
+    def extract_features(self, X, y, dataset):
         features = {}
 
         X = convert_to_np_arrays(X)
@@ -22,7 +22,7 @@ class MetaFeatureExtractor:
             y = convert_to_np_arrays(y)
 
         for extractor in self.feature_extractors:
-            features.update(**extractor(X, y))
+            features.update(**extractor(X, y, dataset=dataset, features=features))
 
         return features
 
@@ -45,9 +45,9 @@ def convert_to_np_arrays(X):
 
 def feature_extractor(func):
     @functools.wraps(func)
-    def wrapper(X, y=None):
+    def wrapper(X, y, **kwargs):
         try:
-            result = func(X, y)
+            result = func(X, y, **kwargs)
         except Exception as e:
             print(e)
             result = None
@@ -65,34 +65,34 @@ def feature_extractor(func):
 # Features specific to the autogoal characteristics
 
 @feature_extractor
-def is_supervised(X, y=None):
+def is_supervised(X, y, **kwargs):
     """Determines if a given dataset is supervised"""
     return y is not None
 
 
 @feature_extractor
-def has_numeric_features(X, y=None):
+def has_numeric_features(X, y, **kwargs):
     return any([xi for xi in X[0] if isinstance(xi, (float, int))])
 
 
-# @feature_extractor
-# def average_number_of_words(X, y=None):
-#     return sum(len(sentence.split(" ")) for sentence in X) / len(X)
+@feature_extractor
+def average_number_of_words(X, y, **kwargs):
+    return sum(len(sentence.split(" ")) for sentence in X) / len(X)
 
 
 @feature_extractor
-def has_text_features(X, y=None):
+def has_text_features(X, y, **kwargs):
     return isinstance(X[0], str)
 
 
 @feature_extractor
-def semantic_input_types(X, y=None):
-    return str(SemanticType.infer(X))
+def semantic_input_types(X, y, dataset, **kwargs):
+    return str(dataset.input_type)
 
 
 @feature_extractor
-def semantic_output_types(X, y=None):
-    return str(SemanticType.infer(y))
+def semantic_output_types(X, y, dataset, **kwargs):
+    return str(dataset.output_type)
 
 
 # General features
@@ -102,7 +102,7 @@ def semantic_output_types(X, y=None):
 
 
 @feature_extractor
-def number_of_samples(X, y=None):
+def number_of_samples(X, y, **kwargs):
     """It represents the total number of samples in the dataset"""
     try:
         return X.shape[0]
@@ -111,7 +111,7 @@ def number_of_samples(X, y=None):
 
 
 @feature_extractor
-def input_dimensionality(X, y=None):
+def input_dimensionality(X, y, **kwargs):
     """
     It represents the total number of attributes of the dataset
     (i.e. the dimensionality of the input vector.)
@@ -123,7 +123,7 @@ def input_dimensionality(X, y=None):
 
 
 @feature_extractor
-def output_dimensionality(X, y=None):
+def output_dimensionality(X, y, **kwargs):
     """
     It represents the total number of output values in the dataset
     (i.e. the dimensionality of the output vector.)
@@ -135,12 +135,17 @@ def output_dimensionality(X, y=None):
 
 
 @feature_extractor
-def dataset_dimensionality(X, y=None):
+def dataset_dimensionality(X, y, features, **kwargs):
     """
     It represents the ratio between the number of attributes
     and the number of observations constituting the dataset
     """
-    return input_dimensionality.__wrapped__(X, y) / number_of_samples.__wrapped__(X, y)
+    try:
+        input_dim = features['input_dimensionality']
+        num_samp = features['number_of_samples']
+        return input_dim / num_samp
+    except KeyError:
+        return input_dimensionality.__wrapped__(X, y) / number_of_samples.__wrapped__(X, y)
 
 
 # Statistical metafeatures
@@ -151,13 +156,13 @@ def dataset_dimensionality(X, y=None):
 
 
 @feature_extractor
-def standard_deviation(X, y=None):
+def standard_deviation(X, y, **kwargs):
     """This quantity estimates the dispersion of a random variable"""
     return np.std(X)
 
 
 @feature_extractor
-def coefficient_of_variation(X, y=None):
+def coefficient_of_variation(X, y, **kwargs):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
@@ -165,7 +170,7 @@ def coefficient_of_variation(X, y=None):
 
 
 @feature_extractor
-def covariance_avg(X, y=None):
+def covariance_avg(X, y, **kwargs):
     """
     As a measure of the covariance of an entire dataset, the average of the covariance
     over all distinct pairs of numerical attributes could be considered.
@@ -174,7 +179,7 @@ def covariance_avg(X, y=None):
 
 
 @feature_extractor
-def linear_corr_coef(X, y=None):
+def linear_corr_coef(X, y, **kwargs):
     """
     Correlation analysis attempts to measure the strength of a relationship between two
     random variables. It shows the linear association strengths between the random variables
@@ -187,7 +192,7 @@ def linear_corr_coef(X, y=None):
 
 
 @feature_extractor
-def skewness(X, y=None):
+def skewness(X, y, **kwargs):
     """
     It measures the lack of symmetry in the distribution of a random variable X.
     Negative values indicate data is skewed left, while positive skewness values
@@ -197,7 +202,7 @@ def skewness(X, y=None):
 
 
 @feature_extractor
-def kurtosis(X, y=None):
+def kurtosis(X, y, **kwargs):
     """
     It measures the peakness in the distribution of a random variable X.
     """
@@ -224,7 +229,7 @@ def kurtosis(X, y=None):
 
 
 @feature_extractor
-def normalized_class_entropy(X, y=None):
+def normalized_class_entropy(X, y, **kwargs):
     """
     The entropy value H(C) of a class variable C indicates
     how much information is necessary to specify one class.
@@ -239,7 +244,7 @@ def _attr_i_entropy(x_i):
 
 
 @feature_extractor
-def normalized_attr_entropy(X, y=None):
+def normalized_attr_entropy(X, y, **kwargs):
     """
     The attribute entropy value H(X) of a random variable measures the information
     content related to the values that X may assume.
@@ -263,7 +268,7 @@ def _attr_i_joint_entropy(x_i, y):
 
 
 @feature_extractor
-def joint_entropy(X, y=None):
+def joint_entropy(X, y, **kwargs):
     """
     It measures the total entropy of the combined system of variables, i.e. the pair
     of variables (C, X), which could be represented by a class variable and one of
@@ -274,10 +279,13 @@ def joint_entropy(X, y=None):
 
 
 @feature_extractor
-def mutual_information(X, y=None):
-    """It measures the common infomation shared between two random variables."""
+def mutual_information(X, y, features, **kwargs):
+    """It measures the common information shared between two random variables."""
     result = []
-    class_entropy = normalized_class_entropy.__wrapped__(X, y)
+    try:
+        class_entropy = features['normalized_class_entropy']
+    except KeyError:
+        class_entropy = normalized_class_entropy.__wrapped__(X, y)
     for j in range(X.shape[1]):
         attr_entropy = _attr_i_entropy(X[:, j])
         joint_entropy = _attr_i_joint_entropy(X[:, j], y)
@@ -286,13 +294,20 @@ def mutual_information(X, y=None):
 
 
 @feature_extractor
-def equivalent_number_of_attr(X, y=None):
-    return normalized_class_entropy.__wrapped__(X, y) / mutual_information.__wrapped__(X, y)
+def equivalent_number_of_attr(X, y, features, **kwargs):
+    try:
+        return features['normalized_class_entropy'] / features['mutual_information']
+    except KeyError:
+        return normalized_class_entropy.__wrapped__(X, y) / mutual_information.__wrapped__(X, y)
 
 
 @feature_extractor
-def noise_signal_ratio(X, y=None):
+def noise_signal_ratio(X, y, features, **kwargs):
     """It measures the amount of irrelevant information contained in a dataset"""
-    useful_information = mutual_information.__wrapped__(X, y)
-    non_useful_information = normalized_attr_entropy.__wrapped__(X, y) - mutual_information.__wrapped__(X, y)
+    try:
+        useful_information = features['mutual_information']
+        non_useful_information = features['normalized_attr_entropy'] - useful_information
+    except KeyError:
+        useful_information = mutual_information.__wrapped__(X, y)
+        non_useful_information = normalized_attr_entropy.__wrapped__(X, y) - useful_information
     return non_useful_information / useful_information

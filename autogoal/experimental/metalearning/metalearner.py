@@ -39,7 +39,7 @@ class MetaLearner:
 
     def _extract_metafeatures(self, dataset: Dataset):
         X, y, _, _ = dataset.load()
-        return self.meta_feature_extractor.extract_features(X, y)
+        return self.meta_feature_extractor.extract_features(X, y, dataset)
 
     def extract_metatargets(self, datasets: List[Dataset], algorithms=None):
         """
