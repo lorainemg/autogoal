@@ -1,7 +1,13 @@
 from pathlib import Path
 from importlib import import_module
 from typing import List
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from scipy.io import arff
+from itertools import chain
+import pandas as pd
+import numpy as np
+
 
 from autogoal.kb import (
     SemanticType,
@@ -19,11 +25,11 @@ from autogoal.kb import (
 
 
 class Dataset:
-    def __init__(self, name: str, load):
+    def __init__(self, name: str, load, path=None):
         self.name = name
-        self._load = load
         self.input_type = None
         self.output_type = None
+        self._load = load if path is None else load(path)
 
     def load(self, *args, **kwargs):
         """Loads the dataset, returning the train and test collection"""
@@ -103,21 +109,72 @@ class DatasetExtractor:
     def __init__(self, dataset_folder=None):
         """
         Extracts the datasets from a given folder
-        Expected format: python scripts with a `load()` function
         """
         if dataset_folder is None:
             dataset_folder = Path('autogoal/datasets')
         self.datasets: List[Dataset] = self.get_datasets(dataset_folder)
 
-    def get_datasets(self, dataset_folder: Path) -> List[Dataset]:
+    @staticmethod
+    def extract_py_dataset(path_obj) -> Dataset:
+        """
+        Expected format: python scripts with a `load()` function
+        """
+        name = path_obj.name[:-3]
+        if name in ('movie_reviews', 'gisette'):
+            return None
+        try:
+            mod = import_module(f'.{name}', '.'.join(path_obj.parts[:-1]))
+            return Dataset(name, mod.load)
+        except:
+            return None
+
+    @staticmethod
+    def extract_arff_dataset(path_obj) -> Dataset:
+        name = path_obj.name[:-5]
+        return Dataset(name, load(path_obj))
+
+    def get_datasets(self, dataset_folder: Path):
         datasets = []
-        for fn in dataset_folder.glob('*.py'):
-            name = fn.name[:-3]
-            if name in ('movie_reviews', 'gisette'):
-                continue
-            try:
-                mod = import_module(f'.{name}', '.'.join(fn.parts[:-1]))
-                datasets.append(Dataset(name, mod.load))
-            except:
-                pass
+        for fn in dataset_folder.glob('**/*'):
+            if fn.is_file():
+                d = None
+                if fn.suffix == '.py':
+                    d = self.extract_py_dataset(fn)
+                elif fn.suffix == '.arff':
+                    d = self.extract_arff_dataset(fn)
+                if d is not None:
+                    datasets.append(d)
+            elif fn.is_file():
+                datasets += self.get_datasets(fn)
         return datasets
+
+
+def load(path):
+    """Loader method of arff files"""
+    def wrapper(*args, **kwargs):
+        data, metadata = arff.loadarff(path)
+        df = pd.DataFrame(data)
+
+        # Get the target name
+        for attr_name in metadata.names():
+            if attr_name.lower() in ('class', 'target', 'y', 'binaryClass'):
+                target = attr_name
+                break
+        else:
+            target = metadata.names()[-1]
+
+        # Put the type of y correctly
+        dtype = 'U' if metadata[target][0] == 'nominal' else 'f'
+        y = np.array(df[target], dtype=dtype)
+
+        X = df.loc[:, df.columns != target]
+        # Transform nominal values into integer ones
+        for column in list(X):
+            if metadata[column][0] == 'nominal':
+                X.loc[:, column] = LabelEncoder().fit_transform(X[column])
+        X = np.array(X, dtype='f')
+
+        return X, y
+    return wrapper
+
+

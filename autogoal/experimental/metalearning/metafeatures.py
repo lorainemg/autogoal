@@ -54,12 +54,12 @@ def feature_extractor(func):
             # raise
 
         f_name = func.__name__
-        try:
+        if isinstance(result, tuple):
             # There is more than one result
             feat = {f_name: result[0]}
             for i, res in enumerate(result[1:], 1):
-                feat[f'{f_name}_i'] = res
-        except:
+                feat[f'{f_name}_{i}'] = res
+        else:
             feat = {f_name: result}
 
         return feat
@@ -167,7 +167,7 @@ def dataset_dimensionality(X, y, features, **kwargs):
 @feature_extractor
 def standard_deviation(X, y, **kwargs):
     """This quantity estimates the dispersion of a random variable"""
-    return np.std(X)
+    return np.std(X, dtype='float64')
 
 
 @feature_extractor
@@ -175,7 +175,7 @@ def coefficient_of_variation(X, y, **kwargs):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
-    return np.std(X) / np.mean(X)
+    return np.std(X, dtype='float64') / np.mean(X, dtype='float64')
 
 
 @feature_extractor
@@ -208,6 +208,7 @@ def skewness(X, y, **kwargs):
     denote data that are skewed right.
     """
     skew = stats.skew(X)
+    skew = skew.astype('float64')
     return np.mean(skew), np.min(skew), np.max(skew), np.std(skew)
 
 
@@ -217,6 +218,7 @@ def kurtosis(X, y, **kwargs):
     It measures the peakness in the distribution of a random variable X.
     """
     kurtosis = stats.kurtosis(X)
+    kurtosis = kurtosis.astype('float64')
     return np.mean(kurtosis), np.min(kurtosis), np.max(kurtosis), np.std(kurtosis)
 
 

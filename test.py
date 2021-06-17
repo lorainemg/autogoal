@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
 from autogoal.experimental.metalearning import XGBRankerMetaLearner, DatasetExtractor
 from autogoal.datasets import cars
+from pathlib import Path
 
 
 def test_automl(X, y):
@@ -38,8 +39,7 @@ def test_automl(X, y):
         print(sentence, "-->", real, "vs", predicted)
 
 
-def test_datasets():
-    datasets = DatasetExtractor().datasets
+def test_datasets(datasets):
     for d in datasets:
         print(d.name)
         d.load()
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    # test_datasets()
-    datasets = DatasetExtractor().datasets
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/Supervised Classification')).datasets
+    # test_datasets(datasets)
     learner = XGBRankerMetaLearner()
     learner.train(datasets)
     learner.test(datasets[:1])
