@@ -1,6 +1,6 @@
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset
-from autogoal.experimental.metalearning.utils import pad_arrays
+from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
@@ -71,24 +71,40 @@ class MetaLearner:
             output=dataset.output_type,
             registry=algorithms,
             evaluation_timeout=5 * Min,
-            search_timeout=20 * Min,
-            search_iterations=1000
+            search_timeout=1 * Hour,
+            algorithms_list=True
         )
         try:
-            automl.fit(X_train, y_train, logger=RichLogger())
-            # creo que lo ideal no sería coger el mejor pipeline, si no los k mejores.
-            score = automl.score(X_test, y_test)
+            fix_indef_values(X_train)
+            pipelines, score = automl.fit(X_train, y_train, logger=RichLogger())
+
+            fix_indef_values(X_test)
+            # score = automl.score(X_test, y_test)
             # missing more metatargets, maybe training time
 
-            features, features_types = self.extract_pipelines_features(automl.best_pipeline_)
+            features, features_types = self.extract_pipelines_features(pipelines)
             dict_ = {'features': features, 'features_types': features_types, 'name': dataset.name}
             return dict_, score
-        except TypeError as e:
+        except Exception as e:
             print(f'Error {dataset.name}: {e}')
+            with open('errors.txt', 'w+') as f:
+                f.write(dataset.name)
             return None, None
 
     def extract_pipelines_features(self, solution):
         """Extracts the features of the pipelines in a comprehensive manner"""
+        features = []
+        feature_types = []
+        # A list of the best solutions is expected
+        if not isinstance(solution, list):
+            solution = [solution]
+        for sol in solution:
+            feat, feat_types = self._extract_solution_pipeline(sol)
+            features.append(feat)
+            feature_types.append(feat_types)
+        return features, feature_types
+
+    def _extract_solution_pipeline(self, solution):
         sampler = solution.sampler_
         features = {k: v for k, v in sampler._updates.items() if isinstance(k, str)}
         feature_types = {k: repr(v) for k, v in sampler._model.items() if k in features}
@@ -144,7 +160,7 @@ class MetaLearner:
     def preprocess_datasets(self, meta_features):
         self._vectorizer.fit(meta_features)
         vect = np.array(self._vectorizer.transform(meta_features).todense())
-        vect[np.isnan(vect)] = 0
+        fix_indef_values(vect)
         return vect
 
     def preprocess_pipelines(self, meta_labels):
@@ -153,14 +169,15 @@ class MetaLearner:
         for meta_label in meta_labels:
             features = meta_label['features']
             pipeline = []
-            for algorithm, param in features.items():
-                if algorithm == 'End':
-                    break
-                # First position in param is the amount of times the algorithm is applied (I think)
-                for i in range(param[0]):
-                    pipeline.append(algorithm)
-            max_len = max(max_len, len(pipeline))
-            pipelines.append(pipeline)
+            for feat in features:
+                for algorithm, param in feat.items():
+                    if algorithm == 'End':
+                        break
+                    # First position in param is the amount of times the algorithm is applied (I think)
+                    for i in range(param[0]):
+                        pipeline.append(algorithm)
+                max_len = max(max_len, len(pipeline))
+                pipelines.append(pipeline)
         # padds the pipelines so every pipeline has the same length
         padded_pipelines = np.array([pad_arrays(pipeline, max_len) for pipeline in pipelines])
         # Encodes the pipelines names
@@ -170,7 +187,7 @@ class MetaLearner:
     def preprocess_metafeature(self, dataset: Dataset):
         meta_feature = self._extract_metafeatures(dataset)
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
-        vect[np.isnan(vect)] = 0
+        fix_indef_values(vect)
         return vect
 
     def decode_pipelines(self, pipelines: List[List[int]]) -> List[List[str]]:
@@ -190,3 +207,5 @@ class MetaLearner:
         meta_labels = json.load(open(self._pipelines_path, 'r'))
         meta_targets = json.load(open(self._scores_path, 'r'))
         return meta_labels, meta_targets
+
+

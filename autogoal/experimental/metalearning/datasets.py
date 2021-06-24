@@ -164,7 +164,7 @@ def load(path):
             target = metadata.names()[-1]
 
         # Put the type of y correctly
-        dtype = 'U' if metadata[target][0] == 'nominal' else 'f'
+        dtype = 'U' if metadata[target][0] == 'nominal' else 'float64'
         y = np.array(df[target], dtype=dtype)
 
         X = df.loc[:, df.columns != target]
@@ -172,7 +172,7 @@ def load(path):
         for column in list(X):
             if metadata[column][0] == 'nominal':
                 X.loc[:, column] = LabelEncoder().fit_transform(X[column])
-        X = np.array(X, dtype='f')
+        X = np.array(X, dtype='float64')
 
         return X, y
     return wrapper

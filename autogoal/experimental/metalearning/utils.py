@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from functools import reduce
 from operator import mul
 
@@ -23,3 +24,8 @@ def pad_arrays(array, max_len):
     """Padds a array to have length=max_len"""
     length = max_len - len(array)
     return np.pad(array, (0, length), mode='empty')
+
+def fix_indef_values(vect):
+    """Substitutes nan and inf values"""
+    vect[np.isnan(vect)] = 0
+    vect[np.isinf(vect)] = sys.float_info.max
