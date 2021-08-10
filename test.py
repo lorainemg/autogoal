@@ -1,5 +1,6 @@
 from autogoal.ml import AutoML
 from autogoal.kb import MatrixContinuousDense, VectorCategorical, Supervised, Tensor, Continuous, Dense, Categorical
+from autogoal.ml._metalearning import DatasetFeatureLogger
 
 from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
@@ -17,15 +18,14 @@ def test_automl(X, y):
     #         output=VectorCategorical
     # )
 
-    automl = AutoML()
 
-    # automl = AutoML(
-    #         input=(Tensor[2, Continuous, Dense],
-    #                Supervised[Tensor[1, Categorical, Dense]]),
-    #         output=Tensor[1, Categorical, Dense]
-    # )
+    automl = AutoML(
+            input=(Tensor[2, Continuous, Dense],
+                   Supervised[Tensor[1, Categorical, Dense]]),
+            output=Tensor[1, Categorical, Dense]
+    )
 
-    automl.fit(X_train, y_train, logger=RichLogger())
+    automl.fit(X_train, y_train, logger=DatasetFeatureLogger(X_train, y_train))
 
     print(automl.best_pipeline_)
     print(automl.best_score_)
@@ -42,7 +42,7 @@ def test_automl(X, y):
 def test_datasets(datasets):
     for d in datasets:
         print(d.name)
-        d.load()
+        X_train, y_train, X_test, y_test = d.load()
         print(f'input_type: {d.input_type}')
         print(f'output_type: {d.output_type}')
 
@@ -51,8 +51,9 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/Supervised Classification')).datasets
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)
+    # print(len(datasets))
     learner = XGBRankerMetaLearner()
     learner.train(datasets)
-    learner.test(datasets[:1])
+    # learner.test(datasets[:1])

@@ -5,8 +5,8 @@ from operator import mul
 
 from autogoal.experimental.metalearning.datasets import DatasetExtractor, Dataset
 from sklearn.model_selection import train_test_split
-from pathlib import Path
 from typing import Tuple, List
+from pathlib import Path
 
 
 def get_train_test_datasets(dataset_folder: Path = None) -> Tuple[List[Dataset], List[Dataset]]:

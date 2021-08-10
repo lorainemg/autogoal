@@ -4,9 +4,10 @@ from typing import List
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from scipy.io import arff
-from itertools import chain
+from enum import Enum
 import pandas as pd
 import numpy as np
+import re
 
 
 from autogoal.kb import (
@@ -18,18 +19,22 @@ from autogoal.kb import (
     VectorCategorical,
     VectorDiscrete,
     Document,
-    Sentence
+    Sentence,
+    Tensor,
+    Categorical,
+    Dense
 )
 
+DatasetType = Enum('DatasetType', 'CLASSIFICATION REGRESSION CLUSTERING')
+
 # Class that represent a dataset.
-
-
 class Dataset:
-    def __init__(self, name: str, load, path=None):
+    def __init__(self, name: str, load, type: DatasetType=None):
         self.name = name
         self.input_type = None
         self.output_type = None
-        self._load = load if path is None else load(path)
+        self.type = DatasetType.CLASSIFICATION if type else type
+        self._load = load
 
     def load(self, *args, **kwargs):
         """Loads the dataset, returning the train and test collection"""
@@ -51,8 +56,12 @@ class Dataset:
 
     def infer_types(self, X, y):
         """Infers the semantic type of the input and the output"""
+        if isinstance(y, pd.DataFrame):
+            y = y.to_numpy()
         self._infer_output_type(y)
         # input type depends on output type, then its processed second
+        if isinstance(X, pd.DataFrame):
+            X = X.to_numpy()
         self._infer_input_type(X)
 
     def _infer_input_type(self, X):
@@ -64,6 +73,9 @@ class Dataset:
     def _infer_output_type(self, y):
         self.output_type = SemanticType.infer(y)
         self._check_output()
+
+    def _check_object(self, array):
+        pass
 
     def _check_input(self):
         """
@@ -115,26 +127,34 @@ class DatasetExtractor:
         self.datasets: List[Dataset] = self.get_datasets(dataset_folder)
 
     @staticmethod
-    def extract_py_dataset(path_obj) -> Dataset:
+    def extract_py_dataset(path_obj: Path) -> Dataset:
         """
         Expected format: python scripts with a `load()` function
         """
+        type_ = DatasetExtractor._find_dataset_type(path_obj)
         name = path_obj.name[:-3]
         if name in ('movie_reviews', 'gisette'):
             return None
         try:
             mod = import_module(f'.{name}', '.'.join(path_obj.parts[:-1]))
-            return Dataset(name, mod.load)
+            return Dataset(name, mod.load, type=type_)
         except:
             return None
 
     @staticmethod
-    def extract_arff_dataset(path_obj) -> Dataset:
+    def extract_arff_dataset(path_obj: Path) -> Dataset:
+        type_ = DatasetExtractor._find_dataset_type(path_obj)
         name = path_obj.name[:-5]
-        return Dataset(name, load(path_obj))
+        return Dataset(name, arrf_loader(path_obj), type=type_)
 
-    def get_datasets(self, dataset_folder: Path):
+    @staticmethod
+    def extract_df_dataset(path_obj: Path) -> Dataset:
+        type_ = DatasetExtractor._find_dataset_type(path_obj)
+        return Dataset(path_obj.name, dataframe_loader(path_obj), type=type_)
+
+    def get_datasets(self, dataset_folder: Path, recursive: bool = False):
         datasets = []
+        dataframe_folder = re.compile('\d+')
         for fn in dataset_folder.glob('**/*'):
             if fn.is_file():
                 d = None
@@ -142,14 +162,28 @@ class DatasetExtractor:
                     d = self.extract_py_dataset(fn)
                 elif fn.suffix == '.arff':
                     d = self.extract_arff_dataset(fn)
-                if d is not None:
-                    datasets.append(d)
-            elif fn.is_file():
+            elif dataframe_folder.match(fn.name):
+                d = self.extract_df_dataset(fn)
+            elif recursive:
                 datasets += self.get_datasets(fn)
+            if d is not None:
+                datasets.append(d)
         return datasets
 
+    @staticmethod
+    def _find_dataset_type(path: Path):
+        "Tries to find in the path the task type (kinda forceful)"
+        for part in path.parts:
+            part = part.lower()
+            if part == 'classification':
+                return DatasetType.CLASSIFICATION
+            elif part == 'regression':
+                return DatasetType.REGRESSION
+            elif part == 'clustering':
+                return DatasetType.CLUSTERING
+        return DatasetType.CLASSIFICATION
 
-def load(path):
+def arrf_loader(path: Path):
     """Loader method of arff files"""
     def wrapper(*args, **kwargs):
         data, metadata = arff.loadarff(path)
@@ -178,3 +212,22 @@ def load(path):
     return wrapper
 
 
+def dataframe_loader(path: Path):
+    """Loader method of json files to dataframes"""
+    def wrapper(*args, **kwargs):
+        X = pd.read_json(path / 'X.json').to_numpy()
+        # fix the type
+        if X.dtype == 'O':
+            for col in range(X.shape[1]):
+                column = X[:, col]
+                column[column == np.array(None)] = 'None'
+                if isinstance(column[0], str):
+                    X[:, col] = LabelEncoder().fit_transform(column)
+        X = np.array(X, dtype='float64')
+        try:
+            # y = pd.read_json(path / 'y.json', typ='series').to_frame('y')
+            y = pd.read_json(path / 'y.json', typ='series').to_numpy()
+        except FileNotFoundError:
+            y = None
+        return X, y
+    return wrapper

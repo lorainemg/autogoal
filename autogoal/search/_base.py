@@ -184,7 +184,7 @@ class SearchAlgorithm:
             try:
                 k = kwargs['k']
             except KeyError:
-                k = 10
+                k = 30
             algorithms_list.sort(key=lambda x: x[1], reverse=True)
             solutions = [a[0] for a in algorithms_list[:k] if a[1] > 0]
             fn = [a[1] for a in algorithms_list[:k] if a[1] > 0]

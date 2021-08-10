@@ -23,7 +23,7 @@ class Sampler:
 
     def choice(self, options, handle=None):
         """
-        Returns one of the options.
+        Returns one of the options._build_sampler
 
         ##### Examples
 
