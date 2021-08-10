@@ -13,8 +13,7 @@ from typing import List, Tuple
 import numpy as np
 import json
 import re
-import time
-
+from os import mkdir
 
 class MetaLearner:
     def __init__(self, k=5, features_extractor=None):
@@ -22,11 +21,9 @@ class MetaLearner:
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
         self._features_path = Path('autogoal/experimental/metalearning/resources/')
-        self._pipelines_path = Path('autogoal/experimental/metalearning/resources/')
-        self._scores_path = Path('autogoal/experimental/metalearning/resources/')
         self._pipelines_encoder = LabelEncoder()
 
-    def train(self, datasets: List[Dataset]):
+    def train(self, dataset_type: DatasetType):
         raise NotImplementedError
 
     def predict(self, dataset: Dataset):
@@ -35,11 +32,12 @@ class MetaLearner:
     def test(self, datasets: List[Dataset]):
         return [self.predict(dataset) for dataset in datasets]
 
-    def extract_metafeatures(self, datasets: List[Dataset], meta_features=None):
+    def extract_metafeatures(self, datasets: List[Dataset], visited_datasets=None):
         """Extracts the features of the datasets"""
-        meta_features = meta_features if meta_features is not None else {}
+        visited_datasets = visited_datasets if visited_datasets is not None else {}
+        meta_features = {}
         for d in datasets:
-            if d.name in meta_features:
+            if d.name in visited_datasets:
                 continue
             meta_features[d.name] = self._extract_metafeatures(d)
         return meta_features
@@ -48,7 +46,7 @@ class MetaLearner:
         X, y, _, _ = dataset.load()
         return self.meta_feature_extractor.extract_features(X, y, dataset)
 
-    def extract_metatargets(self, datasets: List[Dataset], meta_labels=None, meta_targets=None, algorithms=None):
+    def extract_metatargets(self, datasets: List[Dataset], visited_datasets=None, algorithms=None):
         """
         Extracts the features of the solution.
         For this, a list of algorithms is trained with the datasets.
@@ -56,10 +54,11 @@ class MetaLearner:
         Returns a list of the labels with the best pipelines and
         a list of metatargets (features of the training process)
         """
-        meta_labels = {} if meta_labels is None else meta_labels
-        meta_targets = {} if meta_targets is None else meta_targets
+        visited_datasets = {} if visited_datasets is None else visited_datasets
+        meta_labels = {}
+        meta_targets = {}
         for d in datasets:
-            if d.name in meta_targets:
+            if d.name in visited_datasets:
                 continue
             meta_label, meta_target = self._extract_metatargets(d, algorithms)
             meta_labels[d.name] = meta_label
@@ -79,8 +78,8 @@ class MetaLearner:
             input=dataset.input_type,
             output=dataset.output_type,
             registry=algorithms,
-            evaluation_timeout=5 * Min,
-            search_timeout=1 * Hour,
+            evaluation_timeout=1 * Min,
+            search_timeout=3 * Min,
             algorithms_list=True
         )
         try:
@@ -118,23 +117,30 @@ class MetaLearner:
         feature_types = {k: repr(v) for k, v in sampler._model.items() if k in features}
         return features, feature_types
 
-    def get_training_samples(self, datasets: List[Dataset]):
-        """
-        Returns all the features vectorized and the labels.
-        """
+    def save_training_samples(self, datasets: List[Dataset]):
+        """Save all datasets features"""
         # Extracts meta_features, a processing of the dataset is done
-        feat_path, pipeline_path, score_path = self.get_features_path(datasets[0].type)
+        feat_path = self.get_features_path(datasets[0].type)
 
-        meta_features = self.load_training_metafeatures(feat_path) if feat_path.exists() else None
-        meta_features = self.extract_metafeatures(datasets, meta_features)
-        self.save_training_metafeatures(meta_features, feat_path)
+        visited_datasets = self.get_dataset_in_path(feat_path)
+        meta_features = self.extract_metafeatures(datasets, visited_datasets)
 
         # Extracts meta_labels (pipelines) and meta_targets (scores)
         # For this, training is done across all datasets.
-        meta_labels, meta_targets = self.load_training_metalabels(pipeline_path, score_path) if pipeline_path.exists else None
-        meta_labels, meta_targets = self.extract_metatargets(datasets, meta_labels, meta_targets)
-        self.save_training_metalabels(meta_labels, meta_targets, pipeline_path, score_path)
+        meta_labels, meta_targets = self.extract_metatargets(datasets, visited_datasets)
 
+        # saves the meta_features
+        self.save_training_features(meta_features, meta_labels, meta_targets, feat_path)
+        return feat_path
+
+    def get_training_samples(self, dataset_type: DatasetType):
+        """
+        Returns all the features vectorized and the labels.
+        """
+        path = self.get_features_path(dataset_type)
+        features = self.load_training_features(path)
+
+        meta_features, meta_labels, meta_targets = self.separate_features(features)
         # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
         meta_features = self.preprocess_datasets(meta_features)
         meta_labels = self.preprocess_pipelines(meta_labels)
@@ -145,13 +151,21 @@ class MetaLearner:
         Gets the real path of the features depending in the type of the dataset.
         """
         type_ = re.match('DatasetType.(\w+)', str(dataset_type))
-        if type_ is not None:
-            path = type_.group(1).capitalize()
-            feat_path = self._features_path / path / 'meta_features.json'
-            pipeline_path = self._pipelines_path / path / 'meta_labels.json'
-            score_path = self._scores_path / path / 'meta_targets.json'
-            return feat_path, pipeline_path, score_path
-        return self._features_path / 'meta_features.json', self._pipelines_path / 'meta_labels.json', self._scores_path / 'meta_targets.json'
+        path = '' if type_ is None else type_.group(1).capitalize()
+        features_path = self._features_path / path
+        if not features_path.exists():
+            mkdir(features_path)
+        return features_path
+
+    def separate_features(self, features: dict):
+        meta_features = []
+        meta_labels = []
+        meta_targets = []
+        for feat in features.values():
+            meta_features.append(feat['meta_features'])
+            meta_labels.append(feat['meta_labels'])
+            meta_targets.append(feat['meta_targets'])
+        return meta_features, meta_labels, meta_targets
 
     def append_features_and_labels(self, meta_features, meta_labels):
         """
@@ -203,7 +217,7 @@ class MetaLearner:
         self._pipelines_encoder.fit(list(chain.from_iterable(padded_pipelines)))
         return [self._pipelines_encoder.transform(p) for p in padded_pipelines]
 
-    def preprocess_metafeature(self, dataset: Dataset):
+    def preprocess_metafeatures(self, dataset: Dataset):
         meta_feature = self._extract_metafeatures(dataset)
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
         fix_indef_values(vect)
@@ -212,20 +226,36 @@ class MetaLearner:
     def decode_pipelines(self, pipelines: List[List[int]]) -> List[List[str]]:
         return [self._pipelines_encoder.inverse_transform(p) for p in pipelines]
 
-    def save_training_metafeatures(self, meta_features: dict, features_path: Path):
-        json.dump(meta_features, open(features_path, 'w'))
+    def save_dataset_features(self, name: str, path: Path, features: dict):
+        """Saves a dataset features in the expected file path"""
+        p = path / f'{name}.json'
+        json.dump(features, open(p, 'w+'))
 
-    def load_training_metafeatures(self, features_path: Path) -> Tuple[dict]:
-        return json.load(open(self.features_path, 'r'))
+    def load_dataset_features(self, filepath: Path, features: dict):
+        """Loads a dataset feature in the expected file path"""
+        name = filepath.name[:-5]
+        features[name] = json.load(open(filepath, 'r'))
 
+    def load_training_features(self, path: Path) -> dict:
+        """Load the json with the features information in the expected format into dict"""
+        meta_features = {}
+        for file in path.glob('*.json'):
+            self.load_dataset_features(file, meta_features)
+        return meta_features
 
-    def save_training_metalabels(self, meta_labels: dict, meta_targets: dict, pipeline_path: Path, score_path: Path):
-        json.dump(meta_labels, open(pipeline_path, 'w'))
-        json.dump(meta_targets, open(score_path, 'w'))
+    def save_training_features(self, meta_features: dict, meta_labels: dict, meta_targets: dict, path: Path):
+        """Saves the training features to json"""
+        for name in meta_features.keys():
+            dataset_features = {
+                'meta_features': meta_features[name],
+                'meta_labels': meta_labels[name],
+                'meta_targets': meta_targets[name]
+            }
+            self.save_dataset_features(name, path, dataset_features)
 
-    def load_training_metalabels(self, pipeline_path: Path, score_pat: Path) -> Tuple[dict, dict]:
-        meta_labels = json.load(open(pipeline_path, 'r'))
-        meta_targets = json.load(open(score_pat, 'r'))
-        return meta_labels, meta_targets
-
-
+    def get_dataset_in_path(self, path: Path):
+        """
+        Gets all the dataset with stored information in a specific path.
+        This is used to check which datasets has features extracted.
+        """
+        return set(file.name[:-5] for file in path.glob('*.json'))

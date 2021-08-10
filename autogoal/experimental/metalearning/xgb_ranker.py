@@ -1,6 +1,6 @@
 # from sklearn.neighbors import KNeighborsClassifier
 from typing import List
-from autogoal.experimental.metalearning.datasets import Dataset
+from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 import xgboost as xgb
 import numpy as np
@@ -29,8 +29,8 @@ class XGBRankerMetaLearner(MetaLearner):
         self.samples = None
         self.n_results = number_of_results
 
-    def train(self, datasets: List[Dataset]):
-        features, labels, targets = self.get_training_samples(datasets)
+    def train(self, dataset_type: DatasetType):
+        features, labels, targets = self.get_training_samples(dataset_type)
         self.samples = list(zip(features, labels))
         features = self.append_features_and_labels(features, labels)
         grp_info = self.make_grp_info(features)

@@ -4,7 +4,7 @@ from autogoal.ml._metalearning import DatasetFeatureLogger
 
 from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
-from autogoal.experimental.metalearning import XGBRankerMetaLearner, DatasetExtractor
+from autogoal.experimental.metalearning import XGBRankerMetaLearner, DatasetExtractor, DatasetType
 from autogoal.datasets import cars
 from pathlib import Path
 
@@ -51,9 +51,10 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets[:1]
     # test_datasets(datasets)
     # print(len(datasets))
     learner = XGBRankerMetaLearner()
-    learner.train(datasets)
+    # learner.save_training_samples(datasets)
+    learner.train(DatasetType.CLASSIFICATION)
     # learner.test(datasets[:1])
