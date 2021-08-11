@@ -27,8 +27,7 @@ class SearchAlgorithm:
         memory_limit: int = 4 * Gb,
         search_timeout: int = 5 * Min,
         target_fn=None,
-        allow_duplicates=True,
-        algorithms_list=False
+        allow_duplicates=True
     ):
         if generator_fn is None and fitness_fn is None:
             raise ValueError("You must provide either `generator_fn` or `fitness_fn`")
@@ -44,7 +43,6 @@ class SearchAlgorithm:
         self._search_timeout = search_timeout
         self._target_fn = target_fn
         self._allow_duplicates = allow_duplicates
-        self._algorithms_list = algorithms_list
 
         if self._evaluation_timeout > 0 or self._memory_limit > 0:
             self._fitness_fn = RestrictedWorkerByJoin(
@@ -76,8 +74,6 @@ class SearchAlgorithm:
         no_improvement = 0
         start_time = time.time()
         seen = set()
-        # a list with all algorithms seen
-        algorithms_list = []
 
         logger.begin(generations, self._pop_size)
 
@@ -119,9 +115,6 @@ class SearchAlgorithm:
 
                     if not self._allow_duplicates:
                         seen.add(repr(solution))
-
-                    if self._algorithms_list:
-                        algorithms_list.append((solution, fn))
 
                     logger.eval_solution(solution, fn)
                     fns.append(fn)
@@ -179,16 +172,6 @@ class SearchAlgorithm:
 
         except KeyboardInterrupt:
             pass
-
-        if self._algorithms_list:
-            try:
-                k = kwargs['k']
-            except KeyError:
-                k = 30
-            algorithms_list.sort(key=lambda x: x[1], reverse=True)
-            solutions = [a[0] for a in algorithms_list[:k] if a[1] > 0]
-            fn = [a[1] for a in algorithms_list[:k] if a[1] > 0]
-            return solutions, fn
 
         logger.end(best_solution, best_fn)
         return best_solution, best_fn

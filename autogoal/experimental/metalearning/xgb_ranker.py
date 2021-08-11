@@ -29,7 +29,7 @@ class XGBRankerMetaLearner(MetaLearner):
         self.samples = None
         self.n_results = number_of_results
 
-    def train(self, dataset_type: DatasetType):
+    def meta_train(self, dataset_type: DatasetType):
         features, labels, targets = self.get_training_samples(dataset_type)
         self.samples = list(zip(features, labels))
         features = self.append_features_and_labels(features, labels)

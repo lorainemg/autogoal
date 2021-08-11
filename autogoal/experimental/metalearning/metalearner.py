@@ -1,6 +1,7 @@
-from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values
+from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
+from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLogger
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
@@ -15,6 +16,7 @@ import json
 import re
 from os import mkdir
 
+
 class MetaLearner:
     def __init__(self, k=5, features_extractor=None):
         self.k = k  # the numbers of possible algorithms to predict
@@ -23,7 +25,7 @@ class MetaLearner:
         self._features_path = Path('autogoal/experimental/metalearning/resources/')
         self._pipelines_encoder = LabelEncoder()
 
-    def train(self, dataset_type: DatasetType):
+    def meta_train(self, dataset_type: DatasetType):
         raise NotImplementedError
 
     def predict(self, dataset: Dataset):
@@ -32,106 +34,36 @@ class MetaLearner:
     def test(self, datasets: List[Dataset]):
         return [self.predict(dataset) for dataset in datasets]
 
-    def extract_metafeatures(self, datasets: List[Dataset], visited_datasets=None):
-        """Extracts the features of the datasets"""
-        visited_datasets = visited_datasets if visited_datasets is not None else {}
-        meta_features = {}
-        for d in datasets:
-            if d.name in visited_datasets:
+    def train(self, datasets: List[Dataset], algorithms=None):
+        """
+            Hay 3 formas posibles de entrenar:
+            1. Entrenar con todos los algoritmos con sus parámetros por defecto
+            2. Entrenar con todoos los posibles parámetros a maximizar
+            3. Entrenar usando automl para buscar el mejor pipeline.
+            Esta versión usará la 3ra opción.
+        """
+        for dataset in datasets:
+            feat_path = self.get_features_path(dataset.type)
+            visited_datasets = self.get_datasets_in_path(feat_path)
+            if dataset.name in visited_datasets:
                 continue
-            meta_features[d.name] = self._extract_metafeatures(d)
-        return meta_features
 
-    def _extract_metafeatures(self, dataset: Dataset):
-        X, y, _, _ = dataset.load()
-        return self.meta_feature_extractor.extract_features(X, y, dataset)
-
-    def extract_metatargets(self, datasets: List[Dataset], visited_datasets=None, algorithms=None):
-        """
-        Extracts the features of the solution.
-        For this, a list of algorithms is trained with the datasets.
-
-        Returns a list of the labels with the best pipelines and
-        a list of metatargets (features of the training process)
-        """
-        visited_datasets = {} if visited_datasets is None else visited_datasets
-        meta_labels = {}
-        meta_targets = {}
-        for d in datasets:
-            if d.name in visited_datasets:
-                continue
-            meta_label, meta_target = self._extract_metatargets(d, algorithms)
-            meta_labels[d.name] = meta_label
-            meta_targets[d.name] = meta_target
-        return meta_labels, meta_targets
-
-    def _extract_metatargets(self, dataset: Dataset, algorithms):
-        """
-        Hay 3 formas posibles de entrenar:
-        1. Entrenar con todos los algoritmos con sus parámetros por defecto
-        2. Entrenar con todoos los posibles parámetros a maximizar
-        3. Entrenar usando automl para buscar el mejor pipeline.
-        Esta versión usará la 3ra opción.
-        """
-        X_train, y_train, X_test, y_test = dataset.load()
-        automl = AutoML(
-            input=dataset.input_type,
-            output=dataset.output_type,
-            registry=algorithms,
-            evaluation_timeout=1 * Min,
-            search_timeout=3 * Min,
-            algorithms_list=True
-        )
-        try:
-            fix_indef_values(X_train)
-            pipelines, score = automl.fit(X_train, y_train, logger=RichLogger())
-
-            fix_indef_values(X_test)
-            # score = automl.score(X_test, y_test)
-            # missing more metatargets, maybe training time
-            features, features_types = self.extract_pipelines_features(pipelines)
-            dict_ = {'features': features, 'features_types': features_types}
-            return dict_, score
-        except Exception as e:
-            print(f'Error {dataset.name}: {e}')
-            with open('errors.txt', 'w+') as f:
-                f.write(dataset.name)
-            return None, None
-
-    def extract_pipelines_features(self, solution):
-        """Extracts the features of the pipelines in a comprehensive manner"""
-        features = []
-        feature_types = []
-        # A list of the best solutions is expected
-        if not isinstance(solution, list):
-            solution = [solution]
-        for sol in solution:
-            feat, feat_types = self._extract_solution_pipeline(sol)
-            features.append(feat)
-            feature_types.append(feat_types)
-        return features, feature_types
-
-    def _extract_solution_pipeline(self, solution):
-        sampler = solution.sampler_
-        features = {k: v for k, v in sampler._updates.items() if isinstance(k, str)}
-        feature_types = {k: repr(v) for k, v in sampler._model.items() if k in features}
-        return features, feature_types
-
-    def save_training_samples(self, datasets: List[Dataset]):
-        """Save all datasets features"""
-        # Extracts meta_features, a processing of the dataset is done
-        feat_path = self.get_features_path(datasets[0].type)
-
-        visited_datasets = self.get_dataset_in_path(feat_path)
-        meta_features = self.extract_metafeatures(datasets, visited_datasets)
-
-        # Extracts meta_labels (pipelines) and meta_targets (scores)
-        # For this, training is done across all datasets.
-        meta_labels, meta_targets = self.extract_metatargets(datasets, visited_datasets)
-
-        # saves the meta_features
-        self.save_training_features(meta_features, meta_labels, meta_targets, feat_path)
-        return feat_path
+            X, y = dataset.load()
+            automl = AutoML(
+                input=dataset.input_type,
+                output=dataset.output_type,
+                registry=algorithms,
+                evaluation_timeout=1 * Min,
+                search_timeout=3 * Min
+            )
+            try:
+                fix_indef_values(X)
+                folder = self.get_features_path(dataset.type)
+                automl.fit(X, y, logger=DatasetFeatureLogger(X, y, dataset, folder))
+            except Exception as e:
+                print(f'Error {dataset.name}: {e}')
+                with open('errors.txt', 'w+') as f:
+                    f.write(dataset.name)
 
     def get_training_samples(self, dataset_type: DatasetType):
         """
@@ -218,18 +150,14 @@ class MetaLearner:
         return [self._pipelines_encoder.transform(p) for p in padded_pipelines]
 
     def preprocess_metafeatures(self, dataset: Dataset):
-        meta_feature = self._extract_metafeatures(dataset)
+        X, y = dataset.load()
+        meta_feature = self.meta_feature_extractor.extract_features(X, y, dataset)
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
         fix_indef_values(vect)
         return vect
 
     def decode_pipelines(self, pipelines: List[List[int]]) -> List[List[str]]:
         return [self._pipelines_encoder.inverse_transform(p) for p in pipelines]
-
-    def save_dataset_features(self, name: str, path: Path, features: dict):
-        """Saves a dataset features in the expected file path"""
-        p = path / f'{name}.json'
-        json.dump(features, open(p, 'w+'))
 
     def load_dataset_features(self, filepath: Path, features: dict):
         """Loads a dataset feature in the expected file path"""
@@ -243,17 +171,7 @@ class MetaLearner:
             self.load_dataset_features(file, meta_features)
         return meta_features
 
-    def save_training_features(self, meta_features: dict, meta_labels: dict, meta_targets: dict, path: Path):
-        """Saves the training features to json"""
-        for name in meta_features.keys():
-            dataset_features = {
-                'meta_features': meta_features[name],
-                'meta_labels': meta_labels[name],
-                'meta_targets': meta_targets[name]
-            }
-            self.save_dataset_features(name, path, dataset_features)
-
-    def get_dataset_in_path(self, path: Path):
+    def get_datasets_in_path(self, path: Path):
         """
         Gets all the dataset with stored information in a specific path.
         This is used to check which datasets has features extracted.

@@ -83,18 +83,9 @@ class AutoML:
             **self.search_kwargs,
         )
 
-        if 'algorithms_list' in self.search_kwargs:
-            pipelines, scores = search.run(
-                self.search_iterations, **kwargs
-            )
-            # idk if fit_pipeline is necessary
-            self.best_pipeline_ = pipelines[0]
-            self.best_score_ = scores[0]
-            return pipelines, scores
-        else:
-            self.best_pipeline_, self.best_score_ = search.run(
-                self.search_iterations, **kwargs
-            )
+        self.best_pipeline_, self.best_score_ = search.run(
+            self.search_iterations, **kwargs
+        )
 
         self.fit_pipeline(X, y)
         return self.best_pipeline_, self.best_score_

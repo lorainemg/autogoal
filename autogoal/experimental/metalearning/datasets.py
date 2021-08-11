@@ -39,20 +39,16 @@ class Dataset:
     def load(self, *args, **kwargs):
         """Loads the dataset, returning the train and test collection"""
         result = self._load(*args, **kwargs)
-        X_train, y_train, X_test, y_test = None, None, None, None
+        X, y = None, None
         if len(result) == 1:
-            X_train, X_test = train_test_split(result, test_size=0.15)
-            y_train, y_test = None, None
+            X = result
         elif len(result) == 2:
             X, y = result
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
-        elif len(result) == 4:
-            X_train, y_train, X_test, y_test = result
 
         if self.input_type is None:
-            self.infer_types(X_train, y_train)
+            self.infer_types(X, y)
 
-        return X_train, y_train, X_test, y_test
+        return X, y
 
     def infer_types(self, X, y):
         """Infers the semantic type of the input and the output"""
