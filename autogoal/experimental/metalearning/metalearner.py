@@ -67,16 +67,16 @@ class MetaLearner:
 
     def get_training_samples(self, dataset_type: DatasetType):
         """
-        Returns all the features vectorized and the labels.
+        Returns all the features vectorized and the labels and the filenames of the datasets processed.
         """
         path = self.get_features_path(dataset_type)
-        features = self.load_training_features(path)
+        features, files = self.load_training_features(path)
 
         meta_features, meta_labels, meta_targets = self.separate_features(features)
         # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
         meta_features = self.preprocess_datasets(meta_features)
         meta_labels = self.preprocess_pipelines(meta_labels)
-        return meta_features, meta_labels, meta_targets
+        return meta_features, meta_labels, meta_targets, files
 
     def get_features_path(self, dataset_type: DatasetType):
         """
@@ -143,13 +143,7 @@ class MetaLearner:
             features = meta_label['features']
             dataset_pipelines = []
             for feat in features:
-                pipeline = []
-                for algorithm, param in feat.items():
-                    if algorithm == 'End':
-                        break
-                    # First position in param is the amount of times the algorithm is applied (I think)
-                    for i in range(param[0]):
-                        pipeline.append(algorithm)
+                pipeline = self.get_pipeline_algorithms(feat)
                 max_len = max(max_len, len(pipeline))
                 dataset_pipelines.append(pipeline)
             pipelines.append(dataset_pipelines)
@@ -164,6 +158,19 @@ class MetaLearner:
         self._pipelines_encoder.fit(list(chain.from_iterable(chain.from_iterable(padded_pipelines))))
         # Transforms the pipelines
         return [[self._pipelines_encoder.transform(p) for p in pipelines] for pipelines in padded_pipelines]
+
+    def get_pipeline_algorithms(self, features):
+        """
+        Gets the algorithm list saved in the features.
+        """
+        pipeline = []
+        for algorithm, param in features.items():
+            if algorithm == 'End':
+                break
+            # First position in param is the amount of times the algorithm is applied (I think)
+            for i in range(param[0]):
+                pipeline.append(algorithm)
+        return pipeline
 
     def preprocess_metafeatures(self, dataset: Dataset):
         """
@@ -194,9 +201,11 @@ class MetaLearner:
     def load_training_features(self, path: Path) -> dict:
         """Load the json with the features information in the expected format into dict"""
         meta_features = {}
+        files = []
         for file in path.glob('*.json'):
             self.load_dataset_features(file, meta_features)
-        return meta_features
+            files.append(file)
+        return meta_features, files
 
     def get_datasets_in_path(self, path: Path):
         """
