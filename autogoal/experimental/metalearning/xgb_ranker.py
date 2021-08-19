@@ -2,8 +2,11 @@
 from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.metalearner import MetaLearner
+from itertools import chain
+
 import xgboost as xgb
 import numpy as np
+
 
 
 class XGBRankerMetaLearner(MetaLearner):
@@ -32,23 +35,23 @@ class XGBRankerMetaLearner(MetaLearner):
     def meta_train(self, dataset_type: DatasetType):
         features, labels, targets = self.get_training_samples(dataset_type)
         self.samples = list(zip(features, labels))
-        features = self.append_features_and_labels(features, labels)
-        grp_info = self.make_grp_info(features)
+        features, grp_info = self.append_features_and_labels(features, labels)
+        targets = list(chain.from_iterable(targets))
         self.model.fit(features, targets, group=grp_info)
 
-    def make_grp_info(self, features):
-        _, counts = np.unique(features, axis=0, return_counts=True)
-        return counts
-
     def predict(self, dataset: Dataset):
-        data_features = self.preprocess_metafeature(dataset)
-        pipelines = self.get_similar_datasets(data_features, self.cosine_measure)
-        data_features = self.create_duplicate_data_features(data_features, len(pipelines))
-        features = self.append_features_and_labels(data_features, pipelines)
+        data_features = self.preprocess_metafeatures(dataset)
+
+        # get the pipelines to test
+        datasets = self.get_similar_datasets(data_features, self.cosine_measure)
+        pipelines = self.get_best_pipelines(datasets, 10, 10)
+
+        features, _ = self.append_features_and_labels([data_features], [pipelines])
         y_hat = self.model.predict(features)
-        sort_for_rank = sorted(zip(y_hat, pipelines), key=lambda x: x[0])
+        sort_for_rank = sorted(zip(y_hat, pipelines), key=lambda x: x[0], reverse=True)
         pipelines = [p for r, p in sort_for_rank]
-        return self.decode_pipelines(pipelines)
+        decode_pipeline = self.decode_pipelines(pipelines)
+        return decode_pipeline
 
     @staticmethod
     def cosine_measure(vect_i, vect_j):
@@ -63,10 +66,20 @@ class XGBRankerMetaLearner(MetaLearner):
 
     def get_similar_datasets(self, features, similarity_measure) -> List:
         """Get the pipelines of the datasets with similar features of actual dataset"""
-        pipelines = []
+        datasets = []
         for feat, pipes in self.samples:
             similarity = similarity_measure(feat, features)
-            pipelines.append((similarity, pipes))
-        sorted_by_sim = sorted(pipelines, key=lambda x: x[0], reverse=True)
-        best_pipelines = [p for s, p in sorted_by_sim[:10]]
-        return best_pipelines
+            datasets.append((similarity, pipes))
+        # Return the sorted list of the most similar datasets
+        return sorted(datasets, key=lambda x: x[0], reverse=True)
+
+
+    def get_best_pipelines(self, similar_datasets: List, amount_datasets: int, amount_pipelines: int):
+        """
+        Given the best pipelines to test, this uses a weighted scheme to select between of similar datasets
+        and the amount of the best pipelines selected from each dataset
+        """
+        pipelines = []
+        for _, pipes in similar_datasets[:amount_datasets]:
+            pipelines.extend(pipes[:amount_pipelines])
+        return pipelines

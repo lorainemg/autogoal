@@ -53,8 +53,8 @@ class MetaLearner:
                 input=dataset.input_type,
                 output=dataset.output_type,
                 registry=algorithms,
-                evaluation_timeout=1 * Min,
-                search_timeout=3 * Min
+                evaluation_timeout=5 * Min,
+                search_timeout=30 * Min
             )
             try:
                 fix_indef_values(X)
@@ -104,14 +104,23 @@ class MetaLearner:
         Appends the matrix of meta_features and meta_labels to create a join matrix
         where the labels columns (corresponding to the pipelined algorithms)
         have to be filled for a new datasets.
+
+        Also returns (if asked) a list of the groups marked by the dataset
         """
-        try:
-            features = meta_features.tolist()
-        except AttributeError:
-            features = list(meta_features)
-        for i in range(len(features)):
-            features[i].extend(meta_labels[i])
-        return np.array(features)
+        features = []
+        grp_info = []
+        for i in range(len(meta_labels)):
+            dataset_feat = meta_features[i]
+            dataset_labels = meta_labels[i]
+
+            grp_size = len(dataset_labels)     # number of times the dataset label is repeated (makes the group info)
+            duplicate_feat = self.create_duplicate_data_features(dataset_feat, grp_size)
+            for j in range(grp_size):
+                duplicate_feat[j].extend(dataset_labels[j])
+
+            features.extend(duplicate_feat)
+            grp_info.append(grp_size)
+        return np.array(features), grp_info
 
     def create_duplicate_data_features(self, data_features, n):
         """
@@ -119,7 +128,6 @@ class MetaLearner:
 
         Every instance of this features will be joined with a different pipeline.
         """
-        data_features.tolist()
         return [list(data_features) for _ in range(n)]
 
     def preprocess_datasets(self, meta_features):
@@ -133,8 +141,9 @@ class MetaLearner:
         max_len = 0
         for meta_label in meta_labels:
             features = meta_label['features']
-            pipeline = []
+            dataset_pipelines = []
             for feat in features:
+                pipeline = []
                 for algorithm, param in feat.items():
                     if algorithm == 'End':
                         break
@@ -142,16 +151,34 @@ class MetaLearner:
                     for i in range(param[0]):
                         pipeline.append(algorithm)
                 max_len = max(max_len, len(pipeline))
-                pipelines.append(pipeline)
+                dataset_pipelines.append(pipeline)
+            pipelines.append(dataset_pipelines)
+
         # padds the pipelines so every pipeline has the same length
-        padded_pipelines = np.array([pad_arrays(pipeline, max_len) for pipeline in pipelines])
+        padded_pipelines = []
+        for dataset_pipeline in pipelines:
+            pipeline = np.array([pad_arrays(pipeline, max_len) for pipeline in dataset_pipeline])
+            padded_pipelines.append(pipeline)
+
         # Encodes the pipelines names
-        self._pipelines_encoder.fit(list(chain.from_iterable(padded_pipelines)))
-        return [self._pipelines_encoder.transform(p) for p in padded_pipelines]
+        self._pipelines_encoder.fit(list(chain.from_iterable(chain.from_iterable(padded_pipelines))))
+        # Transforms the pipelines
+        return [[self._pipelines_encoder.transform(p) for p in pipelines] for pipelines in padded_pipelines]
 
     def preprocess_metafeatures(self, dataset: Dataset):
-        X, y = dataset.load()
-        meta_feature = self.meta_feature_extractor.extract_features(X, y, dataset)
+        """
+        Method for the predict method to extract only the meta-features of a dataset.
+        """
+        features = self.load_dataset_feat(dataset)
+        if features:
+            # if dataset was found only load the features
+            meta_feature = features['meta_features']
+        else:
+            # otherwise extracts them
+            X, y = dataset.load()
+            meta_feature = self.meta_feature_extractor.extract_features(X, y, dataset)
+
+        # preprocess the dataset features
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
         fix_indef_values(vect)
         return vect
@@ -177,3 +204,11 @@ class MetaLearner:
         This is used to check which datasets has features extracted.
         """
         return set(file.name[:-5] for file in path.glob('*.json'))
+
+    def load_dataset_feat(self, dataset: Dataset):
+        """Tries to load the features of a dataset if exists"""
+        feat_path = self.get_features_path(dataset.type)
+        try:
+            return json.load(open(feat_path / f'{dataset.name}.json', 'r'))
+        except FileNotFoundError:
+            return None

@@ -51,10 +51,10 @@ if __name__ == '__main__':
     # X, y = cars.load()
     # test_automl(X, y)
 
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets[:1]
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)
-    # print(len(datasets))
+    print(len(datasets))
     learner = XGBRankerMetaLearner()
-    learner.train(datasets)
+    # learner.train(datasets)
     learner.meta_train(DatasetType.CLASSIFICATION)
-    # learner.test(datasets[:1])
+    learner.test(datasets[:1])
