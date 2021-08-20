@@ -50,9 +50,11 @@ class XGBRankerMetaLearner(MetaLearner):
         sort_for_rank = sorted(zip(y_hat, pipelines, files), key=lambda x: x[0], reverse=True)
         pipelines = [p for _, p, _ in sort_for_rank]
         files = [f for _, _, f in sort_for_rank]
+
         decode_pipeline = self.decode_pipelines(pipelines)
-        pipeline = self.get_all_pipeline_info(decode_pipeline, files)
-        return decode_pipeline
+        pipelines = self.get_all_pipeline_info(decode_pipeline, files)
+        self.find_algorithms(pipelines)
+        return pipelines
 
     @staticmethod
     def cosine_measure(vect_i, vect_j):

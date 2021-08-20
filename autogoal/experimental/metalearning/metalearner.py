@@ -5,6 +5,8 @@ from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLog
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
+from autogoal.contrib import find_classes
+from autogoal.kb import Pipeline
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
@@ -75,6 +77,10 @@ class MetaLearner:
         meta_features, meta_labels, meta_targets = self.separate_features(features)
         # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
         meta_features = self.preprocess_datasets(meta_features)
+        sorted_metalabels = []
+        for meta_label, meta_target in zip(meta_labels, meta_targets):
+            sorted_metalabels.append(sorted(zip(meta_label['features'], meta_target), key=lambda x: x[1], reverse=True))
+        meta_labels = [[label for label, _ in meta_labels] for meta_labels in sorted_metalabels]
         meta_labels = self.preprocess_pipelines(meta_labels)
         return meta_features, meta_labels, meta_targets, files
 
@@ -139,8 +145,8 @@ class MetaLearner:
     def preprocess_pipelines(self, meta_labels):
         pipelines = []
         max_len = 0
-        for meta_label in meta_labels:
-            features = meta_label['features']
+        for features in meta_labels:
+            # features = meta_label['features']
             dataset_pipelines = []
             for feat in features:
                 pipeline = self.get_pipeline_algorithms(feat)
@@ -221,3 +227,27 @@ class MetaLearner:
             return json.load(open(feat_path / f'{dataset.name}.json', 'r'))
         except FileNotFoundError:
             return None
+
+    def find_algorithms(self, pipelines: List[dict]) -> List[Pipeline]:
+        models = find_classes()
+
+        names_alg = {x.__name__: x for x in models}
+        alg_re = re.compile('([^_]+)(_(.*))?')
+        builded_pipelines = []
+        for pipeline in pipelines:
+            algorithms = {}
+            for key, value in pipeline.items():
+                match = alg_re.match(key)
+                algorithm = match.group(1)
+                param = match.group(3)
+                if algorithm == 'End':
+                    continue
+                if param is None:
+                    algorithms[algorithm] = {}
+                else:
+                    algorithms[algorithm][param] = value[0]
+            algorithms_list = []
+            for algorithm, param in algorithms.items():
+                alg = names_alg[algorithm](**param)
+                algorithms_list.append(alg)
+            builded_pipelines.append(Pipeline(algorithms_list, None))
