@@ -4,10 +4,45 @@ import statistics
 import pickle
 import numpy as np
 
+from contextlib import contextmanager
 from typing import Dict, List, Sequence
 import abc
 
 from autogoal.utils import nice_repr
+
+
+def get_nested_namespace(history: dict, namespaces: list):
+    """Runs through all nested namespaces to get the last open namespace"""
+    actual_namespace = history
+    for n in namespaces:
+        actual_namespace = actual_namespace[n][-1]
+    return actual_namespace
+
+
+def record(function):
+    """
+    Decorator for the functions of the Sample class to record all results in namespaces.
+    """
+    def wrapper(self, *args, **kwargs):
+        result = function(self, *args, **kwargs)
+        # Only record if track is enabled and handle is in the parameters
+        if self.track and 'handle' in kwargs:
+            handle = kwargs['handle']
+            if self._namespaces:
+                namespace = get_nested_namespace(self._history, self._namespaces)
+                try:
+                    namespace[handle].append(result)
+                except KeyError:
+                    # is the first result, then the list is created
+                    namespace[handle] = [result]
+            # If there is no active namespace, handle is stored in the top dictionary
+            else:
+                try:
+                    self._history[handle].append(result)
+                except KeyError:
+                    self._history[handle] = [result]
+        return result
+    return wrapper
 
 
 class Sampler:
@@ -18,8 +53,51 @@ class Sampler:
     in two different instantiations.
     """
 
-    def __init__(self, *, random_state: int = None):
+    def __init__(self, *, random_state: int = None, track: bool = True):
         self.rand = random.Random(random_state)
+        self._history = {}
+        self._namespaces = []
+        self.track = track
+
+    def history(self):
+        """
+        Returns the history of all operations.
+        """
+        return self._history
+
+    def begin(self, namespace: str):
+        """
+        Begins a namespace in the history log.
+        """
+        # runs through all nested namespaces
+        actual_namespace = get_nested_namespace(self._history, self._namespaces)
+        self._namespaces.append(namespace)
+        try:
+            # If the namespace is already created, append a new list
+            actual_namespace[namespace].append({})
+        except KeyError:
+            # otherwise create a list with an empty dictionary
+            actual_namespace[namespace] = [{}]
+
+    def end(self):
+        """
+        Ends the last open namespace.
+        """
+        if len(self._namespaces) > 0:
+            self._namespaces.pop()
+
+    def clear(self):
+        """
+        Clear history.
+        """
+        self._namespaces.clear()
+        self._history.clear()
+
+    @contextmanager
+    def namespace(self, namespace_name: str):
+        self.begin(namespace_name)
+        yield
+        self.end()
 
     def choice(self, options, handle=None):
         """
