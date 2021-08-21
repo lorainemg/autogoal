@@ -7,6 +7,7 @@ from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
 from autogoal.contrib import find_classes
 from autogoal.kb import Pipeline
+from autogoal import grammar
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
@@ -14,6 +15,7 @@ from itertools import chain
 from pathlib import Path
 from typing import List, Tuple
 import numpy as np
+import inspect
 import json
 import re
 from os import mkdir
@@ -230,6 +232,7 @@ class MetaLearner:
 
     def find_algorithms(self, pipelines: List[dict]) -> List[Pipeline]:
         models = find_classes()
+        categorical_values = {x.__name__: self.get_categorical_values(x) for x in models}
 
         names_alg = {x.__name__: x for x in models}
         alg_re = re.compile('([^_]+)(_(.*))?')
@@ -240,14 +243,42 @@ class MetaLearner:
                 match = alg_re.match(key)
                 algorithm = match.group(1)
                 param = match.group(3)
-                if algorithm == 'End':
+                if algorithm == 'End' or algorithm == 'production':
                     continue
                 if param is None:
                     algorithms[algorithm] = {}
                 else:
-                    algorithms[algorithm][param] = value[0]
+                    try:
+                        value = categorical_values[algorithm][param][value[0]]
+                    except KeyError:
+                        value = value[0]
+                    algorithms[algorithm][param] = value
             algorithms_list = []
             for algorithm, param in algorithms.items():
-                alg = names_alg[algorithm](**param)
+                alg = names_alg[algorithm]
+                alg = alg(**param)
                 algorithms_list.append(alg)
-            builded_pipelines.append(Pipeline(algorithms_list, None))
+            builded_pipelines.append(Pipeline(algorithms_list, algorithms_list[0].input_types()))
+        return builded_pipelines
+
+    def get_categorical_values(self, cls):
+        categorical_values = {}
+        # Get the signature
+        if inspect.isclass(cls):
+            if getattr(cls, "get_inner_signature", None):
+                signature = cls.get_inner_signature()
+            else:
+                signature = inspect.signature(cls.__init__)
+        elif inspect.isfunction(cls):
+            signature = inspect.signature(cls)
+        else:
+            raise ValueError("Unable to obtain signature for %r" % cls)
+
+        for param_name, param_obj in signature.parameters.items():
+            if param_name in ["self", "args", "kwargs"]:
+                continue
+
+            annotation_cls = param_obj.annotation
+            if isinstance(annotation_cls, grammar.CategoricalValue):
+                categorical_values[param_obj.name] = annotation_cls.options
+        return categorical_values
