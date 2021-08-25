@@ -3,7 +3,6 @@ from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 from itertools import chain
-from autogoal.ml.metrics import accuracy
 from autogoal.kb import Pipeline
 
 
@@ -50,31 +49,19 @@ class XGBRankerMetaLearner(MetaLearner):
 
         features, _ = self.append_features_and_labels([data_features], [pipelines])
         y_hat = self.model.predict(features)
-        sort_for_rank = sorted(zip(y_hat, pipelines, files), key=lambda x: x[0], reverse=True)
-        pipelines = [p for _, p, _ in sort_for_rank]
-        files = [f for _, _, f in sort_for_rank]
+        # sort_for_rank = sorted(zip(y_hat, pipelines, files), key=lambda x: x[0], reverse=True)
+        # predicted  = [s for s, _, _ in sort_for_rank]
+        # pipelines = [p for _, p, _ in sort_for_rank]
+        # files = [f for _, _, f in sort_for_rank]
 
         decode_pipeline = self.decode_pipelines(pipelines)
-        pipelines = self.get_all_pipeline_info(decode_pipeline, files)
-        X, y = dataset.load()
-        pipelines = self.construct_pipelines(pipelines, dataset.input_type)
+        pipelines_info = self.get_all_pipeline_info(decode_pipeline, files)
+        if dataset.input_type is None:
+            dataset.load()      # dataset has to load to take input type :(
+        pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
 
-        pred =  self.score_pipelines(X, y, pipelines, 1)
-        tru, scores = self.get_gold_pred(dataset)
-        return pipelines
+        return pipelines, y_hat
 
-    def score_pipelines(self, X, y, pipelines: List[Pipeline], cross_validation_steps: int):
-        scores = {}
-        for _ in range(cross_validation_steps):
-            for i, pipeline in enumerate(pipelines):
-                try:
-                    scores[i] = self.run_pipeline(X, y, pipeline, accuracy)
-                except Exception as e:
-                    print('------------------------------------------')
-                    print(pipeline)
-                    print(e)
-                    print('------------------------------------------')
-        return scores
 
     @staticmethod
     def cosine_measure(vect_i, vect_j):

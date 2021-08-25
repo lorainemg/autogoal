@@ -2,6 +2,8 @@ from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values, train_test_split
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLogger
+from autogoal.ml.metrics import accuracy
+from autogoal.experimental.metalearning import metrics
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
@@ -311,7 +313,27 @@ class MetaLearner:
                 categorical_values[param_obj.name] = annotation_cls.options
         return categorical_values
 
+    def score_pipelines(self, X, y, pipelines: List[Pipeline], cross_validation_steps: int = 3):
+        """
+        Gets the predicted score of the list of pipelines.
+        Uses cross validation."""
+        scores = {i: [] for i in range(len(pipelines))}
+        for _ in range(cross_validation_steps):
+            for i, pipeline in enumerate(pipelines):
+                try:
+                    scr = self.run_pipeline(X, y, pipeline, accuracy)
+                    scores[i].append(scr)
+                except Exception as e:
+                    print('------------------------------------------')
+                    print(pipeline)
+                    print(e)
+                    print('------------------------------------------')
+        return self.average_score(scores)
+
     def run_pipeline(self, X, y, pipeline: Pipeline, score_metric):
+        """
+        Runs a pipeline given a dataset.
+        """
         X_train, y_train, X_test, y_test = train_test_split(X, y)
         pipeline.send("train")
         pipeline.run(X_train, y_train)
@@ -320,6 +342,9 @@ class MetaLearner:
         return score_metric(y_test, y_pred)
 
     def get_gold_pred(self, dataset: Dataset):
+        """
+        Gets golden predictions given the dataset file.
+        """
         features = self.load_dataset_feature(dataset)
         if features is None:
             # If dataset was not found trains it to load the features
@@ -329,9 +354,23 @@ class MetaLearner:
 
         return features['meta_labels']['features'], features['meta_targets']
 
-    def average_score(self, score: dict):
+    def average_score(self, score: dict) -> List[float]:
         """Returns the average of the score for every entry"""
-        return [mean(values) for values in score.values()]
+        return [mean(values) if values else 0 for values in score.values()]
 
-    def score_pred(self, pred, gold):
-        pass
+    def evaluate(self, dataset: Dataset, pred: List[float], pipelines: List[Pipeline], metric=None) -> float:
+        """Evaluates the proposal given dataset based in a metric"""
+        metric = metric or  metrics.ndcg_score
+        X, y = dataset.load()
+        target = self.score_pipelines(X, y, pipelines, 1)
+        return metric(pred, target, len(target))
+
+    def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[float]:
+        """Evaluates the proposal given a list of datasets given a metrics"""
+        predictions = [self.predict(dataset) for dataset in datasets]
+        scores = []
+        for dataset, (pipelines, y_hat) in zip(datasets, predictions):
+            scores.append(self.evaluate(dataset, y_hat, pipelines, metric))
+        print(scores)
+        return scores
+

@@ -3,7 +3,7 @@ import math
 from typing import List
 
 
-def srcc_score(true_set, predicted_set):
+def srcc_score(true_set: List[float], predicted_set: List[float]):
     """
     Spearman's Rank Correlation Coefficient: assess how well
     the relationship between the true and prediceted rankings.
@@ -13,7 +13,7 @@ def srcc_score(true_set, predicted_set):
     return 1 - 6 * sum(d2) / n * (n**2-1)
 
 
-def wrc_score(true_set, predicted_set):
+def wrc_score(true_set: List[float], predicted_set: List[float]):
     """
     Weighted Rank Correlation: this metrics puts more weight on the top candidates.
     (buscar en el paper `Meta-Learning and the Full Model Selection Problem` referencias de donde se ha usado)
@@ -24,7 +24,7 @@ def wrc_score(true_set, predicted_set):
     return 1 - 6 * sum(to_sum) / (n**4 + n**3 - n**2 - n)
 
 
-def dcg_score(true_set, predicted_set, p=None):
+def dcg_score(true_set: List[float], predicted_set: List[float], p=None):
     """
     Discounted Cumulative Gain: the premise is that highly relevant documents appearing lower in a
     search result list should be penalized as the graded relevance value is reduced logarithmically
@@ -35,19 +35,20 @@ def dcg_score(true_set, predicted_set, p=None):
     p = p or len(true_set) - 1
     sorted_set = sorted(zip(true_set, predicted_set), key=lambda x: x[1])
     predicted = [p for _, p in sorted_set]
-    return sum((2**(r) - 1) / math.log2(i + 1) for i, r in enumerate(predicted[:p], 1))
+    return sum((2**r - 1) / math.log2(i + 1) for i, r in enumerate(predicted[:p], 1))
 
 
-def idcg_score(true_set, predicted_set, p=None):
+def idcg_score(true_set: List[float], predicted_set: List[float], p=None):
     """
     Ideal Discounted Cumulative Gain: sorts all relevant documents in the corpus by their relative relevance,
     producing the maximum possible DCG through position p
     """
     p = p or len(true_set) - 1
-    return true_set[:p]
+    predicted = sorted(predicted_set)
+    return sum((2**r - 1) / math.log2(i + 1) for i, r in enumerate(predicted[:p], 1))
 
 
-def ndcg_score(true_set, predicted_set, p=None):
+def ndcg_score(true_set: List[float], predicted_set: List[float], p=None):
     """
     Normalized Discounted Cumulative Gain: s a measure of effectiveness of a search engine algorithm
     or related applications by using a graded relevance scale of items in a result list.
@@ -55,7 +56,7 @@ def ndcg_score(true_set, predicted_set, p=None):
     return dcg_score(true_set, predicted_set, p) / idcg_score(true_set, predicted_set, p)
 
 
-def mrr(true_set, predicted_set):
+def mrr(true_set: List[float], predicted_set: List[float]):
     """
     Mean Reciprocal Rank: is essentially the average of the reciprocal ranks of
     "the first relevant item" for a set of queries Q.
