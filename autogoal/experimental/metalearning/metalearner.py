@@ -1,5 +1,5 @@
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
-from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values
+from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values, train_test_split
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLogger
 from autogoal.ml import AutoML
@@ -184,7 +184,7 @@ class MetaLearner:
         """
         Method for the predict method to extract only the meta-features of a dataset.
         """
-        features = self.load_dataset_feat(dataset)
+        features = self.load_dataset_feature(dataset)
         if features:
             # if dataset was found only load the features
             meta_feature = features['meta_features']
@@ -201,12 +201,14 @@ class MetaLearner:
     def decode_pipelines(self, pipelines: List[List[int]]) -> List[List[str]]:
         return [self._pipelines_encoder.inverse_transform(p) for p in pipelines]
 
-    def load_dataset_features(self, filepath: Path, features: dict):
+    def load_dataset_features(self, filepath: Path, features: dict = None):
         """Loads a dataset feature in the expected file path"""
+        if features is None:
+            features = {}
         name = filepath.name[:-5]
         features[name] = json.load(open(filepath, 'r'))
 
-    def load_training_features(self, path: Path) -> dict:
+    def load_training_features(self, path: Path) -> Tuple[dict, List[Path]]:
         """Load the json with the features information in the expected format into dict"""
         meta_features = {}
         files = []
@@ -222,7 +224,7 @@ class MetaLearner:
         """
         return set(file.name[:-5] for file in path.glob('*.json'))
 
-    def load_dataset_feat(self, dataset: Dataset):
+    def load_dataset_feature(self, dataset: Dataset):
         """Tries to load the features of a dataset if exists"""
         feat_path = self.get_features_path(dataset.type)
         try:
@@ -230,7 +232,10 @@ class MetaLearner:
         except FileNotFoundError:
             return None
 
-    def find_algorithms(self, pipelines: List[dict]) -> List[Pipeline]:
+    def construct_pipelines(self, pipelines: List[dict], input_type) -> List[Pipeline]:
+        """
+        Given the list of pipelines information returns a list of built pipelines.
+        """
         models = find_classes()
         categorical_values = {x.__name__: self.get_categorical_values(x) for x in models}
 
@@ -258,10 +263,11 @@ class MetaLearner:
                 alg = names_alg[algorithm]
                 alg = alg(**param)
                 algorithms_list.append(alg)
-            builded_pipelines.append(Pipeline(algorithms_list, algorithms_list[0].input_types()))
+            builded_pipelines.append(Pipeline(algorithms_list, input_type))
         return builded_pipelines
 
     def get_categorical_values(self, cls):
+        """Gets the categorical values of the signature of a function."""
         categorical_values = {}
         # Get the signature
         if inspect.isclass(cls):
@@ -282,3 +288,18 @@ class MetaLearner:
             if isinstance(annotation_cls, grammar.CategoricalValue):
                 categorical_values[param_obj.name] = annotation_cls.options
         return categorical_values
+
+    def run_pipeline(self, X, y, pipeline: Pipeline, score_metric):
+        X_train, y_train, X_test, y_test = train_test_split(X, y)
+        pipeline.send("train")
+        pipeline.run(X_train, y_train)
+        pipeline.send("eval")
+        y_pred = pipeline.run(X_test, None)
+        return score_metric(y_test, y_pred)
+
+    def get_gold_pred(self, dataset: Dataset):
+        features = self.load_dataset_feature(dataset)
+        return features['meta_labels']['features'], features['meta_targets']
+
+    def score_pred(self, pred, gold):
+        pass

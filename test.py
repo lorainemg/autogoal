@@ -25,7 +25,7 @@ def test_automl(X, y):
             output=Tensor[1, Categorical, Dense]
     )
 
-    automl.fit(X_train, y_train, logger=DatasetFeatureLogger(X_train, y_train))
+    automl.fit(X_train, y_train, logger=RichLogger())
 
     print(automl.best_pipeline_)
     print(automl.best_score_)

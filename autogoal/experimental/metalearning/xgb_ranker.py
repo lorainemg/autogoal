@@ -3,6 +3,9 @@ from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 from itertools import chain
+from autogoal.ml.metrics import accuracy
+from autogoal.kb import Pipeline
+
 
 import xgboost as xgb
 import numpy as np
@@ -53,8 +56,24 @@ class XGBRankerMetaLearner(MetaLearner):
 
         decode_pipeline = self.decode_pipelines(pipelines)
         pipelines = self.get_all_pipeline_info(decode_pipeline, files)
-        self.find_algorithms(pipelines)
+        X, y = dataset.load()
+        pipelines = self.construct_pipelines(pipelines, dataset.input_type)
+
+        self.score_pipelines(X, y, pipelines, 3)
         return pipelines
+
+    def score_pipelines(self, X, y, pipelines: List[Pipeline], cross_validation_steps: int):
+        scores = {}
+        for _ in range(cross_validation_steps):
+            for i, pipeline in enumerate(pipelines):
+                try:
+                    scores[i] = self.run_pipeline(X, y, pipeline, accuracy)
+                except Exception as e:
+                    print('------------------------------------------')
+                    print(pipeline)
+                    print(e)
+                    print('------------------------------------------')
+        return scores
 
     @staticmethod
     def cosine_measure(vect_i, vect_j):
