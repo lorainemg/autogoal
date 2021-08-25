@@ -11,6 +11,7 @@ from autogoal import grammar
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
+from numpy import mean
 from itertools import chain
 from pathlib import Path
 from typing import List, Tuple
@@ -47,34 +48,39 @@ class MetaLearner:
             Esta versión usará la 3ra opción.
         """
         for dataset in datasets:
-            feat_path = self.get_features_path(dataset.type)
-            visited_datasets = self.get_datasets_in_path(feat_path)
-            if dataset.name in visited_datasets:
-                continue
+            self.train_dataset(dataset, algorithms)
 
-            X, y = dataset.load()
-            automl = AutoML(
-                input=dataset.input_type,
-                output=dataset.output_type,
-                registry=algorithms,
-                evaluation_timeout=5 * Min,
-                search_timeout=30 * Min
-            )
-            try:
-                fix_indef_values(X)
-                folder = self.get_features_path(dataset.type)
-                automl.fit(X, y, logger=DatasetFeatureLogger(X, y, dataset, folder))
-            except Exception as e:
-                print(f'Error {dataset.name}: {e}')
-                with open('errors.txt', 'w+') as f:
-                    f.write(dataset.name)
+    def train_dataset(self, dataset: Dataset, algorithms=None):
+        """Trains a single dataset, storing information about its features"""
+        feat_path = self.get_features_path(dataset.type)
+        visited_datasets = self.get_datasets_in_path(feat_path)
+        if dataset.name in visited_datasets:
+            return
+        X, y = dataset.load()
+        automl = AutoML(
+            input=dataset.input_type,
+            output=dataset.output_type,
+            registry=algorithms,
+            evaluation_timeout=5 * Min,
+            search_timeout=30 * Min
+        )
+        try:
+            fix_indef_values(X)
+            folder = self.get_features_path(dataset.type)
+            automl.fit(X, y, logger=DatasetFeatureLogger(X, y, dataset, folder))
+        except Exception as e:
+            print(f'Error {dataset.name}: {e}')
+            with open('errors.txt', 'w+') as f:
+                f.write(dataset.name)
 
-    def get_training_samples(self, dataset_type: DatasetType):
+
+    def get_training_samples(self, datasets: List[Dataset]):
         """
         Returns all the features vectorized and the labels and the filenames of the datasets processed.
         """
-        path = self.get_features_path(dataset_type)
-        features, files = self.load_training_features(path)
+        # path = self.get_features_path(dataset_type)
+        # features, files = self.load_training_features(path)
+        features , files = self.load_datasets(datasets)
 
         meta_features, meta_labels, meta_targets = self.separate_features(features)
         # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
@@ -185,13 +191,12 @@ class MetaLearner:
         Method for the predict method to extract only the meta-features of a dataset.
         """
         features = self.load_dataset_feature(dataset)
-        if features:
-            # if dataset was found only load the features
-            meta_feature = features['meta_features']
-        else:
-            # otherwise extracts them
-            X, y = dataset.load()
-            meta_feature = self.meta_feature_extractor.extract_features(X, y, dataset)
+        if features is None:
+            # if dataset was not found train to load the features
+            self.train_dataset(dataset)
+            features = self.load_dataset_feature(dataset)
+
+        meta_feature = features['meta_features']
 
         # preprocess the dataset features
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
@@ -209,12 +214,29 @@ class MetaLearner:
         features[name] = json.load(open(filepath, 'r'))
 
     def load_training_features(self, path: Path) -> Tuple[dict, List[Path]]:
-        """Load the json with the features information in the expected format into dict"""
+        """
+        Given a path with the information of the datasets stored in a json file
+        loads the features information in the expected format into dict
+        """
         meta_features = {}
         files = []
         for file in path.glob('*.json'):
             self.load_dataset_features(file, meta_features)
             files.append(file)
+        return meta_features, files
+
+    def load_datasets(self, datasets: List[Dataset]) -> Tuple[dict, List[Path]]:
+        """
+        Given a list of datasets loads the features information in the expected format into dict
+        """
+        meta_features = {}
+        datasets_names = [dataset.name for dataset in datasets]
+        files = []
+        path = self.get_features_path(datasets[0].type)
+        for file in path.glob('*.json'):
+            if file.name[:-5] in datasets_names:
+                self.load_dataset_features(file, meta_features)
+                files.append(file)
         return meta_features, files
 
     def get_datasets_in_path(self, path: Path):
@@ -299,7 +321,17 @@ class MetaLearner:
 
     def get_gold_pred(self, dataset: Dataset):
         features = self.load_dataset_feature(dataset)
+        if features is None:
+            # If dataset was not found trains it to load the features
+            # in practice, it should not happen
+            self.train_dataset(dataset)
+            features = self.load_dataset_feature(dataset)
+
         return features['meta_labels']['features'], features['meta_targets']
+
+    def average_score(self, score: dict):
+        """Returns the average of the score for every entry"""
+        return [mean(values) for values in score.values()]
 
     def score_pred(self, pred, gold):
         pass

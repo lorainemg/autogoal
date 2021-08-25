@@ -34,8 +34,8 @@ class XGBRankerMetaLearner(MetaLearner):
         self.samples = None
         self.n_results = number_of_results
 
-    def meta_train(self, dataset_type: DatasetType):
-        features, labels, targets, files = self.get_training_samples(dataset_type)
+    def meta_train(self, datasets: List[Dataset]):
+        features, labels, targets, files = self.get_training_samples(datasets)
         self.samples = list(zip(features, labels, files))
         features, grp_info = self.append_features_and_labels(features, labels)
         targets = list(chain.from_iterable(targets))
@@ -59,7 +59,8 @@ class XGBRankerMetaLearner(MetaLearner):
         X, y = dataset.load()
         pipelines = self.construct_pipelines(pipelines, dataset.input_type)
 
-        self.score_pipelines(X, y, pipelines, 3)
+        pred =  self.score_pipelines(X, y, pipelines, 1)
+        tru, scores = self.get_gold_pred(dataset)
         return pipelines
 
     def score_pipelines(self, X, y, pipelines: List[Pipeline], cross_validation_steps: int):
