@@ -56,6 +56,6 @@ if __name__ == '__main__':
     print(len(datasets))
     learner = XGBRankerMetaLearner()
     # learner.train(datasets)
-    learner.meta_train(datasets)
+    learner.meta_train(datasets[:60])
     # learner.test(datasets[:1])
-    learner.evaluate_datasets(datasets[:1])
+    learner.evaluate_datasets(datasets[60:])

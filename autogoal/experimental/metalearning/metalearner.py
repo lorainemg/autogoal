@@ -3,7 +3,7 @@ from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_value
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLogger
 from autogoal.ml.metrics import accuracy
-from autogoal.experimental.metalearning import metrics
+from autogoal.experimental.metalearning.metrics import _METRICS, _CMETRICS
 from autogoal.ml import AutoML
 from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
@@ -16,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from numpy import mean
 from itertools import chain
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import numpy as np
 import inspect
 import json
@@ -82,15 +82,12 @@ class MetaLearner:
         """
         # path = self.get_features_path(dataset_type)
         # features, files = self.load_training_features(path)
-        features , files = self.load_datasets(datasets)
+        features, files = self.load_datasets(datasets)
 
         meta_features, meta_labels, meta_targets = self.separate_features(features)
         # Preprocess meta_labels and meta_features to obtain a vector-like meta_features
         meta_features = self.preprocess_datasets(meta_features)
-        sorted_metalabels = []
-        for meta_label, meta_target in zip(meta_labels, meta_targets):
-            sorted_metalabels.append(sorted(zip(meta_label['features'], meta_target), key=lambda x: x[1], reverse=True))
-        meta_labels = [[label for label, _ in meta_labels] for meta_labels in sorted_metalabels]
+        meta_labels = [meta_label['features'] for meta_label in meta_labels]
         meta_labels = self.preprocess_pipelines(meta_labels)
         return meta_features, meta_labels, meta_targets, files
 
@@ -358,12 +355,15 @@ class MetaLearner:
         """Returns the average of the score for every entry"""
         return [mean(values) if values else 0 for values in score.values()]
 
-    def evaluate(self, dataset: Dataset, pred: List[float], pipelines: List[Pipeline], metric=None) -> float:
+    def evaluate(self, dataset: Dataset, pred: List[float], pipelines: List[Pipeline], metrics: List=None) -> Dict[str, float]:
         """Evaluates the proposal given dataset based in a metric"""
-        metric = metric or  metrics.ndcg_score
+        metrics = metrics or _METRICS
         X, y = dataset.load()
         target = self.score_pipelines(X, y, pipelines, 1)
-        return metric(pred, target, len(target))
+        score = {}
+        for metric in metrics:
+            score.update(**metric(target, pred))
+        return score
 
     def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[float]:
         """Evaluates the proposal given a list of datasets given a metrics"""
