@@ -349,7 +349,14 @@ class MetaLearner:
             self.train_dataset(dataset)
             features = self.load_dataset_feature(dataset)
 
-        return features['meta_labels']['features'], features['meta_targets']
+        # Sort the pipelines by score
+        pipe_features = features['meta_labels']['features']
+        scores = features['meta_targets']
+        score_pipes_by_score = sorted(zip(pipe_features, scores), key=lambda x: x[1], reverse=True)
+        pipe_features = [p for p, _ in score_pipes_by_score]
+        scores = [s for _, s in score_pipes_by_score]
+
+        return pipe_features, scores
 
     def average_score(self, score: dict) -> List[float]:
         """Returns the average of the score for every entry"""
@@ -365,12 +372,12 @@ class MetaLearner:
             score.update(**metric(target, pred))
         return score
 
-    def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[float]:
+    def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[Dict[str, float]]:
         """Evaluates the proposal given a list of datasets given a metrics"""
         predictions = [self.predict(dataset) for dataset in datasets]
         scores = []
         for dataset, (pipelines, y_hat) in zip(datasets, predictions):
             scores.append(self.evaluate(dataset, y_hat, pipelines, metric))
-        print(scores)
+        json.dump(scores, open('autogoal/experimental/metalearning/resources/metalearning_score.json', 'w+'))
         return scores
 
