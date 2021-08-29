@@ -375,9 +375,22 @@ class MetaLearner:
     def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[Dict[str, float]]:
         """Evaluates the proposal given a list of datasets given a metrics"""
         predictions = [self.predict(dataset) for dataset in datasets]
-        scores = []
+        scores = {}
         for dataset, (pipelines, y_hat) in zip(datasets, predictions):
-            scores.append(self.evaluate(dataset, y_hat, pipelines, metric))
+            scores[dataset.name] = self.evaluate(dataset, y_hat, pipelines, metric)
+        scores['global'] = self.calculate_global_score(scores)
         json.dump(scores, open('autogoal/experimental/metalearning/resources/metalearning_score.json', 'w+'))
         return scores
 
+    def calculate_global_score(self, scores: Dict[str, Dict[str, float]]):
+        metrics = {}
+        for dataset_score in scores.values():
+            for metric, score in dataset_score.items():
+                try:
+                    metrics[metric].append(score)
+                except KeyError:
+                    metrics[metric] = [score]
+        for metric, score in metrics.items():
+            metrics[metric] = mean(score)
+        print(metrics)
+        return metrics
