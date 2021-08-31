@@ -2,7 +2,6 @@ import enum
 import inspect
 import collections
 
-
 MAX_REPR_DEPTH = 10
 
 _repr_depth = [0]

@@ -9,7 +9,7 @@ from autogoal.kb import build_pipeline_graph, SemanticType
 from autogoal.ml.metrics import accuracy
 from autogoal.search import PESearch
 from autogoal.utils import nice_repr
-
+from autogoal.experimental.metalearning.datasets import Dataset
 
 @nice_repr
 class AutoML:
@@ -77,11 +77,17 @@ class AutoML:
         self.input = self._input_type(X)
         self.output = self._output_type(y)
 
+        if self.metalearner is not None:
+            initial_set, _ = self.metalearner.predict(Dataset("", load=lambda: (X, y)))
+        else:
+            initial_set = None
+
         search = self.search_algorithm(
             self.make_pipeline_builder(),
             self.make_fitness_fn(X, y),
             random_state=self.random_state,
             errors=self.errors,
+            initial_set=initial_set,
             **self.search_kwargs,
         )
 

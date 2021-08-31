@@ -4,7 +4,8 @@ from autogoal.ml._metalearning import DatasetFeatureLogger
 
 from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
-from autogoal.experimental.metalearning import XGBRankerMetaLearner, DatasetExtractor, DatasetType
+from autogoal.experimental.metalearning.xgb_ranker import XGBRankerMetaLearner
+from autogoal.experimental.metalearning import  DatasetExtractor, DatasetType
 from autogoal.datasets import cars
 from pathlib import Path
 from autogoal.utils import Min
@@ -26,7 +27,8 @@ def test_automl(X, y):
                    Supervised[Tensor[1, Categorical, Dense]]),
             output=Tensor[1, Categorical, Dense],
             evaluation_timeout=5 * Min,
-            search_timeout=30 * Min
+            search_timeout=30 * Min,
+            # metalearner=XGBRankerMetaLearner()
     )
 
     automl.fit(X_train, y_train, logger=RichLogger())
@@ -52,8 +54,8 @@ def test_datasets(datasets):
 
 
 if __name__ == '__main__':
-    # X, y = cars.load()
-    # test_automl(X, y)
+    X, y = cars.load()
+    test_automl(X, y)
 
     datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)

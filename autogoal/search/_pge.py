@@ -21,16 +21,21 @@ class PESearch(SearchAlgorithm):
         random_state: Optional[int] = None,
         name: str = None,
         save: bool = False,
+        initial_set=None,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self._learning_factor = learning_factor
         self._selection = selection
         self._epsilon_greed = epsilon_greed
-        self._model: Dict = {}
         self._random_states = random.Random(random_state)
         self._name = name or str(time.time())
         self._save = save
+        self._model: Dict = {}
+
+        if initial_set:
+            self._model: Dict = update_model({}, merge_updates(*initial_set), self._learning_factor)
+        print(self._model)
 
     def _start_generation(self):
         self._samplers = []
@@ -58,7 +63,7 @@ class PESearch(SearchAlgorithm):
         self._model = update_model(self._model, updates, self._learning_factor)
 
         # save an internal state of metaheuristic for other executions
-        if self._save == True:
+        if self._save:
             with open("model-" + self._name + ".pickle", "wb") as f:
                 pickle.dump(self._model, f)
 

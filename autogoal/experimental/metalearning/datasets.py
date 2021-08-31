@@ -27,6 +27,7 @@ from autogoal.kb import (
 
 DatasetType = Enum('DatasetType', 'CLASSIFICATION REGRESSION CLUSTERING')
 
+
 # Class that represent a dataset.
 class Dataset:
     def __init__(self, name: str, load, type: DatasetType=None):

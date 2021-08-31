@@ -22,6 +22,7 @@ class XGBRankerMetaLearner(MetaLearner):
         self._model_path = self._resources_path / 'model.pkl'
         self._vectorizer_path = self._resources_path / 'vectorizer.pkl'
         self._encoder_path = self._resources_path / 'encoder.pkl'
+        self._samples_path = self._resources_path / 'samples.pkl'
         self.model = self._try_to_load_model(load)
 
     def _try_to_load_model(self, load):
@@ -29,6 +30,7 @@ class XGBRankerMetaLearner(MetaLearner):
             try:
                 self._vectorizer = pickle.load(open(self._vectorizer_path, 'rb'))
                 self._pipelines_encoder = pickle.load(open(self._encoder_path, 'rb'))
+                self.samples = pickle.load(open(self._samples_path, 'rb'))
                 return pickle.load(open(self._model_path, 'rb'))
             except FileNotFoundError:
                 load = False
@@ -57,6 +59,7 @@ class XGBRankerMetaLearner(MetaLearner):
             pickle.dump(self.model, open(f'{self._model_path}', 'wb'))
             pickle.dump(self._vectorizer, open(self._vectorizer_path, 'wb'))
             pickle.dump(self._pipelines_encoder, open(self._encoder_path, 'wb'))
+            pickle.dump(self.samples, open(self._samples_path, 'wb'))
 
     def predict(self, dataset: Dataset):
         data_features = self.preprocess_metafeatures(dataset)
@@ -69,7 +72,7 @@ class XGBRankerMetaLearner(MetaLearner):
         y_hat = self.model.predict(features)
 
         decode_pipeline = self.decode_pipelines(pipelines)
-        pipelines_info = self.get_all_pipeline_info(decode_pipeline, files)
+        pipelines_info, pipeline_types = self.get_all_pipeline_info(decode_pipeline, files)
         return pipelines_info, y_hat
 
 
@@ -111,7 +114,8 @@ class XGBRankerMetaLearner(MetaLearner):
         """
         Get the complete info of the pipelines ( to get the hyper-parameters )
         """
-        pipeline_info = []
+        pipeline_updates = []
+        pipeline_models = []
         for pipe, dataset_path in zip(pipelines, datasets_path):
             feature = {}
             self.load_dataset_features(dataset_path, feature)
@@ -120,8 +124,9 @@ class XGBRankerMetaLearner(MetaLearner):
             for pipeline in metalabels['features']:
                 algorithms = self.get_pipeline_algorithms(pipeline)
                 if len(pipe) == len(algorithms) and all(pipe == algorithms):
-                    pipeline_info.append(pipeline)
+                    pipeline_updates.append(pipeline)
+                    pipeline_models.append(metalabels['features_type'])
                     break
             else:
                 print(dataset_path)
-        return pipeline_info
+        return pipeline_updates, pipeline_models

@@ -10,6 +10,7 @@ from autogoal.utils import Hour, Min
 from autogoal.contrib import find_classes
 from autogoal.kb import Pipeline
 from autogoal import grammar
+from autogoal.sampling import MeanDevParam, UnormalizedWeightParam, DistributionParam, WeightParam
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
@@ -192,10 +193,12 @@ class MetaLearner:
         features = self.load_dataset_feature(dataset)
         if features is None:
             # if dataset was not found train to load the features
-            self.train_dataset(dataset)
-            features = self.load_dataset_feature(dataset)
-
-        meta_feature = features['meta_features']
+            X, y = dataset.load()
+            meta_feature = MetaFeatureExtractor().extract_features(X, y, dataset)
+            # self.train_dataset(dataset)
+            # features = self.load_dataset_feature(dataset)
+        else:
+            meta_feature = features['meta_features']
 
         # preprocess the dataset features
         vect = np.array(self._vectorizer.transform([meta_feature]).todense())[0]
@@ -394,3 +397,29 @@ class MetaLearner:
         for metric, score in metrics.items():
             metrics[metric] = mean(score)
         return metrics
+
+    def _parse_features_types(self, features_types: Dict[str, str]):
+        float_re = '[-+] \d*\.\d+|\d'
+        unormalized_re = re.compile(f'UnormalizedWeightParam\(value=({float_re})\)')
+        weight_re = re.compile(f'WeightParam\(value=({float_re})\)')
+        meandev_re = re.compile(f'MeanDevParam\(.*mean=({float_re}),.*dev=({float_re}),.*initial_params=\(({float_re}), ({float_re})\)\).*')
+        # distribution_re = re.compile(f'DistributionParam(weights=\[{float_re}, {float_re}\]\)')
+        for handle, param in features_types.items():
+            m = unormalized_re.match(param)
+            if m is not None:
+                value = m.group(1)
+                p = UnormalizedWeightParam(value)
+            else:
+                m = weight_re.match(param)
+                if m is not None:
+                    value = m.group(1)
+                    p = WeightParam(value)
+                else:
+                    m = meandev_re.match(param)
+                    if m is not None:
+                        mean_ = m.group(1)
+                        dev = m.group(2)
+                        initial_param1 = m.group(3)
+                        initial_param2 = m.group(4)
+                        p = MeanDevParam(mean_, dev, (initial_param1, initial_param2))
+

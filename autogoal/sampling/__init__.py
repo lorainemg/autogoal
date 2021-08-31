@@ -575,10 +575,9 @@ class WeightParam(ModelParam):
 
         return WeightParam(np.average(values, weights=weights))
 
-
 def update_model(model, updates, alpha: float = 1):
     new_model = {}
-
+    print(model)
     for handle, params in model.items():
         upd = updates.get(handle)
 
