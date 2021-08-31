@@ -362,10 +362,9 @@ class MetaLearner:
         """Returns the average of the score for every entry"""
         return [mean(values) if values else 0 for values in score.values()]
 
-    def evaluate(self, dataset: Dataset, pred: List[float], pipelines: List[Pipeline], metrics: List=None) -> Dict[str, float]:
+    def evaluate(self, X, y, pred: List[float], pipelines: List[Pipeline], metrics: List=None) -> Dict[str, float]:
         """Evaluates the proposal given dataset based in a metric"""
         metrics = metrics or _METRICS
-        X, y = dataset.load()
         target = self.score_pipelines(X, y, pipelines, 1)
         score = {}
         for metric in metrics:
@@ -376,8 +375,10 @@ class MetaLearner:
         """Evaluates the proposal given a list of datasets given a metrics"""
         predictions = [self.predict(dataset) for dataset in datasets]
         scores = {}
-        for dataset, (pipelines, y_hat) in zip(datasets, predictions):
-            scores[dataset.name] = self.evaluate(dataset, y_hat, pipelines, metric)
+        for dataset, (pipelines_info, y_hat) in zip(datasets, predictions):
+            X, y = dataset.load()
+            pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
+            scores[dataset.name] = self.evaluate(X, y, y_hat, pipelines, metric)
         scores['global'] = self.calculate_global_score(scores)
         json.dump(scores, open('autogoal/experimental/metalearning/resources/metalearning_score.json', 'w+'))
         return scores
@@ -392,5 +393,4 @@ class MetaLearner:
                     metrics[metric] = [score]
         for metric, score in metrics.items():
             metrics[metric] = mean(score)
-        print(metrics)
         return metrics

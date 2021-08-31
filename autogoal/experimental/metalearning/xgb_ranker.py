@@ -52,11 +52,7 @@ class XGBRankerMetaLearner(MetaLearner):
 
         decode_pipeline = self.decode_pipelines(pipelines)
         pipelines_info = self.get_all_pipeline_info(decode_pipeline, files)
-        if dataset.input_type is None:
-            dataset.load()      # dataset has to load to take input type :(
-        pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
-
-        return pipelines, y_hat
+        return pipelines_info, y_hat
 
 
     @staticmethod
