@@ -29,7 +29,7 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
-        self._features_path = Path('autogoal/experimental/metalearning/resources/')
+        self._resources_path = Path('autogoal/experimental/metalearning/resources/')
         self._pipelines_encoder = LabelEncoder()
 
     def meta_train(self, dataset_type: DatasetType):
@@ -97,7 +97,7 @@ class MetaLearner:
         """
         type_ = re.match('DatasetType.(\w+)', str(dataset_type))
         path = '' if type_ is None else type_.group(1).capitalize()
-        features_path = self._features_path / path
+        features_path = self._resources_path / path
         if not features_path.exists():
             mkdir(features_path)
         return features_path

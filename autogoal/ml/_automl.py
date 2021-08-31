@@ -35,6 +35,7 @@ class AutoML:
             cross_validation_steps=3,
             registry=None,
             score_metric=None,
+            metalearner=None,
             **search_kwargs
     ):
         self.input = input
@@ -52,6 +53,7 @@ class AutoML:
         self.score_metric = score_metric or accuracy
         self.search_kwargs = search_kwargs
         self._unpickled = False
+        self.metalearner = metalearner
 
         if random_state:
             np.random.seed(random_state)
