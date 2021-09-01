@@ -129,5 +129,5 @@ class XGBRankerMetaLearner(MetaLearner):
                     break
             else:
                 print(dataset_path)
-        pipeline_models = self._parse_features_types(pipeline_models)
+        pipeline_models = self.parse_features_type(pipeline_models)
         return pipeline_updates, pipeline_models

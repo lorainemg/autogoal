@@ -387,6 +387,7 @@ class MetaLearner:
         return scores
 
     def calculate_global_score(self, scores: Dict[str, Dict[str, float]]):
+        """Calculate average score of all datasets"""
         metrics = {}
         for dataset_score in scores.values():
             for metric, score in dataset_score.items():
@@ -398,7 +399,10 @@ class MetaLearner:
             metrics[metric] = mean(score)
         return metrics
 
-    def _parse_features_types(self, features_types: List[List[Dict[str, str]]]):
+    def parse_features_type(self, features_types: List[List[Dict[str, str]]]):
+        """
+        Parse feature types (models) written as strings and converts them into objects.
+        """
         float_re = re.compile(r'(-?(\d*\.\d+|\d+))')
         params = []
         for model_pipelines in features_types:
@@ -410,7 +414,9 @@ class MetaLearner:
         return params
 
     def parse_param(self, param, regex):
+        """Helper method that parse the params and converts them into objects"""
         values = [float(number) for number, _ in regex.findall(param)]
+        p = None
         try:
             if param.startswith('UnormalizedWeightParam'):
                 # value = float_re.findall(param)[0]
@@ -422,9 +428,6 @@ class MetaLearner:
                 p = MeanDevParam(*values[:2], initial_params=values[2:])
             elif param.startswith('DistributionParam'):
                 p = DistributionParam(values)
-            else:
-                print(param)
-                p = None
         except TypeError as e:
             print(e)
             p = None
