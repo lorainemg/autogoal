@@ -439,3 +439,7 @@ class MetaLearner:
         for pipeline_model in pipeline_models:
             model.update(pipeline_model)
         return update_model(model, merged_updates)
+
+    def create_initial_set(self, dataset: Dataset):
+        pipeline_updates, pipeline_model, _ = self.predict(dataset)
+        return self.construct_initial_model(pipeline_updates, pipeline_model)

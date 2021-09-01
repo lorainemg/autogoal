@@ -28,7 +28,7 @@ def test_automl(X, y):
             output=Tensor[1, Categorical, Dense],
             evaluation_timeout=5 * Min,
             search_timeout=30 * Min,
-            # metalearner=XGBRankerMetaLearner()
+            metalearner=XGBRankerMetaLearner()
     )
 
     automl.fit(X_train, y_train, logger=RichLogger())
@@ -54,8 +54,8 @@ def test_datasets(datasets):
 
 
 if __name__ == '__main__':
-    # X, y = cars.load()
-    # test_automl(X, y)
+    X, y = cars.load()
+    test_automl(X, y)
 
     datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)
@@ -64,7 +64,8 @@ if __name__ == '__main__':
     # learner.train(datasets)
     learner.meta_train(datasets[:60])
     predictions = learner.test(datasets[60:])
-    for (pipeline_info, pipeline_types, _) in predictions:
-        model = learner.construct_initial_model(pipeline_info, pipeline_types)
-    print(model)
+    # model = None
+    # for (pipeline_info, pipeline_types, _) in predictions:
+    #     model = learner.construct_initial_model(pipeline_info, pipeline_types)
+    # print(model)
     # learner.evaluate_datasets(datasets[60:])

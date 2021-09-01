@@ -78,7 +78,7 @@ class AutoML:
         self.output = self._output_type(y)
 
         if self.metalearner is not None:
-            initial_set, _ = self.metalearner.predict(Dataset("", load=lambda: (X, y)))
+            initial_set = self.metalearner.create_initial_set(Dataset("", load=lambda: (X, y)))
         else:
             initial_set = None
 

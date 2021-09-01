@@ -31,11 +31,7 @@ class PESearch(SearchAlgorithm):
         self._random_states = random.Random(random_state)
         self._name = name or str(time.time())
         self._save = save
-        self._model: Dict = {}
-
-        if initial_set:
-            self._model: Dict = update_model({}, merge_updates(*initial_set), self._learning_factor)
-        print(self._model)
+        self._model: Dict = initial_set or {}
 
     def _start_generation(self):
         self._samplers = []
