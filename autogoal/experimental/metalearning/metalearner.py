@@ -399,18 +399,15 @@ class MetaLearner:
             metrics[metric] = mean(score)
         return metrics
 
-    def parse_features_type(self, features_types: List[List[Dict[str, str]]]):
+    def parse_features_type(self, features_types: List[Dict[str, str]]):
         """
         Parse feature types (models) written as strings and converts them into objects.
         """
         float_re = re.compile(r'(-?(\d*\.\d+|\d+))')
         params = []
-        for model_pipelines in features_types:
-            pipeline_params = []
-            for feature_models in model_pipelines:
-                models_params = {handle: self.parse_param(param, float_re) for handle, param in feature_models.items()}
-                pipeline_params.append(models_params)
-            params.append(pipeline_params)
+        for feature_models in features_types:
+            models_params = {handle: self.parse_param(param, float_re) for handle, param in feature_models.items()}
+            params.append(models_params)
         return params
 
     def parse_param(self, param, regex):
@@ -432,3 +429,6 @@ class MetaLearner:
             print(e)
             p = None
         return p
+
+    def construct_initial_model(self):
+        pass

@@ -121,11 +121,11 @@ class XGBRankerMetaLearner(MetaLearner):
             self.load_dataset_features(dataset_path, feature)
             metalabels = list(feature.values())[0]['meta_labels']
             pipe = pipe[pipe.nonzero()]
-            for pipeline in metalabels['features']:
+            for pipeline, pipeline_model in zip(metalabels['features'], metalabels['feature_types']):
                 algorithms = self.get_pipeline_algorithms(pipeline)
                 if len(pipe) == len(algorithms) and all(pipe == algorithms):
                     pipeline_updates.append(pipeline)
-                    pipeline_models.append(metalabels['feature_types'])
+                    pipeline_models.append(pipeline_model)
                     break
             else:
                 print(dataset_path)
