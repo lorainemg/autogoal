@@ -63,5 +63,8 @@ if __name__ == '__main__':
     learner = XGBRankerMetaLearner()
     # learner.train(datasets)
     learner.meta_train(datasets[:60])
-    learner.test(datasets[60:])
-    learner.evaluate_datasets(datasets[60:])
+    predictions = learner.test(datasets[60:])
+    for (pipeline_info, pipeline_types, _) in predictions:
+        model = learner.construct_initial_model(pipeline_info, pipeline_types)
+    print(model)
+    # learner.evaluate_datasets(datasets[60:])

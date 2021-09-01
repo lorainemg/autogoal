@@ -11,6 +11,8 @@ from autogoal.contrib import find_classes
 from autogoal.kb import Pipeline
 from autogoal import grammar
 from autogoal.sampling import MeanDevParam, UnormalizedWeightParam, DistributionParam, WeightParam
+from autogoal.sampling import update_model, merge_updates
+
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
@@ -378,7 +380,7 @@ class MetaLearner:
         """Evaluates the proposal given a list of datasets given a metrics"""
         predictions = [self.predict(dataset) for dataset in datasets]
         scores = {}
-        for dataset, (pipelines_info, y_hat) in zip(datasets, predictions):
+        for dataset, (pipelines_info, _, y_hat) in zip(datasets, predictions):
             X, y = dataset.load()
             pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
             scores[dataset.name] = self.evaluate(X, y, y_hat, pipelines, metric)
@@ -430,5 +432,10 @@ class MetaLearner:
             p = None
         return p
 
-    def construct_initial_model(self):
-        pass
+    def construct_initial_model(self, pipeline_updates, pipeline_models):
+        """Merges all previous experience to create a initial model"""
+        merged_updates = merge_updates(*pipeline_updates)
+        model = {}
+        for pipeline_model in pipeline_models:
+            model.update(pipeline_model)
+        return update_model(model, merged_updates)

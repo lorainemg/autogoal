@@ -73,7 +73,7 @@ class XGBRankerMetaLearner(MetaLearner):
 
         decode_pipeline = self.decode_pipelines(pipelines)
         pipelines_info, pipeline_types = self.get_all_pipeline_info(decode_pipeline, files)
-        return pipelines_info, y_hat
+        return pipelines_info, pipeline_types, y_hat
 
 
     @staticmethod
