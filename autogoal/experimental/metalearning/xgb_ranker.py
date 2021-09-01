@@ -125,8 +125,9 @@ class XGBRankerMetaLearner(MetaLearner):
                 algorithms = self.get_pipeline_algorithms(pipeline)
                 if len(pipe) == len(algorithms) and all(pipe == algorithms):
                     pipeline_updates.append(pipeline)
-                    pipeline_models.append(metalabels['features_type'])
+                    pipeline_models.append(metalabels['feature_types'])
                     break
             else:
                 print(dataset_path)
+        pipeline_models = self._parse_features_types(pipeline_models)
         return pipeline_updates, pipeline_models

@@ -54,8 +54,8 @@ def test_datasets(datasets):
 
 
 if __name__ == '__main__':
-    X, y = cars.load()
-    test_automl(X, y)
+    # X, y = cars.load()
+    # test_automl(X, y)
 
     datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)

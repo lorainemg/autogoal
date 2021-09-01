@@ -398,28 +398,34 @@ class MetaLearner:
             metrics[metric] = mean(score)
         return metrics
 
-    def _parse_features_types(self, features_types: Dict[str, str]):
-        float_re = '[-+] \d*\.\d+|\d'
-        unormalized_re = re.compile(f'UnormalizedWeightParam\(value=({float_re})\)')
-        weight_re = re.compile(f'WeightParam\(value=({float_re})\)')
-        meandev_re = re.compile(f'MeanDevParam\(.*mean=({float_re}),.*dev=({float_re}),.*initial_params=\(({float_re}), ({float_re})\)\).*')
-        # distribution_re = re.compile(f'DistributionParam(weights=\[{float_re}, {float_re}\]\)')
-        for handle, param in features_types.items():
-            m = unormalized_re.match(param)
-            if m is not None:
-                value = m.group(1)
-                p = UnormalizedWeightParam(value)
-            else:
-                m = weight_re.match(param)
-                if m is not None:
-                    value = m.group(1)
-                    p = WeightParam(value)
-                else:
-                    m = meandev_re.match(param)
-                    if m is not None:
-                        mean_ = m.group(1)
-                        dev = m.group(2)
-                        initial_param1 = m.group(3)
-                        initial_param2 = m.group(4)
-                        p = MeanDevParam(mean_, dev, (initial_param1, initial_param2))
+    def _parse_features_types(self, features_types: List[List[Dict[str, str]]]):
+        float_re = re.compile(r'(-?(\d*\.\d+|\d+))')
+        params = []
+        for model_pipelines in features_types:
+            pipeline_params = []
+            for feature_models in model_pipelines:
+                models_params = {handle: self.parse_param(param, float_re) for handle, param in feature_models.items()}
+                pipeline_params.append(models_params)
+            params.append(pipeline_params)
+        return params
 
+    def parse_param(self, param, regex):
+        values = [float(number) for number, _ in regex.findall(param)]
+        try:
+            if param.startswith('UnormalizedWeightParam'):
+                # value = float_re.findall(param)[0]
+                p = UnormalizedWeightParam(*values)
+            elif param.startswith('WeightParam'):
+                # value = float_re.findall(param)[0]
+                p = WeightParam(*values)
+            elif param.startswith('MeanDevParam'):
+                p = MeanDevParam(*values[:2], initial_params=values[2:])
+            elif param.startswith('DistributionParam'):
+                p = DistributionParam(values)
+            else:
+                print(param)
+                p = None
+        except TypeError as e:
+            print(e)
+            p = None
+        return p
