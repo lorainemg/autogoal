@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from typing import Tuple, List
 from pathlib import Path
 
+MTL_RESOURCES_PATH = 'autogoal/experimental/metalearning/resources/'
 
 def get_train_test_datasets(dataset_folder: Path = None) -> Tuple[List[Dataset], List[Dataset]]:
     dataset_ext = DatasetExtractor(dataset_folder)

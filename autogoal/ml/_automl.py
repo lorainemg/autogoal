@@ -77,10 +77,8 @@ class AutoML:
         self.input = self._input_type(X)
         self.output = self._output_type(y)
 
-        if self.metalearner is not None:
-            initial_set = self.metalearner.create_initial_set(Dataset("", load=lambda: (X, y)))
-        else:
-            initial_set = None
+        d = self._construct_dataset(X, y, **kwargs)
+        initial_set = self.metalearner.create_initial_set(d) if self.metalearner else None
 
         search = self.search_algorithm(
             self.make_pipeline_builder(),
@@ -97,6 +95,13 @@ class AutoML:
 
         self.fit_pipeline(X, y)
         return self.best_pipeline_, self.best_score_
+
+    def _construct_dataset(self, X, y, **kwargs):
+        """Helper function to construct a dataset object from inputs"""
+        try:
+            return Dataset(kwargs['name'], load=lambda: (X, y))
+        except KeyError:
+            return Dataset('', load=lambda: (X, y))
 
     def fit_pipeline(self, X, y):
         self._check_fitted()

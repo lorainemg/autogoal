@@ -1,11 +1,10 @@
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
-from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values, train_test_split
+from autogoal.experimental.metalearning.utils import pad_arrays, fix_indef_values, train_test_split, MTL_RESOURCES_PATH
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets_logger import DatasetFeatureLogger
 from autogoal.ml.metrics import accuracy
-from autogoal.experimental.metalearning.metrics import _METRICS, _CMETRICS
+from autogoal.experimental.metalearning.metrics import _METRICS
 from autogoal.ml import AutoML
-from autogoal.search import RichLogger
 from autogoal.utils import Hour, Min
 from autogoal.contrib import find_classes
 from autogoal.kb import Pipeline
@@ -13,13 +12,14 @@ from autogoal import grammar
 from autogoal.sampling import MeanDevParam, UnormalizedWeightParam, DistributionParam, WeightParam
 from autogoal.sampling import update_model, merge_updates
 
-
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from numpy import mean
 from itertools import chain
 from pathlib import Path
 from typing import List, Tuple, Dict
+
+import uuid
 import numpy as np
 import inspect
 import json
@@ -32,7 +32,16 @@ class MetaLearner:
         self.k = k  # the numbers of possible algorithms to predict
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
-        self._resources_path = Path('autogoal/experimental/metalearning/resources/')
+
+        self._resources_path = Path(MTL_RESOURCES_PATH) / 'datasets_info'
+        if not self._resources_path.exists():
+            self._resources_path.mkdir()
+
+        self._results_path = self._resources_path / 'results'
+        if not self._results_path.exists():
+            self._results_path.mkdir()
+            
+        self._results_path.mkdir(exist_ok=True)
         self._pipelines_encoder = LabelEncoder()
 
     def meta_train(self, dataset_type: DatasetType):
@@ -376,7 +385,7 @@ class MetaLearner:
             score.update(**metric(target, pred))
         return score
 
-    def evaluate_datasets(self, datasets: List[Dataset], metric=None) -> List[Dict[str, float]]:
+    def evaluate_datasets(self, datasets: List[Dataset], save=True, metric=None) -> Dict[str, Dict[str, float]]:
         """Evaluates the proposal given a list of datasets given a metrics"""
         predictions = [self.predict(dataset) for dataset in datasets]
         scores = {}
@@ -385,7 +394,9 @@ class MetaLearner:
             pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
             scores[dataset.name] = self.evaluate(X, y, y_hat, pipelines, metric)
         scores['global'] = self.calculate_global_score(scores)
-        json.dump(scores, open('autogoal/experimental/metalearning/resources/metalearning_score.json', 'w+'))
+
+        if save:
+            json.dump(scores, open(self._results_path / str(uuid.uuid4()), 'w+'))
         return scores
 
     def calculate_global_score(self, scores: Dict[str, Dict[str, float]]):

@@ -1,6 +1,7 @@
 from autogoal.search import Logger
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
+from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
 from pathlib import Path
 import json
 
@@ -10,14 +11,14 @@ class DatasetFeatureLogger(Logger):
         self,
         X, y,
         dataset: Dataset,
-        output_folder: Path,
+        output_folder: Path = None,
         extractor=None
     ):
         self.extractor = MetaFeatureExtractor(extractor)
         self.dataset = dataset
         self.X = X
         self.y = y
-        self.output_folder = output_folder
+        self.output_folder = output_folder or Path(MTL_RESOURCES_PATH)
         self.meta_features_ = {}
         self.meta_targets = []
         self._features = []
