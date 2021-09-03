@@ -22,16 +22,17 @@ from typing import List, Tuple, Dict
 import uuid
 import numpy as np
 import inspect
+import pickle
 import json
 import re
 from os import mkdir
 
 
 class MetaLearner:
-    def __init__(self, k=5, features_extractor=None):
-        self.k = k  # the numbers of possible algorithms to predict
+    def __init__(self, features_extractor=None, load=True):
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
+        self.samples = None
 
         self._resources_path = Path(MTL_RESOURCES_PATH) / 'datasets_info'
         if not self._resources_path.exists():
@@ -40,9 +41,18 @@ class MetaLearner:
         self._results_path = self._resources_path / 'results'
         if not self._results_path.exists():
             self._results_path.mkdir()
-            
+
         self._results_path.mkdir(exist_ok=True)
         self._pipelines_encoder = LabelEncoder()
+
+        self._model_path = self._resources_path / 'model.pkl'
+        self._vectorizer_path = self._resources_path / 'vectorizer.pkl'
+        self._encoder_path = self._resources_path / 'encoder.pkl'
+        self._samples_path = self._resources_path / 'samples.pkl'
+        self.model = self._try_to_load_model(load)
+
+    def _try_to_load_model(self, load):
+        raise NotImplementedError()
 
     def meta_train(self, dataset_type: DatasetType):
         raise NotImplementedError
@@ -452,5 +462,64 @@ class MetaLearner:
         return update_model(model, merged_updates)
 
     def create_initial_set(self, dataset: Dataset):
+        """Creates initial set to warm start autogoal"""
         pipeline_updates, pipeline_model, _ = self.predict(dataset)
         return self.construct_initial_model(pipeline_updates, pipeline_model)
+
+    def get_similar_datasets(self, features, similarity_measure) -> List:
+        """Get the pipelines of the datasets with similar features of actual dataset"""
+        datasets = []
+        for feat, scores, pipes, file in self.samples:
+            sorted_pipes = [p for p, _ in sorted(zip(pipes, scores), key=lambda x: x[1])]
+            similarity = similarity_measure(feat, features)
+            datasets.append((similarity, sorted_pipes, file))
+        # Return the sorted list of the most similar datasets
+        return sorted(datasets, key=lambda x: x[0], reverse=True)
+
+    def get_best_pipelines(self, similar_datasets: List, amount_datasets: int, amount_pipelines: int):
+        """
+        Given the best pipelines to test, this uses a weighted scheme to select between of similar datasets
+        and the amount of the best pipelines selected from each dataset
+        """
+        pipelines = []
+        files = []
+        scores = []
+        for score, pipes, file in similar_datasets[:amount_datasets]:
+            pipes = pipes[:amount_pipelines]
+            score = score[:amount_pipelines]
+            pipelines.extend(pipes)
+            files.extend([file]*len(pipes))
+            scores.extend(score)
+        return pipelines, files, score
+
+    def get_all_pipeline_info(self, pipelines, datasets_path):
+        """
+        Get the complete info of the pipelines ( to get the hyper-parameters )
+        """
+        pipeline_updates = []
+        pipeline_models = []
+        for pipe, dataset_path in zip(pipelines, datasets_path):
+            feature = {}
+            self.load_dataset_features(dataset_path, feature)
+            metalabels = list(feature.values())[0]['meta_labels']
+            pipe = pipe[pipe.nonzero()]
+            for pipeline, pipeline_model in zip(metalabels['features'], metalabels['feature_types']):
+                algorithms = self.get_pipeline_algorithms(pipeline)
+                if len(pipe) == len(algorithms) and all(pipe == algorithms):
+                    pipeline_updates.append(pipeline)
+                    pipeline_models.append(pipeline_model)
+                    break
+            else:
+                print(dataset_path)
+        pipeline_models = self.parse_features_type(pipeline_models)
+        return pipeline_updates, pipeline_models
+
+    def load_vectors(self):
+        self._vectorizer = pickle.load(open(self._vectorizer_path, 'rb'))
+        self._pipelines_encoder = pickle.load(open(self._encoder_path, 'rb'))
+        self.samples = pickle.load(open(self._samples_path, 'rb'))
+
+    def save_vectors(self):
+        pickle.dump(self._vectorizer, open(self._vectorizer_path, 'wb'))
+        pickle.dump(self._pipelines_encoder, open(self._encoder_path, 'wb'))
+        pickle.dump(self.samples, open(self._samples_path, 'wb'))

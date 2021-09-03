@@ -1,4 +1,4 @@
-from autogoal.search import Logger
+from autogoal.search import RichLogger
 from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
 
 from pathlib import Path
@@ -7,7 +7,7 @@ import uuid
 import json
 
 
-class ResultsLogger(Logger):
+class ResultsLogger(RichLogger):
     def __init__(self, name: str=""):
         super().__init__()
         self.name: str = name or str(uuid.uuid4())
@@ -18,11 +18,13 @@ class ResultsLogger(Logger):
         self.path /= f'{self.name}.json'
 
     def begin(self, generations, pop_size):
+        super().begin(generations, pop_size)
         self.fns: list = []
         self.pipelines: list = []
         self.failed_pipelines: int = 0
 
     def eval_solution(self, solution, fitness):
+        super().eval_solution(solution, fitness)
         if not hasattr(solution, "sampler_"):
             raise ("Cannot log if the underlying algorithm is not PESearch")
 
@@ -35,7 +37,13 @@ class ResultsLogger(Logger):
         self.pipelines.append(pipeline)
 
     def end(self, best_solution, best_fn):
-        max_idx = self.fns.index(best_fn)
+        super().end(best_solution, best_fn)
+
+        try:
+            max_idx = self.fns.index(best_fn)
+        except ValueError:
+            max_idx = -1
+
         info = {
             'max_idx': max_idx,
             'failed_pipelines': self.failed_pipelines,
