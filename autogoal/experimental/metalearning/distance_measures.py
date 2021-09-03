@@ -8,8 +8,9 @@ def cosine_measure(vect_i, vect_j):
     return dot_prod / (vect_i_l2norm * vect_j_l2norm)
 
 
-def jaccard_distance(self, vect_i, vect_j):
-    """Binary distance between 2 documents"""
-    intersect = len(vect_i.intersection(vect_j))
-    union = len(vect_i.union(vect_j))
-    return intersect / union
+def l1_distance(vect_i, vect_j):
+    return sum([abs(xi - xj) for xi, xj in zip(vect_i, vect_j)])
+
+
+def l2_distance(vect_i, vect_j):
+    return np.sqrt(sum([(xi-xj)**2 for xi, xj in zip(vect_i, vect_j)]))
