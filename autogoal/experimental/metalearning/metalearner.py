@@ -29,16 +29,18 @@ from os import mkdir
 
 
 class MetaLearner:
-    def __init__(self, features_extractor=None, load=True, *, resource_name:str = ""):
+    def __init__(self, features_extractor=None, load=True, *, learner_name:str = ""):
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
         self.samples = None
+        self.name = learner_name
 
-        self._resources_path = Path(MTL_RESOURCES_PATH) / 'datasets_info'
-        if not self._resources_path.exists():
-            self._resources_path.mkdir()
+        resources = Path(MTL_RESOURCES_PATH)
+        self._datasets_path = resources / 'datasets_info'
+        if not self._datasets_path.exists():
+            self._datasets_path.mkdir(parents=True)
 
-        resources = self._resources_path / resource_name
+        resources /=  learner_name
         self._results_path = resources / 'results'
         if not self._results_path.exists():
             self._results_path.mkdir(parents=True)
@@ -97,7 +99,6 @@ class MetaLearner:
             with open('errors.txt', 'w+') as f:
                 f.write(dataset.name)
 
-
     def get_training_samples(self, datasets: List[Dataset]):
         """
         Returns all the features vectorized and the labels and the filenames of the datasets processed.
@@ -119,7 +120,7 @@ class MetaLearner:
         """
         type_ = re.match('DatasetType.(\w+)', str(dataset_type))
         path = '' if type_ is None else type_.group(1).capitalize()
-        features_path = self._resources_path / path
+        features_path = self._datasets_path / path
         if not features_path.exists():
             mkdir(features_path)
         return features_path

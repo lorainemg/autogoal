@@ -29,7 +29,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     evaluation_timeout=1 * Min,
                     search_timeout=10 * Min)
             name = f'automl_{dataset.name}_{i}'
-            automl.fit(X, y, logger=ResultsLogger(name))
+            automl.fit(X, y, logger=ResultsLogger('autogoal', name))
 
     # print(automl.best_pipeline_)
     # print(automl.best_score_)
@@ -80,7 +80,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 search_timeout=10 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
-            automl.fit(X, y, name=dataset.name, logger=ResultsLogger(name))
+            automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
 
 
 if __name__ == '__main__':
@@ -92,6 +92,6 @@ if __name__ == '__main__':
     # train_dataset, test_dataset = split_datasets(datasets, 0.15)
     train_dataset, test_dataset = datasets[:60], datasets[60:]
     # test_datasets(test_dataset[:1])
-    test_mtl(train_dataset, test_dataset, XGBRankerMetaLearner(load=False), 1)
+    # test_mtl(train_dataset, test_dataset, XGBRankerMetaLearner(load=False), 1)
     # test_automl(test_dataset, 3)
     test_autogoal_with_mtl(test_dataset, NNMetaLearner(), 3)

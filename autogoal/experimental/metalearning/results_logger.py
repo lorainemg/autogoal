@@ -8,13 +8,13 @@ import json
 
 
 class ResultsLogger(RichLogger):
-    def __init__(self, name: str=""):
+    def __init__(self, learner_name: str, name: str=""):
         super().__init__()
         self.name: str = name or str(uuid.uuid4())
 
-        self.path = Path(MTL_RESOURCES_PATH) / 'results'
+        self.path = Path(MTL_RESOURCES_PATH) / 'results' / learner_name
         if not self.path.exists():
-            self.path.mkdir()
+            self.path.mkdir(parents=True)
         self.path /= f'{self.name}.json'
 
     def begin(self, generations, pop_size):
