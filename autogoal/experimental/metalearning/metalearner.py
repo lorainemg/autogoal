@@ -34,21 +34,21 @@ class MetaLearner:
         self._vectorizer = DictVectorizer()
         self.samples = None
 
-        self._resources_path = Path(MTL_RESOURCES_PATH) / f'datasets_info/{resource_name}'
+        self._resources_path = Path(MTL_RESOURCES_PATH) / 'datasets_info'
         if not self._resources_path.exists():
             self._resources_path.mkdir()
 
-        self._results_path = self._resources_path / 'results'
+        resources = self._resources_path / resource_name
+        self._results_path = resources / 'results'
         if not self._results_path.exists():
-            self._results_path.mkdir()
+            self._results_path.mkdir(parents=True)
 
-        self._results_path.mkdir(exist_ok=True)
         self._pipelines_encoder = LabelEncoder()
 
-        self._model_path = self._resources_path / 'model.pkl'
-        self._vectorizer_path = self._resources_path / 'vectorizer.pkl'
-        self._encoder_path = self._resources_path / 'encoder.pkl'
-        self._samples_path = self._resources_path / 'samples.pkl'
+        self._model_path = resources / 'model.pkl'
+        self._vectorizer_path = resources / 'vectorizer.pkl'
+        self._encoder_path = resources / 'encoder.pkl'
+        self._samples_path = resources / 'samples.pkl'
         self.model = self._try_to_load_model(load)
 
     def _try_to_load_model(self, load):
@@ -472,9 +472,9 @@ class MetaLearner:
         for feat, scores, pipes, file in self.samples:
             sorted_pipes = [p for p, _ in sorted(zip(pipes, scores), key=lambda x: x[1])]
             similarity = similarity_measure(feat, features)
-            datasets.append((similarity, sorted_pipes, file))
+            datasets.append((similarity, scores, sorted_pipes, file))
         # Return the sorted list of the most similar datasets
-        return sorted(datasets, key=lambda x: x[0], reverse=True)
+        return [d[1:] for d in sorted(datasets, key=lambda x: x[0], reverse=True)]
 
     def get_best_pipelines(self, similar_datasets: List, amount_datasets: int, amount_pipelines: int):
         """
@@ -490,7 +490,7 @@ class MetaLearner:
             pipelines.extend(pipes)
             files.extend([file]*len(pipes))
             scores.extend(score)
-        return pipelines, files, score
+        return pipelines, files, scores
 
     def get_all_pipeline_info(self, pipelines, datasets_path):
         """
@@ -520,7 +520,13 @@ class MetaLearner:
         self.samples = pickle.load(open(self._samples_path, 'rb'))
 
     def save_vectors(self):
-
         pickle.dump(self._vectorizer, open(self._vectorizer_path, 'wb'))
         pickle.dump(self._pipelines_encoder, open(self._encoder_path, 'wb'))
         pickle.dump(self.samples, open(self._samples_path, 'wb'))
+
+    def _sort_pipelines_by_score(self, pipelines, files, scores):
+        sorted_pipelines = sorted(zip(pipelines, files, scores), key=lambda x: x[-1], reverse=True)
+        pipelines = [p for p, _, _ in sorted_pipelines]
+        files = [f for _, f, _ in sorted_pipelines]
+        scores = [s for _, _, s in sorted_pipelines]
+        return pipelines, files, scores

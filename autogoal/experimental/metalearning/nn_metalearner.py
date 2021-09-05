@@ -5,7 +5,7 @@ from autogoal.experimental.metalearning.distance_measures import cosine_measure
 
 
 class NNMetaLearner(MetaLearner):
-    def __init__(self,  features_extractor=None, load=True, number_of_results: int = 5):
+    def __init__(self,  features_extractor=None, load=True, number_of_results: int = 15):
         super().__init__(features_extractor, load, resource_name='nn_metalearner')
         self.n_results = number_of_results
 
@@ -29,8 +29,13 @@ class NNMetaLearner(MetaLearner):
 
         # get the pipelines to test
         datasets = self.get_similar_datasets(data_features, cosine_measure)
+
         pipelines, files, scores = self.get_best_pipelines(datasets, 5, 5)
+        pipelines, files, scores = self._sort_pipelines_by_score(pipelines, files, scores)
+        pipelines, files, scores = pipelines[:self.n_results], files[:self.n_results], scores[:self.n_results]
 
         decode_pipeline = self.decode_pipelines(pipelines)
         pipelines_info, pipeline_types = self.get_all_pipeline_info(decode_pipeline, files)
         return pipelines_info, pipeline_types, scores
+
+
