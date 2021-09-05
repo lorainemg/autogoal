@@ -5,6 +5,7 @@ from typing import List
 from sklearn.model_selection import train_test_split
 from autogoal.search import RichLogger
 from autogoal.experimental.metalearning.xgb_learner import XGBRankerMetaLearner
+from autogoal.experimental.metalearning.nn_metalearner import NNMetaLearner
 from autogoal.experimental.metalearning import DatasetExtractor, Dataset
 from autogoal.experimental.metalearning.results_logger import ResultsLogger
 from autogoal.datasets import cars

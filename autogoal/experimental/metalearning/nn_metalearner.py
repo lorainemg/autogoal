@@ -2,12 +2,11 @@ from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 from autogoal.experimental.metalearning.distance_measures import cosine_measure
-import pickle
 
 
-class NNLearner(MetaLearner):
+class NNMetaLearner(MetaLearner):
     def __init__(self,  features_extractor=None, load=True, number_of_results: int = 5):
-        super().__init__(features_extractor, load)
+        super().__init__(features_extractor, load, resource_name='nn_metalearner')
         self.n_results = number_of_results
 
     def _try_to_load_model(self, load):

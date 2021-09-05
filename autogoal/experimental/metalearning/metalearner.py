@@ -29,12 +29,12 @@ from os import mkdir
 
 
 class MetaLearner:
-    def __init__(self, features_extractor=None, load=True):
+    def __init__(self, features_extractor=None, load=True, *, resource_name:str = ""):
         self.meta_feature_extractor = MetaFeatureExtractor(features_extractor)
         self._vectorizer = DictVectorizer()
         self.samples = None
 
-        self._resources_path = Path(MTL_RESOURCES_PATH) / 'datasets_info'
+        self._resources_path = Path(MTL_RESOURCES_PATH) / f'datasets_info/{resource_name}'
         if not self._resources_path.exists():
             self._resources_path.mkdir()
 
@@ -520,6 +520,7 @@ class MetaLearner:
         self.samples = pickle.load(open(self._samples_path, 'rb'))
 
     def save_vectors(self):
+
         pickle.dump(self._vectorizer, open(self._vectorizer_path, 'wb'))
         pickle.dump(self._pipelines_encoder, open(self._encoder_path, 'wb'))
         pickle.dump(self.samples, open(self._samples_path, 'wb'))

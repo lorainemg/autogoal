@@ -48,6 +48,8 @@ class ResultsLogger(RichLogger):
             'max_idx': max_idx,
             'failed_pipelines': self.failed_pipelines,
             'scores': self.fns,
-            'pipelines': self.pipelines
+            'pipelines': self.pipelines,
+            'best_solution': best_solution,
+            'best_fn': best_fn
         }
         json.dump(info, open(self.path, 'w'))

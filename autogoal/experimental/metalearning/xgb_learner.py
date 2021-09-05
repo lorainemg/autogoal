@@ -15,7 +15,7 @@ class XGBRankerMetaLearner(MetaLearner):
         """
         number_of_results: number of results to return in each prediction
         """
-        super().__init__(features_extractor, load)
+        super().__init__(features_extractor, load, resource_name='xgb_metalearner')
         self.n_results = number_of_results
 
     def _try_to_load_model(self, load):
