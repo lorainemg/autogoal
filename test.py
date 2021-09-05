@@ -1,17 +1,17 @@
-from autogoal.ml import AutoML
-from autogoal.kb import MatrixContinuousDense, VectorCategorical, Supervised, Tensor, Continuous, Dense, Categorical
-from typing import List, Type
-
-from sklearn.model_selection import train_test_split
-from autogoal.search import RichLogger
-from autogoal.experimental.metalearning.xgb_learner import XGBRankerMetaLearner
-from autogoal.experimental.metalearning.nn_metalearner import NNMetaLearner
-from autogoal.experimental.metalearning.metalearner import MetaLearner
-from autogoal.experimental.metalearning import DatasetExtractor, Dataset
-from autogoal.experimental.metalearning.results_logger import ResultsLogger
-from autogoal.datasets import cars
+import os
 from pathlib import Path
 from random import shuffle
+from typing import List
+from zipfile import ZipFile, ZIP_DEFLATED
+
+from autogoal.experimental.metalearning import DatasetExtractor, Dataset
+from autogoal.experimental.metalearning.metalearner import MetaLearner
+from autogoal.experimental.metalearning.nn_metalearner import NNMetaLearner
+from autogoal.experimental.metalearning.results_logger import ResultsLogger
+from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
+
+from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
+from autogoal.ml import AutoML
 from autogoal.utils import Min
 
 
@@ -83,15 +83,27 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
             automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
 
 
-if __name__ == '__main__':
-    # X, y = cars.load()
-    # test_automl(X, y)
+def compress_resources(zip_path: str = 'resources.zip'):
+    """Compress resources in the resources path"""
+    root_path = Path(MTL_RESOURCES_PATH)
 
+    with ZipFile(zip_path, 'w') as zip_obj:
+        for folder_name, subfolders, filenames in os.walk(root_path):
+            for filename in filenames:
+                # Create complete filepath of file in directory
+                file_path = os.path.join(folder_name, filename)
+                # Add file to zip
+                zip_obj.write(file_path, file_path, compress_type=ZIP_DEFLATED)
+
+
+if __name__ == '__main__':
     datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
     # test_datasets(datasets)
+
+    compress_resources()
     # train_dataset, test_dataset = split_datasets(datasets, 0.15)
     train_dataset, test_dataset = datasets[:60], datasets[60:]
-    # test_datasets(test_dataset[:1])
+
     # test_mtl(train_dataset, test_dataset, XGBRankerMetaLearner(load=False), 1)
     # test_automl(test_dataset, 3)
     test_autogoal_with_mtl(test_dataset, NNMetaLearner(), 3)
