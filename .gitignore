@@ -157,3 +157,4 @@ output.csv
 
 # Resources from meta-learning (for now)
 autogoal/experimental/metalearning/resources/
+datasets/

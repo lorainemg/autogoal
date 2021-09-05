@@ -49,7 +49,6 @@ class ResultsLogger(RichLogger):
             'failed_pipelines': self.failed_pipelines,
             'scores': self.fns,
             'pipelines': self.pipelines,
-            'best_solution': best_solution,
             'best_fn': best_fn
         }
         json.dump(info, open(self.path, 'w'))

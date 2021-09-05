@@ -11,7 +11,7 @@ services:
     volumes:
       - "./autogoal:/usr/lib/python3/dist-packages/autogoal"
       - "./vendor/illiterate/illiterate:/usr/lib/python3/dist-packages/illiterate"
-      - "~/.autogoal:/home/coder/.autogoal"
+      - "./datasets:/home/coder/.autogoal"
       - ".:/home/coder/autogoal"
       - "~/.ssh:/home/coder/.ssh"
       - "~/.gitconfig:/home/coder/.gitconfig"
