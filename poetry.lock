@@ -17,11 +17,6 @@ toolz = "*"
 [package.extras]
 dev = ["black", "docutils", "ipython", "flake8", "pytest", "sphinx", "m2r", "vega-datasets", "recommonmark"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
-
 [[package]]
 name = "ansicon"
 version = "1.89.0"
@@ -30,10 +25,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "appdirs"
@@ -43,10 +35,6 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "appnope"
@@ -56,10 +44,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "argon2-cffi"
@@ -78,10 +62,6 @@ dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pytest", "sphinx", "wheel", "p
 docs = ["sphinx"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pytest"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "astor"
@@ -91,10 +71,6 @@ category = "main"
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "astroid"
@@ -109,10 +85,6 @@ lazy-object-proxy = ">=1.4.0"
 typed-ast = {version = ">=1.4.0,<1.5", markers = "implementation_name == \"cpython\" and python_version < \"3.8\""}
 wrapt = ">=1.11,<1.13"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "async-generator"
@@ -122,10 +94,6 @@ category = "main"
 optional = true
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "atomicwrites"
@@ -135,10 +103,6 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "attrs"
@@ -154,10 +118,6 @@ docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface"]
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "backcall"
@@ -167,10 +127,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "base58"
@@ -183,10 +139,6 @@ python-versions = ">=3.5"
 [package.extras]
 tests = ["pytest (>=4.6)", "pytest-flake8", "pytest-cov", "PyHamcrest (>=2.0.2)", "coveralls", "pytest-benchmark"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "beautifulsoup4"
@@ -203,10 +155,6 @@ soupsieve = {version = ">1.2", markers = "python_version >= \"3.0\""}
 html5lib = ["html5lib"]
 lxml = ["lxml"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "black"
@@ -228,10 +176,6 @@ typed-ast = ">=1.4.0"
 [package.extras]
 d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "bleach"
@@ -246,10 +190,6 @@ packaging = "*"
 six = ">=1.9.0"
 webencodings = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "blessed"
@@ -264,10 +204,6 @@ jinxed = {version = ">=0.5.4", markers = "platform_system == \"Windows\""}
 six = ">=1.9.0"
 wcwidth = ">=0.1.4"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "blinker"
@@ -277,10 +213,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "blis"
@@ -293,10 +225,6 @@ python-versions = "*"
 [package.dependencies]
 numpy = ">=1.15.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "boto3"
@@ -311,10 +239,6 @@ botocore = ">=1.20.90,<1.21.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.4.0,<0.5.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "botocore"
@@ -332,10 +256,6 @@ urllib3 = ">=1.25.4,<1.27"
 [package.extras]
 crt = ["awscrt (==0.11.15)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "cached-property"
@@ -345,10 +265,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "cachetools"
@@ -358,10 +274,6 @@ category = "main"
 optional = true
 python-versions = "~=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "catalogue"
@@ -374,10 +286,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 [package.dependencies]
 importlib-metadata = {version = ">=0.20", markers = "python_version < \"3.8\""}
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "certifi"
@@ -387,10 +295,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "cffi"
@@ -403,10 +307,6 @@ python-versions = "*"
 [package.dependencies]
 pycparser = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "chardet"
@@ -416,10 +316,6 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "click"
@@ -429,10 +325,6 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "codecov"
@@ -446,10 +338,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 coverage = "*"
 requests = ">=2.7.9"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "colorama"
@@ -459,10 +347,6 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "commonmark"
@@ -475,10 +359,6 @@ python-versions = "*"
 [package.extras]
 test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "coverage"
@@ -491,10 +371,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 [package.extras]
 toml = ["toml"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "cryptography"
@@ -515,10 +391,6 @@ sdist = ["setuptools-rust (>=0.11.4)"]
 ssh = ["bcrypt (>=3.1.5)"]
 test = ["pytest (>=6.0)", "pytest-cov", "pytest-subtests", "pytest-xdist", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,!=3.79.2)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "cymem"
@@ -528,10 +400,6 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "dataclasses"
@@ -541,10 +409,6 @@ category = "main"
 optional = false
 python-versions = ">=3.6, <3.7"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "decorator"
@@ -554,10 +418,6 @@ category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "defusedxml"
@@ -567,10 +427,6 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
 
 [[package]]
 name = "enlighten"
@@ -584,10 +440,7 @@ python-versions = "*"
 blessed = ">=1.17.7"
 prefixed = ">=0.3.2"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "entrypoints"
@@ -597,10 +450,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "enum-compat"
@@ -610,10 +460,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "filelock"
@@ -623,10 +470,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "future"
@@ -636,10 +480,7 @@ category = "main"
 optional = true
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "gensim"
@@ -661,10 +502,7 @@ docs = ["pytest", "pytest-rerunfailures", "mock", "cython", "nmslib", "pyemd", "
 test = ["pytest", "pytest-rerunfailures", "mock", "cython", "nmslib", "pyemd", "testfixtures", "Morfessor (==2.0.2a4)", "python-Levenshtein (>=0.10.2)", "visdom (>0.1.8.7)", "scikit-learn"]
 test-win = ["pytest", "pytest-rerunfailures", "mock", "cython", "nmslib", "pyemd", "testfixtures", "Morfessor (==2.0.2a4)", "python-Levenshtein (>=0.10.2)", "visdom (>0.1.8.7)", "scikit-learn"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "h5py"
@@ -683,10 +521,7 @@ numpy = [
     {version = ">=1.19.3", markers = "python_version >= \"3.9\""},
 ]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "huggingface-hub"
@@ -708,10 +543,7 @@ dev = ["pytest", "black (>=20.8b1)", "isort (>=5.5.4)", "flake8 (>=3.8.3)"]
 quality = ["black (>=20.8b1)", "isort (>=5.5.4)", "flake8 (>=3.8.3)"]
 testing = ["pytest"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "idna"
@@ -721,10 +553,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "importlib-metadata"
@@ -741,10 +570,7 @@ zipp = ">=0.5"
 docs = ["sphinx", "rst.linker"]
 testing = ["packaging", "pep517", "unittest2", "importlib-resources (>=1.3)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "ipykernel"
@@ -764,10 +590,7 @@ traitlets = ">=4.1.0"
 [package.extras]
 test = ["pytest (!=5.3.4)", "pytest-cov", "flaky", "nose", "jedi (<=0.17.2)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "ipython"
@@ -800,10 +623,7 @@ parallel = ["ipyparallel"]
 qtconsole = ["qtconsole"]
 test = ["nose (>=0.10.1)", "requests", "testpath", "pygments", "nbformat", "ipykernel", "numpy (>=1.14)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "ipython-genutils"
@@ -813,10 +633,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "ipywidgets"
@@ -837,10 +654,7 @@ widgetsnbextension = ">=3.5.0,<3.6.0"
 [package.extras]
 test = ["pytest (>=3.6.0)", "pytest-cov", "mock"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "isort"
@@ -855,10 +669,7 @@ colors = ["colorama (>=0.4.3,<0.5.0)"]
 requirements_deprecated_finder = ["pip-api", "pipreqs"]
 pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jedi"
@@ -875,10 +686,7 @@ parso = ">=0.8.0,<0.9.0"
 qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jinja2"
@@ -894,10 +702,7 @@ MarkupSafe = ">=2.0"
 [package.extras]
 i18n = ["Babel (>=2.7)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jinxed"
@@ -910,10 +715,7 @@ python-versions = "*"
 [package.dependencies]
 ansicon = {version = "*", markers = "platform_system == \"Windows\""}
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jmespath"
@@ -923,10 +725,7 @@ category = "main"
 optional = true
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "joblib"
@@ -936,10 +735,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "json5"
@@ -952,10 +748,7 @@ python-versions = "*"
 [package.extras]
 dev = ["hypothesis"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jsonschema"
@@ -975,10 +768,7 @@ six = ">=1.11.0"
 format = ["idna", "jsonpointer (>1.13)", "rfc3987", "strict-rfc3339", "webcolors"]
 format_nongpl = ["idna", "jsonpointer (>1.13)", "webcolors", "rfc3986-validator (>0.1.0)", "rfc3339-validator"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyter-client"
@@ -1000,10 +790,7 @@ traitlets = "*"
 doc = ["sphinx (>=1.3.6)", "sphinx-rtd-theme", "sphinxcontrib-github-alt"]
 test = ["async-generator", "ipykernel", "ipython", "mock", "pytest-asyncio", "pytest-timeout", "pytest", "mypy", "pre-commit", "jedi (<0.18)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyter-core"
@@ -1017,10 +804,7 @@ python-versions = ">=3.6"
 pywin32 = {version = ">=1.0", markers = "sys_platform == \"win32\""}
 traitlets = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyterlab"
@@ -1040,10 +824,7 @@ tornado = "<6.0.0 || >6.0.0,<6.0.1 || >6.0.1,<6.0.2 || >6.0.2"
 docs = ["sphinx", "recommonmark", "sphinx-rtd-theme", "sphinx-copybutton"]
 test = ["pytest", "pytest-check-links", "requests"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyterlab-pygments"
@@ -1056,10 +837,7 @@ python-versions = "*"
 [package.dependencies]
 pygments = ">=2.4.1,<3"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyterlab-server"
@@ -1079,10 +857,7 @@ requests = "*"
 [package.extras]
 test = ["pytest", "requests"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "jupyterlab-widgets"
@@ -1092,10 +867,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "keras"
@@ -1115,10 +887,7 @@ scipy = ">=0.14"
 tests = ["pytest", "pytest-pep8", "pytest-xdist", "flaky", "pytest-cov", "pandas", "requests", "markdown"]
 visualize = ["pydot (>=1.2.4)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "lazy-object-proxy"
@@ -1128,10 +897,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "livereload"
@@ -1145,10 +911,7 @@ python-versions = "*"
 six = "*"
 tornado = {version = "*", markers = "python_version > \"2.7\""}
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "lunr"
@@ -1166,10 +929,7 @@ six = ">=1.11.0"
 [package.extras]
 languages = ["nltk (>=3.2.5,<3.5)", "nltk (>=3.2.5)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "markdown"
@@ -1185,10 +945,7 @@ importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 [package.extras]
 testing = ["coverage", "pyyaml"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "markdown-include"
@@ -1201,10 +958,7 @@ python-versions = "*"
 [package.dependencies]
 markdown = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "markupsafe"
@@ -1214,10 +968,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mccabe"
@@ -1227,10 +978,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mistune"
@@ -1240,10 +988,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mkdocs"
@@ -1262,10 +1007,7 @@ Markdown = ">=3.2.1"
 PyYAML = ">=3.10"
 tornado = ">=5.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mkdocs-material"
@@ -1281,10 +1023,7 @@ mkdocs = ">=1.0"
 Pygments = ">=2.4"
 pymdown-extensions = ">=6.3"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "more-itertools"
@@ -1294,10 +1033,7 @@ category = "main"
 optional = true
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "murmurhash"
@@ -1307,10 +1043,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mypy"
@@ -1328,10 +1061,7 @@ typing-extensions = ">=3.7.4"
 [package.extras]
 dmypy = ["psutil (>=4.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "mypy-extensions"
@@ -1341,10 +1071,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nbclient"
@@ -1366,10 +1093,7 @@ dev = ["codecov", "coverage", "ipython", "ipykernel", "ipywidgets", "pytest (>=4
 sphinx = ["Sphinx (>=1.7)", "sphinx-book-theme", "mock", "moto", "myst-parser"]
 test = ["codecov", "coverage", "ipython", "ipykernel", "ipywidgets", "pytest (>=4.1)", "pytest-cov (>=2.6.1)", "check-manifest", "flake8", "mypy", "tox", "bumpversion", "xmltodict", "pip (>=18.1)", "wheel (>=0.31.0)", "setuptools (>=38.6.0)", "twine (>=1.11.0)", "black"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nbconvert"
@@ -1401,10 +1125,7 @@ serve = ["tornado (>=4.0)"]
 test = ["pytest", "pytest-cov", "pytest-dependency", "ipykernel", "ipywidgets (>=7)", "pyppeteer (==0.2.2)"]
 webpdf = ["pyppeteer (==0.2.2)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nbformat"
@@ -1424,10 +1145,7 @@ traitlets = ">=4.1"
 fast = ["fastjsonschema"]
 test = ["check-manifest", "fastjsonschema", "testpath", "pytest", "pytest-cov"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nest-asyncio"
@@ -1437,10 +1155,7 @@ category = "main"
 optional = true
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "networkx"
@@ -1466,10 +1181,7 @@ pytest = ["pytest"]
 pyyaml = ["pyyaml"]
 scipy = ["scipy"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nltk"
@@ -1493,10 +1205,7 @@ plot = ["matplotlib"]
 tgrep = ["pyparsing"]
 twitter = ["twython"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "notebook"
@@ -1527,10 +1236,7 @@ docs = ["sphinx", "nbsphinx", "sphinxcontrib-github-alt", "sphinx-rtd-theme"]
 json-logging = ["json-logging"]
 test = ["pytest", "coverage", "requests", "nbval", "selenium", "pytest-cov", "requests-unixsocket"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "numpy"
@@ -1540,10 +1246,7 @@ category = "main"
 optional = false
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "nx-altair"
@@ -1558,10 +1261,7 @@ altair = "*"
 networkx = "*"
 pandas = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "packaging"
@@ -1574,10 +1274,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [package.dependencies]
 pyparsing = ">=2.0.2"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pandas"
@@ -1595,10 +1292,7 @@ pytz = ">=2017.2"
 [package.extras]
 test = ["pytest (>=4.0.2)", "pytest-xdist", "hypothesis (>=3.58)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pandocfilters"
@@ -1608,10 +1302,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "parso"
@@ -1625,10 +1316,7 @@ python-versions = ">=3.6"
 qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["docopt", "pytest (<6.0.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pathspec"
@@ -1638,10 +1326,7 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pexpect"
@@ -1654,10 +1339,7 @@ python-versions = "*"
 [package.dependencies]
 ptyprocess = ">=0.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pickleshare"
@@ -1667,10 +1349,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pillow"
@@ -1680,10 +1359,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "plac"
@@ -1693,10 +1369,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pluggy"
@@ -1712,10 +1385,7 @@ importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
 [package.extras]
 dev = ["pre-commit", "tox"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "prefixed"
@@ -1725,10 +1395,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "preshed"
@@ -1742,10 +1409,7 @@ python-versions = "*"
 cymem = ">=2.0.2,<2.1.0"
 murmurhash = ">=0.28.0,<1.1.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "prometheus-client"
@@ -1758,10 +1422,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [package.extras]
 twisted = ["twisted"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "prompt-toolkit"
@@ -1774,10 +1435,7 @@ python-versions = ">=3.6.1"
 [package.dependencies]
 wcwidth = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "protobuf"
@@ -1790,10 +1448,7 @@ python-versions = "*"
 [package.dependencies]
 six = ">=1.9"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "psutil"
@@ -1806,10 +1461,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [package.extras]
 test = ["ipaddress", "mock", "unittest2", "enum34", "pywin32", "wmi"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "ptyprocess"
@@ -1819,10 +1471,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "py"
@@ -1832,10 +1481,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pycparser"
@@ -1845,10 +1491,7 @@ category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pydeck"
@@ -1868,10 +1511,7 @@ traitlets = ">=4.3.2"
 [package.extras]
 testing = ["pytest"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pydot"
@@ -1884,10 +1524,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [package.dependencies]
 pyparsing = ">=2.1.4"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pygments"
@@ -1897,10 +1534,7 @@ category = "main"
 optional = false
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pylint"
@@ -1917,10 +1551,7 @@ isort = ">=4.2.5,<6"
 mccabe = ">=0.6,<0.7"
 toml = ">=0.7.1"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pymdown-extensions"
@@ -1933,10 +1564,7 @@ python-versions = ">=3.6"
 [package.dependencies]
 Markdown = ">=3.2"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pyparsing"
@@ -1946,10 +1574,7 @@ category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pyrsistent"
@@ -1959,10 +1584,7 @@ category = "main"
 optional = true
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pytest"
@@ -1987,10 +1609,7 @@ wcwidth = "*"
 checkqa-mypy = ["mypy (==v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pytest-cov"
@@ -2008,10 +1627,7 @@ toml = "*"
 [package.extras]
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "python-crfsuite"
@@ -2021,10 +1637,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "python-dateutil"
@@ -2037,10 +1650,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 [package.dependencies]
 six = ">=1.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "python-telegram-bot"
@@ -2060,10 +1670,7 @@ tornado = ">=5.1"
 json = ["ujson"]
 socks = ["pysocks"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pytz"
@@ -2073,10 +1680,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pywin32"
@@ -2086,10 +1690,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pywinpty"
@@ -2099,10 +1700,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pyyaml"
@@ -2112,10 +1710,7 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "pyzmq"
@@ -2129,10 +1724,7 @@ python-versions = ">=3.6"
 cffi = {version = "*", markers = "implementation_name == \"pypy\""}
 py = {version = "*", markers = "implementation_name == \"pypy\""}
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "regex"
@@ -2142,10 +1734,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "requests"
@@ -2165,10 +1754,7 @@ urllib3 = ">=1.21.1,<1.27"
 security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "rich"
@@ -2188,10 +1774,7 @@ typing-extensions = ">=3.7.4,<4.0.0"
 [package.extras]
 jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "s3transfer"
@@ -2207,10 +1790,7 @@ botocore = ">=1.12.36,<2.0a.0"
 [package.extras]
 crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "sacremoses"
@@ -2227,10 +1807,7 @@ regex = "*"
 six = "*"
 tqdm = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "scikit-learn"
@@ -2245,10 +1822,7 @@ joblib = ">=0.11"
 numpy = ">=1.11.0"
 scipy = ">=0.17.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "scipy"
@@ -2261,10 +1835,7 @@ python-versions = ">=3.6"
 [package.dependencies]
 numpy = ">=1.14.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "send2trash"
@@ -2274,10 +1845,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "seqlearn"
@@ -2287,10 +1855,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "shellingham"
@@ -2300,10 +1865,7 @@ category = "main"
 optional = true
 python-versions = "!=3.0,!=3.1,!=3.2,!=3.3,>=2.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "six"
@@ -2313,10 +1875,7 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "sklearn-crfsuite"
@@ -2332,10 +1891,7 @@ six = "*"
 tabulate = "*"
 tqdm = ">=2.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "smart-open"
@@ -2354,10 +1910,7 @@ s3 = ["boto3"]
 test = ["boto3", "google-cloud-storage", "azure-storage-blob", "azure-common", "azure-core", "requests", "moto[server] (==1.3.14)", "pathlib2", "responses", "paramiko", "parameterizedtestcase", "pytest", "pytest-rerunfailures"]
 webhdfs = ["requests"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "soupsieve"
@@ -2367,10 +1920,7 @@ category = "main"
 optional = true
 python-versions = ">=3.6"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "spacy"
@@ -2410,10 +1960,7 @@ ko = ["natto-py (==0.9.0)"]
 lookups = ["spacy_lookups_data (>=0.3.2,<0.4.0)"]
 th = ["pythainlp (>=2.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "srsly"
@@ -2423,10 +1970,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "streamlit"
@@ -2460,10 +2004,7 @@ tzlocal = "*"
 validators = "*"
 watchdog = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "tabulate"
@@ -2476,10 +2017,7 @@ python-versions = "*"
 [package.extras]
 widechars = ["wcwidth"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "termcolor"
@@ -2489,10 +2027,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "terminado"
@@ -2510,10 +2045,7 @@ tornado = ">=4"
 [package.extras]
 test = ["pytest"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "testpath"
@@ -2526,10 +2058,7 @@ python-versions = ">= 3.5"
 [package.extras]
 test = ["pytest", "pathlib2"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "thinc"
@@ -2563,10 +2092,7 @@ cuda90 = ["cupy-cuda90 (>=5.0.0b4)"]
 cuda91 = ["cupy-cuda91 (>=5.0.0b4)"]
 cuda92 = ["cupy-cuda92 (>=5.0.0b4)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "tokenizers"
@@ -2579,10 +2105,7 @@ python-versions = "*"
 [package.extras]
 testing = ["pytest"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "toml"
@@ -2592,10 +2115,7 @@ category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "toolz"
@@ -2605,10 +2125,7 @@ category = "main"
 optional = true
 python-versions = ">=3.5"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "tornado"
@@ -2618,10 +2135,7 @@ category = "main"
 optional = true
 python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, != 3.3.*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "tqdm"
@@ -2636,10 +2150,7 @@ dev = ["py-make (>=0.1.0)", "twine", "wheel"]
 notebook = ["ipywidgets (>=6)"]
 telegram = ["requests"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "traitlets"
@@ -2657,10 +2168,7 @@ six = "*"
 [package.extras]
 test = ["pytest", "mock"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "transformers"
@@ -2710,10 +2218,7 @@ torch = ["torch (>=1.0)"]
 torchhub = ["filelock", "huggingface-hub (==0.0.8)", "importlib-metadata", "numpy (>=1.17)", "packaging", "protobuf", "regex (!=2019.12.17)", "requests", "sacremoses", "sentencepiece (==0.1.91)", "torch (>=1.0)", "tokenizers (>=0.10.1,<0.11)", "tqdm (>=4.27)"]
 vision = ["pillow"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "typed-ast"
@@ -2723,10 +2228,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "typer"
@@ -2745,10 +2247,7 @@ dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)"]
 doc = ["mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=5.4.0,<6.0.0)", "markdown-include (>=0.5.1,<0.6.0)"]
 test = ["shellingham (>=1.3.0,<2.0.0)", "pytest (>=4.4.0,<5.4.0)", "pytest-cov (>=2.10.0,<3.0.0)", "coverage (>=5.2,<6.0)", "pytest-xdist (>=1.32.0,<2.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "mypy (==0.782)", "black (>=19.10b0,<20.0b0)", "isort (>=5.0.6,<6.0.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "typer-cli"
@@ -2764,10 +2263,7 @@ importlib_metadata = ">=1.5,<3.0"
 shellingham = ">=1.3.2,<2.0.0"
 typer = ">=0.3.0,<0.4.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "typing-extensions"
@@ -2777,10 +2273,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "tzlocal"
@@ -2793,10 +2286,7 @@ python-versions = "*"
 [package.dependencies]
 pytz = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "urllib3"
@@ -2811,10 +2301,7 @@ brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "validators"
@@ -2831,10 +2318,7 @@ six = ">=1.4.0"
 [package.extras]
 test = ["pytest (>=2.2.3)", "flake8 (>=2.4.0)", "isort (>=4.2.2)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "wasabi"
@@ -2844,10 +2328,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "watchdog"
@@ -2860,10 +2341,7 @@ python-versions = ">=3.6"
 [package.extras]
 watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "wcwidth"
@@ -2873,10 +2351,7 @@ category = "main"
 optional = false
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "webencodings"
@@ -2886,10 +2361,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "widgetsnbextension"
@@ -2902,10 +2374,7 @@ python-versions = "*"
 [package.dependencies]
 notebook = ">=4.4.1"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "wikipedia"
@@ -2919,10 +2388,7 @@ python-versions = "*"
 beautifulsoup4 = "*"
 requests = ">=2.0.0,<3.0.0"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "wrapt"
@@ -2932,10 +2398,7 @@ category = "main"
 optional = true
 python-versions = "*"
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "xgboost"
@@ -2956,10 +2419,7 @@ pandas = ["pandas"]
 plotting = ["graphviz", "matplotlib"]
 scikit-learn = ["scikit-learn"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [[package]]
 name = "zipp"
@@ -2973,10 +2433,7 @@ python-versions = ">=3.6"
 docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "pytest-enabler", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
-[package.source]
-type = "legacy"
-url = "http://nexus.prod.uci.cu/repository/pypi-proxy/simple"
-reference = "uci"
+
 
 [extras]
 contrib = ["gensim", "jupyterlab", "keras", "nltk", "nx_altair", "python-telegram-bot", "scikit-learn", "seqlearn", "sklearn_crfsuite", "spacy", "streamlit", "transformers", "wikipedia"]
