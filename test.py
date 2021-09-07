@@ -98,13 +98,23 @@ def compress_resources(zip_path: str = 'resources.zip'):
 
 
 if __name__ == '__main__':
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
-    # test_datasets(datasets)
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/gt 5000')).datasets
+    test_datasets(datasets)
 
-    # compress_resources()
+    xgb_ranker = XGBRankerMetaLearner()
+    nn_learner = NNMetaLearner()
+
+    # All datasets are trained to get the meta-features of the problem
+    xgb_ranker.train(datasets)
+
     # train_dataset, test_dataset = split_datasets(datasets, 0.15)
     train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    # test_mtl(train_dataset, test_dataset, XGBRankerMetaLearner(load=False), 1)
-    # test_automl(test_dataset, 3)
-    test_autogoal_with_mtl(test_dataset, XGBRankerMetaLearner(), 3)
+    # test_automl(test_dataset, 1)
+    #
+    # test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
+    test_autogoal_with_mtl(test_dataset[:1], xgb_ranker, 1)
+
+    test_mtl(train_dataset, test_dataset, nn_learner, 1)
+    test_autogoal_with_mtl(test_dataset, nn_learner, 1)
+    compress_resources()
