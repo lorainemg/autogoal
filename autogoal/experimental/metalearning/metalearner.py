@@ -88,7 +88,7 @@ class MetaLearner:
             output=dataset.output_type,
             registry=algorithms,
             evaluation_timeout=5 * Min,
-            search_timeout=30 * Min
+            search_timeout=60 * Min
         )
         try:
             fix_indef_values(X)

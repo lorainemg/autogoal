@@ -3,17 +3,20 @@ version: "2.3"
 services:
   mtl:
     container_name: autogoal-mtl
+    build:
+      context: mtl-dockerfile
+      dockerfile: mtl.dockerfile
     hostname: autogoal
-    image: autogoal/autogoal
     ports:
       - 8501:8501
       - 8000:8000
     volumes:
       - "./autogoal:/usr/lib/python3/dist-packages/autogoal"
       - "./vendor/illiterate/illiterate:/usr/lib/python3/dist-packages/illiterate"
-      - "../datasets:/home/coder/.autogoal"
+#      - "./download_datasets:/home/coder/autogoal"
+#       - "../datasets:/home/coder/.autogoal"
       - ".:/home/coder/autogoal"
       - "~/.ssh:/home/coder/.ssh"
       - "~/.gitconfig:/home/coder/.gitconfig"
     user: "1000:1000"
-    command: ["python", "test.py"]
+    command: ["python", "test.py", "download_datasets"]

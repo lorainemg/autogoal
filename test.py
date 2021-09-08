@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from random import shuffle
 from typing import List
@@ -14,6 +13,8 @@ from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
 from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
+
+from download_datasets import download_classification_datasets
 
 
 def test_automl(datasets: List[Dataset], iterations: int = 1):
@@ -104,8 +105,11 @@ def compress_resources(zip_path: str = 'resources.zip'):
 
 
 if __name__ == '__main__':
-    #datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/gt 5000')).datasets
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/')).datasets
+    #datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
+
+    download_classification_datasets()
+    datasets = DatasetExtractor(Path('datasets/classification')).datasets
+    print(len(datasets))
     train_datasets, _ = split_datasets(datasets, 0.10, random=False)
 
     datasets = inspect_datasets(datasets)
@@ -119,11 +123,11 @@ if __name__ == '__main__':
     train_dataset, test_dataset = split_datasets(train_datasets, 0.15)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 10)
+    test_automl(test_dataset, 5)
 
-    test_mtl(train_dataset, test_dataset, xgb_ranker, 10)
-    test_autogoal_with_mtl(test_dataset, xgb_ranker, 10)
+    test_mtl(train_dataset, test_dataset, xgb_ranker, 5)
+    test_autogoal_with_mtl(test_dataset, xgb_ranker, 5)
 
-    test_mtl(train_dataset, test_dataset, nn_learner, 10)
-    test_autogoal_with_mtl(test_dataset, nn_learner, 10)
+    test_mtl(train_dataset, test_dataset, nn_learner, 5)
+    test_autogoal_with_mtl(test_dataset, nn_learner, 5)
     compress_resources()

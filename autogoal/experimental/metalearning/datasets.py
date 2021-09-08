@@ -155,8 +155,8 @@ class DatasetExtractor:
         datasets = []
         dataframe_folder = re.compile('\d+')
         for fn in dataset_folder.glob('**/*'):
+            d = None
             if fn.is_file():
-                d = None
                 if fn.suffix == '.py':
                     d = self.extract_py_dataset(fn)
                 elif fn.suffix == '.arff':
