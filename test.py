@@ -27,8 +27,8 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     input=(Tensor[2, Continuous, Dense],
                            Supervised[Tensor[1, Categorical, Dense]]),
                     output=Tensor[1, Categorical, Dense],
-                    evaluation_timeout=1 * Min,
-                    search_timeout=10 * Min)
+                    evaluation_timeout=5 * Min,
+                    search_timeout=60 * Min)
             name = f'automl_{dataset.name}_{i}'
             automl.fit(X, y, logger=ResultsLogger('autogoal', name))
 
@@ -44,22 +44,28 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
     #     print(sentence, "-->", real, "vs", predicted)
 
 
-def split_datasets(datasets: List[Dataset], proportion: float):
+def split_datasets(datasets: List[Dataset], proportion: float, random=True):
     """Splits datasets """
-    shuffle(datasets)
+    if random:
+        shuffle(datasets)
     train_size = int(len(datasets) * proportion)
     train_set = datasets[train_size:]
     test_set = datasets[:train_size]
     return train_set, test_set
 
 
-def test_datasets(datasets: List[Dataset]):
+def inspect_datasets(datasets: List[Dataset]):
     """Tests dataset object: load and input/output type"""
+    review_datasets = []
     for d in datasets:
         print(d.name)
         X, y = d.load()
+        if X is None or y is None:
+            continue
         print(f'input_type: {d.input_type}')
         print(f'output_type: {d.output_type}')
+        review_datasets.append(d)
+    return review_datasets
 
 
 def test_mtl(train_dataset: List[Dataset], test_dataset: List[Dataset], learner: MetaLearner, iterations: int = 1):
@@ -77,8 +83,8 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
             automl = AutoML(
                 input=dataset.input_type,
                 output=dataset.output_type,
-                evaluation_timeout=1 * Min,
-                search_timeout=10 * Min,
+                evaluation_timeout=5 * Min,
+                search_timeout=60 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
@@ -98,8 +104,11 @@ def compress_resources(zip_path: str = 'resources.zip'):
 
 
 if __name__ == '__main__':
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/gt 5000')).datasets
-    test_datasets(datasets)
+    #datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/gt 5000')).datasets
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/')).datasets
+    train_datasets, _ = split_datasets(datasets, 0.10, random=False)
+
+    datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
@@ -107,14 +116,14 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    # train_dataset, test_dataset = split_datasets(datasets, 0.15)
-    train_dataset, test_dataset = datasets[:60], datasets[60:]
+    train_dataset, test_dataset = split_datasets(train_datasets, 0.15)
+    # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    # test_automl(test_dataset, 1)
-    #
-    # test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
-    test_autogoal_with_mtl(test_dataset[:1], xgb_ranker, 1)
+    test_automl(test_dataset, 10)
 
-    test_mtl(train_dataset, test_dataset, nn_learner, 1)
-    test_autogoal_with_mtl(test_dataset, nn_learner, 1)
+    test_mtl(train_dataset, test_dataset, xgb_ranker, 10)
+    test_autogoal_with_mtl(test_dataset, xgb_ranker, 10)
+
+    test_mtl(train_dataset, test_dataset, nn_learner, 10)
+    test_autogoal_with_mtl(test_dataset, nn_learner, 10)
     compress_resources()

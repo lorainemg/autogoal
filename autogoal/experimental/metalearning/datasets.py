@@ -53,13 +53,15 @@ class Dataset:
 
     def infer_types(self, X, y):
         """Infers the semantic type of the input and the output"""
-        if isinstance(y, pd.DataFrame):
-            y = y.to_numpy()
-        self._infer_output_type(y)
+        if y is not None:
+            if isinstance(y, pd.DataFrame):
+                y = y.to_numpy()
+            self._infer_output_type(y)
         # input type depends on output type, then its processed second
-        if isinstance(X, pd.DataFrame):
-            X = X.to_numpy()
-        self._infer_input_type(X)
+        if X is not None:
+            if isinstance(X, pd.DataFrame):
+                X = X.to_numpy()
+            self._infer_input_type(X)
 
     def _infer_input_type(self, X):
         self.input_type = SemanticType.infer(X)
@@ -212,19 +214,22 @@ def arrf_loader(path: Path):
 def dataframe_loader(path: Path):
     """Loader method of json files to dataframes"""
     def wrapper(*args, **kwargs):
-        X = pd.read_json(path / 'X.json').to_numpy()
-        # fix the type
-        if X.dtype == 'O':
-            for col in range(X.shape[1]):
-                column = X[:, col]
-                column[column == np.array(None)] = 'None'
-                if isinstance(column[0], str):
-                    X[:, col] = LabelEncoder().fit_transform(column)
-        X = np.array(X, dtype='float64')
+        try:
+            X = pd.read_json(path / 'X.json').to_numpy()
+            # fix the type
+            if X.dtype == 'O':
+                for col in range(X.shape[1]):
+                    column = X[:, col]
+                    column[column == np.array(None)] = 'None'
+                    if isinstance(column[0], str):
+                        X[:, col] = LabelEncoder().fit_transform(column)
+            X = np.array(X, dtype='float64')
+        except:
+            X = None
         try:
             # y = pd.read_json(path / 'y.json', typ='series').to_frame('y')
             y = pd.read_json(path / 'y.json', typ='series').to_numpy()
-        except FileNotFoundError:
+        except:
             y = None
         return X, y
     return wrapper
