@@ -15,6 +15,7 @@ from autogoal.ml import AutoML
 from autogoal.utils import Min
 
 from download_datasets import download_classification_datasets
+import os
 
 
 def test_automl(datasets: List[Dataset], iterations: int = 1):
@@ -29,7 +30,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                            Supervised[Tensor[1, Categorical, Dense]]),
                     output=Tensor[1, Categorical, Dense],
                     evaluation_timeout=5 * Min,
-                    search_timeout=60 * Min)
+                    search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
             automl.fit(X, y, logger=ResultsLogger('autogoal', name))
 
@@ -85,7 +86,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 input=dataset.input_type,
                 output=dataset.output_type,
                 evaluation_timeout=5 * Min,
-                search_timeout=60 * Min,
+                search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))

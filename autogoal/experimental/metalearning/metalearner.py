@@ -390,7 +390,7 @@ class MetaLearner:
     def evaluate(self, X, y, pred: List[float], pipelines: List[Pipeline], metrics: List=None) -> Dict[str, float]:
         """Evaluates the proposal given dataset based in a metric"""
         metrics = metrics or _METRICS
-        target = self.score_pipelines(X, y, pipelines, 5)
+        target = self.score_pipelines(X, y, pipelines, 3)
         score = {}
         for metric in metrics:
             score.update(**metric(target, pred))
