@@ -124,11 +124,11 @@ if __name__ == '__main__':
     train_dataset, test_dataset = split_datasets(train_datasets, 0.15)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 5)
+    test_automl(test_dataset, 1)
 
-    test_mtl(train_dataset, test_dataset, xgb_ranker, 5)
-    test_autogoal_with_mtl(test_dataset, xgb_ranker, 5)
+    test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
+    test_autogoal_with_mtl(test_dataset, xgb_ranker, 1)
 
-    test_mtl(train_dataset, test_dataset, nn_learner, 5)
-    test_autogoal_with_mtl(test_dataset, nn_learner, 5)
+    test_mtl(train_dataset, test_dataset, nn_learner, 1)
+    test_autogoal_with_mtl(test_dataset, nn_learner, 1)
     compress_resources()
