@@ -46,13 +46,13 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
     #     print(sentence, "-->", real, "vs", predicted)
 
 
-def split_datasets(datasets: List[Dataset], proportion: float, random=True):
+def split_datasets(datasets: List[Dataset], train_proportion: float, random=True):
     """Splits datasets """
     if random:
         shuffle(datasets)
-    train_size = int(len(datasets) * proportion)
-    train_set = datasets[train_size:]
-    test_set = datasets[:train_size]
+    train_size = int(len(datasets) * train_proportion)
+    train_set = datasets[:train_size]
+    test_set = datasets[train_size:]
     return train_set, test_set
 
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
-    train_datasets, _ = split_datasets(datasets, 0.10, random=False)
+    train_datasets, _ = split_datasets(datasets, 0.90, random=False)
 
     datasets = inspect_datasets(datasets)
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    train_dataset, test_dataset = split_datasets(train_datasets, 0.15)
+    train_dataset, test_dataset = split_datasets(train_datasets, 0.85)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
     test_automl(test_dataset, 1)
