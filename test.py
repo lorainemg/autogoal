@@ -124,7 +124,7 @@ if __name__ == '__main__':
     train_dataset, test_dataset = split_datasets(train_datasets, 0.75)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 1)
+    test_automl(test_dataset, 3)
 
     test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
     test_autogoal_with_mtl(test_dataset, xgb_ranker, 1)
