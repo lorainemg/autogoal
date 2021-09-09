@@ -58,7 +58,7 @@ def download_classification_datasets():
     print(tasks.head())
 
     # Filtering the tasks
-    filtered_tasks = tasks.query("NumberOfInstances > 300 and NumberOfInstances < 500000 and NumberOfFeatures < 600")
+    filtered_tasks = tasks.query("NumberOfInstances > 500 and NumberOfInstances < 500000 and NumberOfFeatures < 600")
     print('Index of the tasks:', list(filtered_tasks.index))
     print('Number of tasks:', len(filtered_tasks))
 
@@ -75,7 +75,7 @@ def download_regression_datasets():
     print(tasks_df.head())
 
     # We filter the tasks to only contain datasets with more than 300 instances and less than  500 000 samples
-    filtered_tasks = tasks_df.query("NumberOfInstances > 300 and NumberOfInstances < 500000 and NumberOfFeatures < 600")
+    filtered_tasks = tasks_df.query("NumberOfInstances > 500 and NumberOfInstances < 500000 and NumberOfFeatures < 600")
     print('Index of the tasks:', list(filtered_tasks.index))
     print('Number of tasks:', len(filtered_tasks))
 

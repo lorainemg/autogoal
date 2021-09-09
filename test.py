@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    train_dataset, test_dataset = split_datasets(train_datasets, 0.85)
+    train_dataset, test_dataset = split_datasets(train_datasets, 0.75)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
     test_automl(test_dataset, 1)
