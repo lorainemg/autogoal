@@ -65,7 +65,7 @@ class MetaLearner:
     def test(self, datasets: List[Dataset]):
         return [self.predict(dataset) for dataset in datasets]
 
-    def train(self, datasets: List[Dataset], algorithms=None):
+    def train(self, datasets: List[Dataset], algorithms=None, k:int=10):
         """
             Hay 3 formas posibles de entrenar:
             1. Entrenar con todos los algoritmos con sus parámetros por defecto
@@ -75,6 +75,57 @@ class MetaLearner:
         """
         for dataset in datasets:
             self.train_dataset(dataset, algorithms)
+        # self.run_all_pipelines_all_datasets(datasets, k)
+
+    def run_all_pipelines_all_datasets(self, datasets: List[Dataset], k: int = 10):
+        datasets_type: DatasetType = datasets[0].type
+        pipelines_info = self.get_pipelines(datasets_type, k)
+        scores_info = self.run_pipelines(pipelines_info, datasets)
+        self.save_pipelines_info(scores_info, datasets_type)
+
+    def get_pipelines(self, dataset_type: DatasetType, k: int = 10):
+        """Gets all the pipelines of the datasets"""
+        folder: Path = self.get_features_path(dataset_type)
+        save_pipelines = []
+        for data_file in folder.glob('*.json'):
+            features = json.load(open(data_file, 'r+'))
+            pipelines = features['meta_labels']['features']
+            pipeline_distributions = features['meta_labels']['feature_types']
+            scores = features['meta_targets']
+            sort_pipelines = sorted(zip(pipelines, pipeline_distributions, scores),
+                                    reverse=True, key=lambda x: x[-1])[:k]
+            save_pipelines.extend(sort_pipelines)
+        return save_pipelines
+
+    def run_pipelines(self, pipelines_info, datasets: List[Dataset]):
+        """Runs all the pipelines in the list of datasets"""
+        pipelines = [pipelines for pipelines, _, _ in pipelines_info]
+        pipelines_distribution = [pipelines_dist for _, pipelines_dist, _ in pipelines_info]
+        if datasets[0].input_type is None:
+            datasets[0].load()
+        built_pipelines = self.construct_pipelines(pipelines, datasets[0].input_type)
+
+        info = {}
+        for dataset in datasets:
+            X, y = dataset.load()
+            scores = self.score_pipelines(X, y, built_pipelines, 1)
+            # save information about the score
+            info[dataset.name] = {
+                'pipelines': pipelines,
+                'pipelines_distribution': pipelines_distribution,
+                'scores': scores
+            }
+        return info
+
+    def save_pipelines_info(self, info: dict, dataset_type: DatasetType):
+        """Saves the info of the pipelines in an specific folder"""
+        feat_path = self.get_features_path(dataset_type)
+        pipeline_info_folder = feat_path / 'pipeline_info'
+        if not pipeline_info_folder.exists():
+            pipeline_info_folder.mkdir(parents=True)
+
+        for dataset, pipe_info in info.items():
+            json.dump(pipe_info, open(f'{pipeline_info_folder / dataset}.json', 'w+'))
 
     def train_dataset(self, dataset: Dataset, algorithms=None):
         """Trains a single dataset, storing information about its features"""
@@ -137,7 +188,7 @@ class MetaLearner:
 
     def append_features_and_labels(self, meta_features, meta_labels):
         """
-        Appends the matrix of meta_features and meta_labels to create a join matrix
+        Appends the matrix of meta_features and meta_labels to create a joint matrix
         where the labels columns (corresponding to the pipelined algorithms)
         have to be filled for a new datasets.
 

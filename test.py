@@ -14,8 +14,9 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-from download_datasets import download_classification_datasets
+# from download_datasets import download_classification_datasets
 import os
+# from autogoal.experimental.metalearning.experiments import datasets_feat
 
 
 def test_automl(datasets: List[Dataset], iterations: int = 1):
@@ -106,14 +107,15 @@ def compress_resources(zip_path: str = 'resources.zip'):
 
 
 if __name__ == '__main__':
-    #datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
+    print(os.listdir('/home/coder/.autogoal/data/classification'))
+    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    download_classification_datasets()
-    datasets = DatasetExtractor(Path('datasets/classification')).datasets
+    # download_classification_datasets()
+    # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
-    train_datasets, _ = split_datasets(datasets, 0.90, random=False)
+    train_datasets, _ = split_datasets(datasets, 0.70, random=False)
 
-    datasets = inspect_datasets(datasets)
+    # datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
@@ -121,14 +123,14 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    train_dataset, test_dataset = split_datasets(train_datasets, 0.75)
-    # train_dataset, test_dataset = datasets[:60], datasets[60:]
-
-    test_automl(test_dataset, 3)
-
-    test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
-    test_autogoal_with_mtl(test_dataset, xgb_ranker, 1)
-
-    test_mtl(train_dataset, test_dataset, nn_learner, 1)
-    test_autogoal_with_mtl(test_dataset, nn_learner, 1)
-    compress_resources()
+    # train_dataset, test_dataset = split_datasets(train_datasets, 0.75)
+    # # train_dataset, test_dataset = datasets[:60], datasets[60:]
+    #
+    # test_automl(test_dataset, 3)
+    #
+    # test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
+    # test_autogoal_with_mtl(test_dataset, xgb_ranker, 1)
+    #
+    # test_mtl(train_dataset, test_dataset, nn_learner, 1)
+    # test_autogoal_with_mtl(test_dataset, nn_learner, 1)
+    # compress_resources()
