@@ -156,6 +156,6 @@ metalearning.json
 output.csv
 
 # Resources from meta-learning (for now)
-autogoal/experimental/metalearning/resources/
+# autogoal/experimental/metalearning/resources/
 datasets/
 cache/

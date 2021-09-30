@@ -155,11 +155,11 @@ if __name__ == '__main__':
         Path(MTL_RESOURCES_PATH).mkdir(parents=True, exist_ok=True)
         err_file_path.open('x').close()
 
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
+    # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
     # download_classification_datasets()
-    # datasets = DatasetExtractor(Path('datasets/classification')).datasets
-    # datasets = split_datasets(datasets, 0.8)
+    datasets = DatasetExtractor(Path('datasets/classification')).datasets
+    datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
 
     # datasets = inspect_datasets(datasets)
