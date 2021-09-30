@@ -63,5 +63,5 @@ class ResultsLogger(RichLogger):
             'generations': self.generations,
             'best_fn': best_fn
         }
-        # json.dump(info, open(self.path, 'w'))
+        json.dump(info, open(self.path, 'w'))
 

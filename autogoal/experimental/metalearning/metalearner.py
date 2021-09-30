@@ -458,7 +458,7 @@ class MetaLearner:
         scores['global'] = self.calculate_global_score(scores)
 
         if save:
-            json.dump(scores, open(self._results_path / str(uuid.uuid4()), 'w+'))
+            json.dump(scores, open(f'{self._results_path / str(uuid.uuid4())}.json', 'w+'))
         return scores
 
     def calculate_global_score(self, scores: Dict[str, Dict[str, float]]):

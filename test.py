@@ -18,6 +18,9 @@ from autogoal.utils import Min
 import os
 # from autogoal.experimental.metalearning.experiments import datasets_feat
 
+err_file_path: Path = Path(MTL_RESOURCES_PATH) / 'errors.txt'
+
+err_text = []
 
 def test_automl(datasets: List[Dataset], iterations: int = 1):
     """Tests automl using autogoal"""
@@ -33,7 +36,12 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     evaluation_timeout=5 * Min,
                     search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
-            automl.fit(X, y, logger=ResultsLogger('autogoal', name))
+            try:
+                raise Exception()
+                automl.fit(X, y, logger=ResultsLogger('autogoal', name))
+            except Exception as e:
+                with err_file_path.open('a') as fd:
+                    fd.write(f'Error in dataset {dataset.name} in test_automl method \n \t{e}\n')
 
     # print(automl.best_pipeline_)
     # print(automl.best_score_)
@@ -76,7 +84,11 @@ def test_mtl(train_dataset: List[Dataset], test_dataset: List[Dataset], learner:
     learner.meta_train(train_dataset)
     for _ in range(iterations):
         # learner.test(test_dataset)
-        learner.evaluate_datasets(test_dataset)
+        try:
+            learner.evaluate_datasets(test_dataset)
+        except Exception as e:
+            with err_file_path.open('a') as fd:
+                fd.write(f'Error in test_mtl method \n \t{e}\n')
 
 
 def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterations: int = 1):
@@ -90,7 +102,11 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
-            automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
+            try:
+                automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
+            except Exception as e:
+                with err_file_path.open('a') as fd:
+                    fd.write(f'Error in {dataset.name} in test_autogoal_with_mtl method \n\t{e}\n\n')
 
 
 def compress_resources(zip_path: str = 'resources.zip'):
@@ -106,14 +122,45 @@ def compress_resources(zip_path: str = 'resources.zip'):
                 zip_obj.write(file_path, file_path, compress_type=ZIP_DEFLATED)
 
 
+def leave_one_out(datasets, learners):
+    """Test in a leave one out manner"""
+    shuffle(datasets)
+
+    for i, ds in enumerate(datasets):
+        train_datasets = []
+        if i + 1 < len(datasets):
+            train_datasets.extend(datasets[i + 1:])
+        if i - 1 > 0:
+            train_datasets.extend(datasets[: i - 1])
+
+        test_automl([ds], 1)
+
+        for learner in learners:
+            test_mtl(train_datasets, [ds], learner, 1)
+            test_autogoal_with_mtl([ds], learner, 1)
+
+
+def cv(datasets, learners):
+    train_dataset, test_dataset = split_datasets(datasets, 0.75)
+    # train_dataset, test_dataset = datasets[:60], datasets[60:]
+
+    test_automl(test_dataset, 10)
+    for learner in learners:
+        test_mtl(train_dataset, test_dataset, learner, 1)
+        test_autogoal_with_mtl(test_dataset, learner, 1)
+
+
 if __name__ == '__main__':
-    print(os.listdir('/home/coder/.autogoal/data/classification'))
+    if not err_file_path.exists():
+        Path(MTL_RESOURCES_PATH).mkdir(parents=True, exist_ok=True)
+        err_file_path.open('x').close()
+
     datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
     # download_classification_datasets()
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
+    # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-    train_datasets, _ = split_datasets(datasets, 0.70, random=False)
 
     # datasets = inspect_datasets(datasets)
 
@@ -123,14 +170,9 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    # train_dataset, test_dataset = split_datasets(train_datasets, 0.75)
-    # # train_dataset, test_dataset = datasets[:60], datasets[60:]
-    #
-    # test_automl(test_dataset, 3)
-    #
-    # test_mtl(train_dataset, test_dataset, xgb_ranker, 1)
-    # test_autogoal_with_mtl(test_dataset, xgb_ranker, 1)
-    #
-    # test_mtl(train_dataset, test_dataset, nn_learner, 1)
-    # test_autogoal_with_mtl(test_dataset, nn_learner, 1)
-    # compress_resources()
+    # leave_one_out(datasets, [xgb_ranker, nn_learner])
+    cv(datasets, [xgb_ranker, nn_learner])
+
+
+
+
