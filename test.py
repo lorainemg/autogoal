@@ -14,7 +14,7 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-# from download_datasets import download_classification_datasets
+from download_datasets import download_classification_datasets
 import os
 # from autogoal.experimental.metalearning.experiments import datasets_feat
 
@@ -136,7 +136,7 @@ def leave_one_out(datasets, learners):
         test_automl([ds], 1)
 
         for learner in learners:
-            test_mtl(train_datasets, [ds], learner, 1)
+            # test_mtl(train_datasets, [ds], learner, 1)
             test_autogoal_with_mtl([ds], learner, 1)
 
 
@@ -146,7 +146,7 @@ def cv(datasets, learners):
 
     test_automl(test_dataset, 10)
     for learner in learners:
-        test_mtl(train_dataset, test_dataset, learner, 1)
+        # test_mtl(train_dataset, test_dataset, learner, 1)
         test_autogoal_with_mtl(test_dataset, learner, 1)
 
 
@@ -157,12 +157,12 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    # download_classification_datasets()
+    download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
-    datasets = split_datasets(datasets, 0.8)
+    datasets, _ = split_datasets(datasets, 0.8)
     print(len(datasets))
 
-    # datasets = inspect_datasets(datasets)
+    datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
