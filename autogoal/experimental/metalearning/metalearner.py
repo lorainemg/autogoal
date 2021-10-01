@@ -40,7 +40,7 @@ class MetaLearner:
         if not self._datasets_path.exists():
             self._datasets_path.mkdir(parents=True)
 
-        resources /=  learner_name
+        resources /= learner_name
         self._results_path = resources / 'results'
         if not self._results_path.exists():
             self._results_path.mkdir(parents=True)

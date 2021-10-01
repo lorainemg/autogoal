@@ -13,8 +13,9 @@ class NNMetaLearner(MetaLearner):
         if load:
             try:
                 self.load_vectors()
+                return True
             except FileNotFoundError:
-                pass
+                return False
 
     def meta_train(self, datasets: List[Dataset], *, save=True):
         features, labels, targets, files = self.get_training_samples(datasets)

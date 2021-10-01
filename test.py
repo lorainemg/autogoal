@@ -34,10 +34,9 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                            Supervised[Tensor[1, Categorical, Dense]]),
                     output=Tensor[1, Categorical, Dense],
                     evaluation_timeout=5 * Min,
-                    search_timeout=30 * Min)
+                    search_timeout=10 * Min)
             name = f'automl_{dataset.name}_{i}'
             try:
-                raise Exception()
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
             except Exception as e:
                 with err_file_path.open('a') as fd:
@@ -99,7 +98,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 input=dataset.input_type,
                 output=dataset.output_type,
                 evaluation_timeout=5 * Min,
-                search_timeout=30 * Min,
+                search_timeout=10 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             try:
@@ -136,6 +135,7 @@ def leave_one_out(datasets, learners):
         test_automl([ds], 1)
 
         for learner in learners:
+            learner.meta_train(train_datasets)
             # test_mtl(train_datasets, [ds], learner, 1)
             test_autogoal_with_mtl([ds], learner, 1)
 
@@ -144,8 +144,9 @@ def cv(datasets, learners):
     train_dataset, test_dataset = split_datasets(datasets, 0.75)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 10)
+    test_automl(test_dataset, 1)
     for learner in learners:
+        learner.meta_train(train_dataset)
         # test_mtl(train_dataset, test_dataset, learner, 1)
         test_autogoal_with_mtl(test_dataset, learner, 1)
 
@@ -157,22 +158,23 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    download_classification_datasets()
+    # download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
-    datasets, _ = split_datasets(datasets, 0.8)
     print(len(datasets))
 
     datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
-
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
+
+    datasets, _ = split_datasets(datasets, 0.8)
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
     cv(datasets, [xgb_ranker, nn_learner])
 
-
+    with err_file_path.open('a') as fd:
+        fd.write(f'----------------------------------------------------')
 
 
