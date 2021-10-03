@@ -136,6 +136,7 @@ def leave_one_out(datasets, learners):
         test_automl([ds], 1)
 
         for learner in learners:
+            learner.meta_train(train_datasets)
             test_mtl(train_datasets, [ds], learner, 1)
             test_autogoal_with_mtl([ds], learner, 1)
 
@@ -146,7 +147,8 @@ def cv(datasets, learners):
 
     test_automl(test_dataset, 10)
     for learner in learners:
-        test_mtl(train_dataset, test_dataset, learner, 1)
+        learner.meta_train(train_dataset)
+        # test_mtl(train_dataset, test_dataset, learner, 1)
         test_autogoal_with_mtl(test_dataset, learner, 1)
 
 
@@ -173,6 +175,8 @@ if __name__ == '__main__':
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
     cv(datasets, [xgb_ranker, nn_learner])
 
+    with err_file_path.open('a') as fd:
+        fd.write(f'----------------------------------------------------')
 
 
 
