@@ -161,11 +161,15 @@ def save_metafeatures(datasets: List[Dataset]):
     p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
     p.mkdir(exist_ok=True, parents=True)
     for ds in datasets:
-        X, y = ds.load()
-        metafeatures = mfe.extract_features(X, y, ds)
-        json.dump({
-            'meta_features': metafeatures
-        }, open(f'{p / ds.name}.json', 'w'))
+        try:
+            X, y = ds.load()
+            metafeatures = mfe.extract_features(X, y, ds)
+            json.dump({
+                'meta_features': metafeatures
+            }, open(f'{p / ds.name}.json', 'w'))
+        except Exception as e:
+            with err_file_path.open('a') as fd:
+                fd.write(f'Error in {ds.name} in save_metafeatures method \n\t{e}\n\n')
 
 
 if __name__ == '__main__':
