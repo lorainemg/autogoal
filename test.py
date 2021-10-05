@@ -39,6 +39,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     evaluation_timeout=5 * Min,
                     search_timeout=10 * Min)
             name = f'automl_{dataset.name}_{i}'
+            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
             except Exception as e:
@@ -104,6 +105,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 search_timeout=10 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
+            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
             except Exception as e:
