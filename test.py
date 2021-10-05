@@ -161,13 +161,16 @@ def save_metafeatures(datasets: List[Dataset]):
     p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
     p.mkdir(exist_ok=True, parents=True)
     for ds in datasets:
-        # if ds.name != '1457':
-        #     continue
-        X, y = ds.load()
-        metafeatures = mfe.extract_features(X, y, ds)
-        json.dump({
-            'meta_features': metafeatures
-        }, open(f'{p / ds.name}.json', 'w'))
+        try:
+            X, y = ds.load()
+            metafeatures = mfe.extract_features(X, y, ds)
+            json.dump({
+                'meta_features': metafeatures
+            }, open(f'{p / ds.name}.json', 'w'))
+        except Exception as e:
+            with err_file_path.open('a') as fd:
+                fd.write(f'Error in {ds.name} in save_metafeatures method \n\t{e}\n\n')
+
 
 
 if __name__ == '__main__':
@@ -181,7 +184,7 @@ if __name__ == '__main__':
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-    # save_metafeatures(datasets)
+    save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
@@ -191,7 +194,7 @@ if __name__ == '__main__':
     # xgb_ranker.train(datasets)
     #
     # # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [xgb_ranker, nn_learner])
+    # cv(datasets, [xgb_ranker, nn_learner])
     #
     # with err_file_path.open('a') as fd:
     #     fd.write(f'----------------------------------------------------')
