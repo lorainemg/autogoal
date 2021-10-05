@@ -30,12 +30,13 @@ DatasetType = Enum('DatasetType', 'CLASSIFICATION REGRESSION CLUSTERING')
 
 # Class that represent a dataset.
 class Dataset:
-    def __init__(self, name: str, load, type: DatasetType=None):
+    def __init__(self, name: str, load, type: DatasetType=None, preprocess_data=None):
         self.name = name
         self.input_type = None
         self.output_type = None
         self.type = DatasetType.CLASSIFICATION if type else type
         self._load = load
+        self._preprocess_data = preprocess_data
 
     def load(self, *args, **kwargs):
         """Loads the dataset, returning the train and test collection"""
@@ -47,9 +48,15 @@ class Dataset:
             X, y = result
 
         if self.input_type is None:
-            self.infer_types(X, y)
+            self.infer_types(X.to_numpy(), y.to_numpy())
 
         return X, y
+
+    def preprocess_data(self, X, y):
+        if self._preprocess_data is not None:
+            return self._preprocess_data(X, y)
+        else:
+            return X, y
 
     def infer_types(self, X, y):
         """Infers the semantic type of the input and the output"""
@@ -80,7 +87,7 @@ class Dataset:
         """
         Check input to be valid according to the avalaible algorithms
         """
-        # For now, there is no avalaible algorithm for sequence of documents
+        # For now, there is no available algorithm for sequence of documents
         # therefore, this type will be changed
         if issubclass(Seq[Document], self.input_type):
             self.input_type = Seq[Sentence]
@@ -149,7 +156,7 @@ class DatasetExtractor:
     @staticmethod
     def extract_df_dataset(path_obj: Path) -> Dataset:
         type_ = DatasetExtractor._find_dataset_type(path_obj)
-        return Dataset(path_obj.name, dataframe_loader(path_obj), type=type_)
+        return Dataset(path_obj.name, dataframe_loader(path_obj), type=type_, preprocess_data=preprocess_data)
 
     def get_datasets(self, dataset_folder: Path, recursive: bool = False):
         datasets = []
@@ -215,21 +222,28 @@ def dataframe_loader(path: Path):
     """Loader method of json files to dataframes"""
     def wrapper(*args, **kwargs):
         try:
-            X = pd.read_json(path / 'X.json').to_numpy()
-            # fix the type
-            if X.dtype == 'O':
-                for col in range(X.shape[1]):
-                    column = X[:, col]
-                    column[column == np.array(None)] = 'None'
-                    if isinstance(column[0], str):
-                        X[:, col] = LabelEncoder().fit_transform(column)
-            X = np.array(X, dtype='float64')
+            X = pd.read_json(path / 'X.json')
         except:
             X = None
         try:
             # y = pd.read_json(path / 'y.json', typ='series').to_frame('y')
-            y = pd.read_json(path / 'y.json', typ='series').to_numpy()
+            y = pd.read_json(path / 'y.json', typ='series')
         except:
             y = None
         return X, y
     return wrapper
+
+
+def preprocess_data(X, y):
+    """Preprocess the data to fit in AutoGOAL"""
+    X = X.to_numpy()
+    y = y.to_numpy()
+    # fix the type
+    if X.dtype == 'O':
+        for col in range(X.shape[1]):
+            column = X[:, col]
+            column[column == np.array(None)] = 'None'
+            if isinstance(column[0], str):
+                X[:, col] = LabelEncoder().fit_transform(column)
+    X = np.array(X, dtype='float64')
+    return X, y
