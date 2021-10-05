@@ -139,9 +139,10 @@ class MetaLearner:
             output=dataset.output_type,
             registry=algorithms,
             evaluation_timeout=5 * Min,
-            search_timeout=10 * Min
+            search_timeout=60 * Min
         )
         try:
+            X, y = dataset.preprocess_data(X, y)
             fix_indef_values(X)
             folder = self.get_features_path(dataset.type)
             automl.fit(X, y, logger=DatasetFeatureLogger(X, y, dataset, folder))

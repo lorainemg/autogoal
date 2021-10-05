@@ -37,7 +37,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                            Supervised[Tensor[1, Categorical, Dense]]),
                     output=Tensor[1, Categorical, Dense],
                     evaluation_timeout=5 * Min,
-                    search_timeout=10 * Min)
+                    search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
             X, y = dataset.preprocess_data(X, y)
             try:
@@ -102,7 +102,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 input=dataset.input_type,
                 output=dataset.output_type,
                 evaluation_timeout=5 * Min,
-                search_timeout=10 * Min,
+                search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             X, y = dataset.preprocess_data(X, y)
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    # download_classification_datasets()
+    download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
 
