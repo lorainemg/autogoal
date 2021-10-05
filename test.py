@@ -7,6 +7,7 @@ from autogoal.experimental.metalearning import DatasetExtractor, Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
 from autogoal.experimental.metalearning.xgb_learner import XGBRankerMetaLearner
 from autogoal.experimental.metalearning.nn_metalearner import NNMetaLearner
+from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.results_logger import ResultsLogger
 from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
 
@@ -16,6 +17,7 @@ from autogoal.utils import Min
 
 # from download_datasets import download_classification_datasets
 import os
+import json
 # from autogoal.experimental.metalearning.experiments import datasets_feat
 
 err_file_path: Path = Path(MTL_RESOURCES_PATH) / 'errors.txt'
@@ -37,11 +39,10 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
             try:
-                raise Exception()
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
             except Exception as e:
                 with err_file_path.open('a') as fd:
-                    fd.write(f'Error in dataset {dataset.name} in test_automl method \n \t{e}\n')
+                    fd.write(f'Error in dataset {dataset.name} in test_automl method \n\t{e}\n')
 
     # print(automl.best_pipeline_)
     # print(automl.best_score_)
@@ -152,6 +153,20 @@ def cv(datasets, learners):
         test_autogoal_with_mtl(test_dataset, learner, 1)
 
 
+def save_metafeatures(datasets: List[Dataset]):
+    mfe = MetaFeatureExtractor()
+    p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
+    p.mkdir(exist_ok=True, parents=True)
+    for ds in datasets:
+        # if ds.name != '1457':
+        #     continue
+        X, y = ds.load()
+        metafeatures = mfe.extract_features(X, y, ds)
+        json.dump({
+            'meta_features': metafeatures
+        }, open(f'{p / ds.name}.json', 'w'))
+
+
 if __name__ == '__main__':
     if not err_file_path.exists():
         Path(MTL_RESOURCES_PATH).mkdir(parents=True, exist_ok=True)
@@ -163,20 +178,17 @@ if __name__ == '__main__':
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-
+    save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
-    xgb_ranker = XGBRankerMetaLearner()
-    nn_learner = NNMetaLearner()
-
-    # All datasets are trained to get the meta-features of the problem
-    xgb_ranker.train(datasets)
-
-    # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [xgb_ranker, nn_learner])
-
-    with err_file_path.open('a') as fd:
-        fd.write(f'----------------------------------------------------')
-
-
-
+    # xgb_ranker = XGBRankerMetaLearner()
+    # nn_learner = NNMetaLearner()
+    #
+    # # All datasets are trained to get the meta-features of the problem
+    # xgb_ranker.train(datasets)
+    #
+    # # leave_one_out(datasets, [xgb_ranker, nn_learner])
+    # cv(datasets, [xgb_ranker, nn_learner])
+    #
+    # with err_file_path.open('a') as fd:
+    #     fd.write(f'----------------------------------------------------')

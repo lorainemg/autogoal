@@ -5,7 +5,7 @@ from scipy import stats
 
 from autogoal.experimental.metalearning.utils import reduce_shape
 from autogoal.kb import SemanticType
-
+from sklearn.decomposition import PCA
 _EXTRACTORS = []
 
 
@@ -17,9 +17,9 @@ class MetaFeatureExtractor:
     def extract_features(self, X, y, dataset):
         features = {}
 
-        X = convert_to_np_arrays(X)
-        if y is not None:
-            y = convert_to_np_arrays(y)
+        # X = convert_to_np_arrays(X)
+        # if y is not None:
+        #     y = convert_to_np_arrays(y)
 
         for extractor in self.feature_extractors:
             features.update(**extractor(X, y, dataset=dataset, features=features))
@@ -81,7 +81,7 @@ def is_supervised(X, y, **kwargs):
 
 @feature_extractor
 def has_numeric_features(X, y, **kwargs):
-    return any([xi for xi in X[0] if isinstance(xi, (float, int))])
+    return any([dtype.kind in 'iufc' for dtype in list(X.dtypes)])
 
 
 @feature_extractor
@@ -91,7 +91,7 @@ def average_number_of_words(X, y, **kwargs):
 
 @feature_extractor
 def has_text_features(X, y, **kwargs):
-    return isinstance(X[0], str)
+    return any([dtype.kind in 'SOU' for dtype in list(X.dtypes)])
 
 
 @feature_extractor
@@ -157,6 +157,27 @@ def dataset_dimensionality(X, y, features, **kwargs):
         return input_dimensionality.__wrapped__(X, y) / number_of_samples.__wrapped__(X, y)
 
 
+@feature_extractor
+def number_of_categorical_features(X, y, **kwargs):
+    categorical_types = '?bBOU'     # boolean, unsigned and signed bytes, object, unicode_string
+    cat_list = [dtype for dtype in list(X.dtypes) if dtype.kind in categorical_types]
+    return len(cat_list)
+
+
+@feature_extractor
+def number_of_numerical_features(X, y, **kwargs):
+    numerical_types = 'iufc'     # signed and unsigned ints, floats, complex number
+    num_list = [dtype for dtype in list(X.dtypes) if dtype.kind in numerical_types]
+    return len(num_list)
+
+
+@feature_extractor
+def number_of_missing_values(X, y, **kwargs):
+    total = X.isna()
+    for _ in range(len(X.shape)):
+        total = total.sum()
+    return total
+
 # Statistical metafeatures
 # Statistical metafeatures describe the numerical properties of a distribution of data.
 # Can be employed to take into account the number of properties, which enable a learner
@@ -166,16 +187,16 @@ def dataset_dimensionality(X, y, features, **kwargs):
 
 @feature_extractor
 def standard_deviation(X, y, **kwargs):
-    """This quantity estimates the dispersion of a random variable"""
-    return np.std(X, dtype='float64')
+    """This quantity estimtes the dispersion of a random variable"""
+    return np.std(X.to_numpy())
 
 
 @feature_extractor
-def coefficient_of_variation(X, y, **kwargs):
+def coefficient_of_variation(X, y, features, **kwargs):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
-    return np.std(X, dtype='float64') / np.mean(X, dtype='float64')
+    return features['standard_deviation'] / np.mean(X.to_numpy())
 
 
 @feature_extractor
@@ -262,6 +283,7 @@ def normalized_attr_entropy(X, y, **kwargs):
     The attribute entropy value H(X) of a random variable measures the information
     content related to the values that X may assume.
     """
+    X = X.to_numpy()
     attributes = [X[:, j] for j in range(X.shape[1])]
     attr_entropy = np.array([_attr_i_entropy(xi) for xi in attributes])
     return attr_entropy.mean(), np.min(attr_entropy), np.max(attr_entropy), np.std(attr_entropy)
@@ -288,6 +310,7 @@ def joint_entropy(X, y, **kwargs):
     of variables (C, X), which could be represented by a class variable and one of
     the m discretized inputs attributes, respectively.
     """
+    X = X.to_numpy()
     attributes_labels = [(X[:, j], y) for j in range(X.shape[1])]
     joint_entropy = np.array([_attr_i_joint_entropy(attr_i, y) for attr_i, y in attributes_labels])
     return joint_entropy.mean(), np.min(joint_entropy), np.max(joint_entropy), np.std(joint_entropy)
@@ -297,6 +320,7 @@ def joint_entropy(X, y, **kwargs):
 def mutual_information(X, y, features, **kwargs):
     """It measures the common information shared between two random variables."""
     result = []
+    X = X.to_numpy()
     try:
         class_entropy = features['normalized_class_entropy']
     except KeyError:
@@ -326,3 +350,11 @@ def noise_signal_ratio(X, y, features, **kwargs):
         useful_information = mutual_information.__wrapped__(X, y)
         non_useful_information = normalized_attr_entropy.__wrapped__(X, y)[0] - useful_information
     return non_useful_information / useful_information
+
+
+@feature_extractor
+def pca(X, y, **kwargs):
+    pca = PCA()
+    pca.fit(X.to_numpy())
+    first_pc = pca.components_[0]
+    return stats.skew(first_pc), stats.kurtosis(first_pc)
