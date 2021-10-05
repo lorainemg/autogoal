@@ -183,6 +183,7 @@ if __name__ == '__main__':
     nn_learner = NNMetaLearner()
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
+    save_metafeatures(datasets)
 
     datasets, _ = split_datasets(datasets, 0.8)
 
