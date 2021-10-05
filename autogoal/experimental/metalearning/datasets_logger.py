@@ -26,7 +26,7 @@ class DatasetFeatureLogger(Logger):
 
     def begin(self, generations, pop_size):
         self.meta_features_ = self.extractor.extract_features(self.X, self.y, self.dataset)
-        self.dataset.preprocess_data(self.X, self.y)
+        # self.X, self.y = self.dataset.preprocess_data(self.X, self.y)
 
     def eval_solution(self, solution, fitness):
         if not hasattr(solution, "sampler_"):

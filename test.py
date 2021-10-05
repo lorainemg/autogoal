@@ -24,6 +24,7 @@ err_file_path: Path = Path(MTL_RESOURCES_PATH) / 'errors.txt'
 
 err_text = []
 
+
 def test_automl(datasets: List[Dataset], iterations: int = 1):
     """Tests automl using autogoal"""
     for i in range(iterations):
@@ -38,6 +39,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     evaluation_timeout=5 * Min,
                     search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
+            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
             except Exception as e:
@@ -103,6 +105,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
+            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
             except Exception as e:
@@ -178,17 +181,17 @@ if __name__ == '__main__':
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-    save_metafeatures(datasets)
+    # save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
-    # xgb_ranker = XGBRankerMetaLearner()
-    # nn_learner = NNMetaLearner()
+    xgb_ranker = XGBRankerMetaLearner()
+    nn_learner = NNMetaLearner()
     #
     # # All datasets are trained to get the meta-features of the problem
     # xgb_ranker.train(datasets)
     #
     # # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    # cv(datasets, [xgb_ranker, nn_learner])
+    cv(datasets, [xgb_ranker, nn_learner])
     #
     # with err_file_path.open('a') as fd:
     #     fd.write(f'----------------------------------------------------')

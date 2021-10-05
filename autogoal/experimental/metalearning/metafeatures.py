@@ -176,7 +176,7 @@ def number_of_missing_values(X, y, **kwargs):
     total = X.isna()
     for _ in range(len(X.shape)):
         total = total.sum()
-    return total
+    return int(total)
 
 # Statistical metafeatures
 # Statistical metafeatures describe the numerical properties of a distribution of data.
