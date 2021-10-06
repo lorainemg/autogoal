@@ -172,7 +172,6 @@ def save_metafeatures(datasets: List[Dataset]):
                 fd.write(f'Error in {ds.name} in save_metafeatures method \n\t{e}\n\n')
 
 
-
 if __name__ == '__main__':
     if not err_file_path.exists():
         Path(MTL_RESOURCES_PATH).mkdir(parents=True, exist_ok=True)
@@ -187,8 +186,8 @@ if __name__ == '__main__':
     save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
-    xgb_ranker = XGBRankerMetaLearner()
-    nn_learner = NNMetaLearner()
+    # xgb_ranker = XGBRankerMetaLearner()
+    # nn_learner = NNMetaLearner()
     #
     # # All datasets are trained to get the meta-features of the problem
     # xgb_ranker.train(datasets)

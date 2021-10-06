@@ -3,7 +3,7 @@ import operator
 import numpy as np
 from scipy import stats
 
-from autogoal.experimental.metalearning.utils import reduce_shape
+from autogoal.experimental.metalearning.utils import reduce_shape, get_numerical_features
 from autogoal.kb import SemanticType
 from sklearn.decomposition import PCA
 _EXTRACTORS = []
@@ -16,13 +16,14 @@ class MetaFeatureExtractor:
 
     def extract_features(self, X, y, dataset):
         features = {}
+        numerical_values = X[get_numerical_features(X)].to_numpy()
 
         # X = convert_to_np_arrays(X)
         # if y is not None:
         #     y = convert_to_np_arrays(y)
 
         for extractor in self.feature_extractors:
-            features.update(**extractor(X, y, dataset=dataset, features=features))
+            features.update(**extractor(X, y, dataset=dataset, features=features, numerical_values=numerical_values))
 
         return features
 
@@ -45,11 +46,11 @@ def convert_to_np_arrays(X):
 
 def feature_extractor(func):
     @functools.wraps(func)
-    def wrapper(X, y, **kwargs):
+    def wrapper(X, y, dataset, **kwargs):
         try:
-            result = func(X, y, **kwargs)
+            result = func(X, y, dataset=dataset, **kwargs)
         except Exception as e:
-            print(e)
+            print(f'Error in {dataset.name} in metafeatures method \n\t{e}\n\n')
             result = None
             # raise
 
@@ -166,9 +167,7 @@ def number_of_categorical_features(X, y, **kwargs):
 
 @feature_extractor
 def number_of_numerical_features(X, y, **kwargs):
-    numerical_types = 'iufc'     # signed and unsigned ints, floats, complex number
-    num_list = [dtype for dtype in list(X.dtypes) if dtype.kind in numerical_types]
-    return len(num_list)
+    return len(get_numerical_features(X))
 
 
 @feature_extractor
@@ -186,59 +185,59 @@ def number_of_missing_values(X, y, **kwargs):
 
 
 @feature_extractor
-def standard_deviation(X, y, **kwargs):
+def standard_deviation(X, y, numerical_values, **kwargs):
     """This quantity estimtes the dispersion of a random variable"""
-    return np.std(X.to_numpy())
+    return np.std(numerical_values)
 
 
 @feature_extractor
-def coefficient_of_variation(X, y, features, **kwargs):
+def coefficient_of_variation(X, y, features, numerical_values, **kwargs):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
-    return features['standard_deviation'] / np.mean(X.to_numpy())
+    return features['standard_deviation'] / np.mean(numerical_values)
 
 
 @feature_extractor
-def covariance_avg(X, y, **kwargs):
+def covariance_avg(X, y, numerical_values, **kwargs):
     """
     As a measure of the covariance of an entire dataset, the average of the covariance
     over all distinct pairs of numerical attributes could be considered.
     """
-    return np.cov(X, rowvar=False).mean()
+    return np.cov(numerical_values, rowvar=False).mean()
 
 
 @feature_extractor
-def linear_corr_coef(X, y, **kwargs):
+def linear_corr_coef(X, y, numerical_values, **kwargs):
     """
     Correlation analysis attempts to measure the strength of a relationship between two
     random variables. It shows the linear association strengths between the random variables
     by means of a single value.
     """
-    rho, _ = stats.spearmanr(X)
+    rho, _ = stats.spearmanr(numerical_values)
     if isinstance(rho, (float, int)):
         return rho
     return rho.mean()
 
 
 @feature_extractor
-def skewness(X, y, **kwargs):
+def skewness(X, y, numerical_values, **kwargs):
     """
     It measures the lack of symmetry in the distribution of a random variable X.
     Negative values indicate data is skewed left, while positive skewness values
     denote data that are skewed right.
     """
-    skew = stats.skew(X)
+    skew = stats.skew(numerical_values)
     skew = skew.astype('float64')
     return np.mean(skew), np.min(skew), np.max(skew), np.std(skew)
 
 
 @feature_extractor
-def kurtosis(X, y, **kwargs):
+def kurtosis(X, y, numerical_values, **kwargs):
     """
     It measures the peakness in the distribution of a random variable X.
     """
-    kurtosis = stats.kurtosis(X)
+    kurtosis = stats.kurtosis(numerical_values)
     kurtosis = kurtosis.astype('float64')
     return np.mean(kurtosis), np.min(kurtosis), np.max(kurtosis), np.std(kurtosis)
 
@@ -278,7 +277,7 @@ def _attr_i_entropy(x_i):
 
 
 @feature_extractor
-def normalized_attr_entropy(X, y, **kwargs):
+def normalized_attr_entropy(X, y, numerical_values, **kwargs):
     """
     The attribute entropy value H(X) of a random variable measures the information
     content related to the values that X may assume.
@@ -304,7 +303,7 @@ def _attr_i_joint_entropy(x_i, y):
 
 
 @feature_extractor
-def joint_entropy(X, y, **kwargs):
+def joint_entropy(X, y, numerical_values, **kwargs):
     """
     It measures the total entropy of the combined system of variables, i.e. the pair
     of variables (C, X), which could be represented by a class variable and one of
@@ -317,7 +316,7 @@ def joint_entropy(X, y, **kwargs):
 
 
 @feature_extractor
-def mutual_information(X, y, features, **kwargs):
+def mutual_information(X, y, features, numerical_values, **kwargs):
     """It measures the common information shared between two random variables."""
     result = []
     X = X.to_numpy()
@@ -353,8 +352,8 @@ def noise_signal_ratio(X, y, features, **kwargs):
 
 
 @feature_extractor
-def pca(X, y, **kwargs):
+def pca(X, y, numerical_values, **kwargs):
     pca = PCA()
-    pca.fit(X.to_numpy())
+    pca.fit(numerical_values)
     first_pc = pca.components_[0]
     return stats.skew(first_pc), stats.kurtosis(first_pc)
