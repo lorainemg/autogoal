@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import sys
 from functools import reduce
 from operator import mul
@@ -30,6 +31,16 @@ def fix_indef_values(vect):
     """Substitutes nan and inf values"""
     vect[np.isnan(vect)] = 0
     vect[np.isinf(vect)] = sys.float_info.max
+
+
+def get_numerical_features(df: pd.DataFrame):
+    numerical_types = 'iuf'     # signed and unsigned ints, floats, complex number
+    g = df.columns.to_series().groupby(df.dtypes).groups
+    columns = []
+    for k, v in g.items():
+        if k.kind in numerical_types:
+            columns.extend(v)
+    return columns
 
 
 def train_test_split(X, y):
