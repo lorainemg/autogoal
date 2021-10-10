@@ -16,14 +16,13 @@ class MetaFeatureExtractor:
 
     def extract_features(self, X, y, dataset):
         features = {}
-        numerical_values = X[get_numerical_features(X)].to_numpy()
 
         # X = convert_to_np_arrays(X)
         # if y is not None:
         #     y = convert_to_np_arrays(y)
 
         for extractor in self.feature_extractors:
-            features.update(**extractor(X, y, dataset=dataset, features=features, numerical_values=numerical_values))
+            features.update(**extractor(X, y, dataset=dataset, features=features))
 
         return features
 
@@ -50,7 +49,7 @@ def feature_extractor(func):
         try:
             result = func(X, y, dataset=dataset, **kwargs)
         except Exception as e:
-            print(f'Error in {dataset.name} in metafeatures method \n\t{e}\n\n')
+            print(f'Error in {dataset.name} in {func.__name__} method \n\t{e}\n\n')
             result = None
             # raise
 
@@ -81,8 +80,8 @@ def is_supervised(X, y, **kwargs):
 
 
 @feature_extractor
-def has_numeric_features(X, y, **kwargs):
-    return any([dtype.kind in 'iufc' for dtype in list(X.dtypes)])
+def has_numeric_features(X, y, dataset, **kwargs):
+    return any(indicator for indicator in dataset.numerical_indicator)
 
 
 @feature_extractor
@@ -91,8 +90,8 @@ def average_number_of_words(X, y, **kwargs):
 
 
 @feature_extractor
-def has_text_features(X, y, **kwargs):
-    return any([dtype.kind in 'SOU' for dtype in list(X.dtypes)])
+def has_categorical_features(X, y, dataset, **kwargs):
+    return any(not indicator for indicator in dataset.numerical_indicator)
 
 
 @feature_extractor
@@ -159,21 +158,21 @@ def dataset_dimensionality(X, y, features, **kwargs):
 
 
 @feature_extractor
-def number_of_categorical_features(X, y, **kwargs):
-    categorical_types = '?bBOU'     # boolean, unsigned and signed bytes, object, unicode_string
-    cat_list = [dtype for dtype in list(X.dtypes) if dtype.kind in categorical_types]
-    return len(cat_list)
+def number_of_categorical_features(X, y, dataset, **kwargs):
+    # categorical_types = '?bBOU'     # boolean, unsigned and signed bytes, object, unicode_string
+    # cat_list = [dtype for dtype in list(X.dtypes) if dtype.kind in categorical_types]
+    return sum(not indicator for indicator in dataset.numerical_indicator)
 
 
 @feature_extractor
-def number_of_numerical_features(X, y, **kwargs):
-    return len(get_numerical_features(X))
+def number_of_numerical_features(X, y, dataset, **kwargs):
+    return sum(indicator for indicator in dataset.numerical_indicator)
 
 
 @feature_extractor
 def number_of_missing_values(X, y, **kwargs):
-    total = X.isna()
-    for _ in range(len(X.shape)):
+    total = np.isnan(X)
+    for _ in range(len(X.shape) - 1):
         total = total.sum()
     return int(total)
 
@@ -185,59 +184,60 @@ def number_of_missing_values(X, y, **kwargs):
 
 
 @feature_extractor
-def standard_deviation(X, y, numerical_values, **kwargs):
-    """This quantity estimtes the dispersion of a random variable"""
-    return np.std(numerical_values)
+def standard_deviation(X, y, dataset, **kwargs):
+    """This quantity estimates the dispersion of a random variable"""
+    return np.std(X[:, dataset.numerical_indicator])
 
 
 @feature_extractor
-def coefficient_of_variation(X, y, features, numerical_values, **kwargs):
+def coefficient_of_variation(X, y, features, dataset, **kwargs):
     """It evaluates the normalization of the standard deviation of a random variable"""
     # var_coefs = np.asarray([x_i.std() / x_i.mean() for x_i in X])
     # return var_coefs.mean()
-    return features['standard_deviation'] / np.mean(numerical_values)
+    return features['standard_deviation'] / np.mean(X[:, dataset.numerical_indicator])
 
 
 @feature_extractor
-def covariance_avg(X, y, numerical_values, **kwargs):
+def covariance_avg(X, y, dataset, **kwargs):
     """
     As a measure of the covariance of an entire dataset, the average of the covariance
     over all distinct pairs of numerical attributes could be considered.
     """
-    return np.cov(numerical_values, rowvar=False).mean()
+
+    return np.cov(X[:, dataset.numerical_indicator], rowvar=False).mean()
 
 
 @feature_extractor
-def linear_corr_coef(X, y, numerical_values, **kwargs):
+def linear_corr_coef(X, y, dataset, **kwargs):
     """
     Correlation analysis attempts to measure the strength of a relationship between two
     random variables. It shows the linear association strengths between the random variables
     by means of a single value.
     """
-    rho, _ = stats.spearmanr(numerical_values)
+    rho, _ = stats.spearmanr(X[:, dataset.numerical_indicator])
     if isinstance(rho, (float, int)):
         return rho
     return rho.mean()
 
 
 @feature_extractor
-def skewness(X, y, numerical_values, **kwargs):
+def skewness(X, y, dataset, **kwargs):
     """
     It measures the lack of symmetry in the distribution of a random variable X.
     Negative values indicate data is skewed left, while positive skewness values
     denote data that are skewed right.
     """
-    skew = stats.skew(numerical_values)
+    skew = stats.skew(X[:, dataset.numerical_indicator])
     skew = skew.astype('float64')
     return np.mean(skew), np.min(skew), np.max(skew), np.std(skew)
 
 
 @feature_extractor
-def kurtosis(X, y, numerical_values, **kwargs):
+def kurtosis(X, y, dataset, **kwargs):
     """
     It measures the peakness in the distribution of a random variable X.
     """
-    kurtosis = stats.kurtosis(numerical_values)
+    kurtosis = stats.kurtosis(X[: dataset.numerical_indicator])
     kurtosis = kurtosis.astype('float64')
     return np.mean(kurtosis), np.min(kurtosis), np.max(kurtosis), np.std(kurtosis)
 
@@ -282,7 +282,6 @@ def normalized_attr_entropy(X, y, numerical_values, **kwargs):
     The attribute entropy value H(X) of a random variable measures the information
     content related to the values that X may assume.
     """
-    X = X.to_numpy()
     attributes = [X[:, j] for j in range(X.shape[1])]
     attr_entropy = np.array([_attr_i_entropy(xi) for xi in attributes])
     return attr_entropy.mean(), np.min(attr_entropy), np.max(attr_entropy), np.std(attr_entropy)
@@ -309,7 +308,6 @@ def joint_entropy(X, y, numerical_values, **kwargs):
     of variables (C, X), which could be represented by a class variable and one of
     the m discretized inputs attributes, respectively.
     """
-    X = X.to_numpy()
     attributes_labels = [(X[:, j], y) for j in range(X.shape[1])]
     joint_entropy = np.array([_attr_i_joint_entropy(attr_i, y) for attr_i, y in attributes_labels])
     return joint_entropy.mean(), np.min(joint_entropy), np.max(joint_entropy), np.std(joint_entropy)
@@ -319,7 +317,6 @@ def joint_entropy(X, y, numerical_values, **kwargs):
 def mutual_information(X, y, features, numerical_values, **kwargs):
     """It measures the common information shared between two random variables."""
     result = []
-    X = X.to_numpy()
     try:
         class_entropy = features['normalized_class_entropy']
     except KeyError:
@@ -351,9 +348,9 @@ def noise_signal_ratio(X, y, features, **kwargs):
     return non_useful_information / useful_information
 
 
-@feature_extractor
-def pca(X, y, numerical_values, **kwargs):
-    pca = PCA()
-    pca.fit(numerical_values)
-    first_pc = pca.components_[0]
-    return stats.skew(first_pc), stats.kurtosis(first_pc)
+# @feature_extractor
+# def pca(X, y, dataset, **kwargs):
+#     pca = PCA()
+#     pca.fit(X[:, dataset.numerical_indicator])
+#     first_pc = pca.components_[0]
+#     return stats.skew(first_pc), stats.kurtosis(first_pc)
