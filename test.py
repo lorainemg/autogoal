@@ -145,15 +145,14 @@ def leave_one_out(datasets, learners):
 
 
 def cv(datasets, learners):
-    train_dataset, test_dataset = split_datasets(datasets, 0.75)
+    train_dataset, test_dataset = split_datasets(datasets, 0.75, random=False)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 10)
+    # test_automl(test_dataset, 1)
     for learner in learners:
         learner.meta_train(train_dataset)
         # test_mtl(train_dataset, test_dataset, learner, 1)
         test_autogoal_with_mtl(test_dataset, learner, 1)
-
 
 
 def save_metafeatures(datasets: List[Dataset]):
@@ -195,17 +194,17 @@ if __name__ == '__main__':
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-    save_metafeatures(datasets)
+    # save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
-    # xgb_ranker = XGBRankerMetaLearner()
-    # nn_learner = NNMetaLearner()
+    xgb_ranker = XGBRankerMetaLearner()
+    nn_learner = NNMetaLearner()
     #
-    # # All datasets are trained to get the meta-features of the problem
-    # xgb_ranker.train(datasets)
-    #
+    # All datasets are trained to get the meta-features of the problem
+    xgb_ranker.train(datasets)
+
     # # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    # cv(datasets, [xgb_ranker, nn_learner])
-    #
-    # with err_file_path.open('a') as fd:
-    #     fd.write(f'----------------------------------------------------')
+    cv(datasets, [xgb_ranker, nn_learner])
+
+    with err_file_path.open('a') as fd:
+        fd.write(f'----------------------------------------------------')

@@ -3,6 +3,7 @@ from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.datasets import Dataset, DatasetType
 from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
 from pathlib import Path
+import numpy as np
 import json
 
 
@@ -31,7 +32,7 @@ class DatasetFeatureLogger(Logger):
     def eval_solution(self, solution, fitness):
         if not hasattr(solution, "sampler_"):
             raise ("Cannot log if the underlying algorithm is not PESearch")
-        if fitness == 0:
+        if fitness == 0 or fitness == np.infinity or fitness == -np.infinity:
             return
 
         features, feature_types = self.extract_pipelines_features(solution.sampler_)
