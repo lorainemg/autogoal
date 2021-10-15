@@ -199,6 +199,7 @@ if __name__ == '__main__':
 
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
+    nn_learner.predict(datasets[0])
     #
     # All datasets are trained to get the meta-features of the problem
     # xgb_ranker.train(datasets)

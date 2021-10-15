@@ -56,7 +56,7 @@ class XGBRankerMetaLearner(MetaLearner):
         # get the pipelines to test
         datasets = self.get_similar_datasets(data_features, l2_distance)
 
-        pipelines, files, _ = self.get_best_pipelines(datasets, 5, 5)
+        pipelines, files, _ = self.get_best_pipelines(datasets, self.n_results, self.n_results)
 
         features, _ = self.append_features_and_labels([data_features], [pipelines])
         y_hat = self.model.predict(features)
