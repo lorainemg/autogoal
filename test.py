@@ -201,7 +201,7 @@ if __name__ == '__main__':
     nn_learner = NNMetaLearner()
     #
     # All datasets are trained to get the meta-features of the problem
-    xgb_ranker.train(datasets)
+    # xgb_ranker.train(datasets)
 
     # # leave_one_out(datasets, [xgb_ranker, nn_learner])
     cv(datasets, [xgb_ranker, nn_learner])
