@@ -8,6 +8,7 @@ from enum import Enum
 import pandas as pd
 import numpy as np
 import re
+import json
 
 
 from autogoal.kb import (
@@ -30,13 +31,14 @@ DatasetType = Enum('DatasetType', 'CLASSIFICATION REGRESSION CLUSTERING')
 
 # Class that represent a dataset.
 class Dataset:
-    def __init__(self, name: str, load, type: DatasetType=None, preprocess_data=None):
+    def __init__(self, name: str, load, type: DatasetType=None, preprocess_data=None, numerical_indicator=None):
         self.name = name
         self.input_type = None
         self.output_type = None
         self.type = DatasetType.CLASSIFICATION if type else type
         self._load = load
         self._preprocess_data = preprocess_data
+        self.numerical_indicator = numerical_indicator
 
     def load(self, *args, **kwargs):
         """Loads the dataset, returning the train and test collection"""
@@ -48,7 +50,7 @@ class Dataset:
             X, y = result
 
         if self.input_type is None:
-            self.infer_types(X.to_numpy(), y.to_numpy())
+            self.infer_types(X, y)
 
         return X, y
 
@@ -156,7 +158,13 @@ class DatasetExtractor:
     @staticmethod
     def extract_df_dataset(path_obj: Path) -> Dataset:
         type_ = DatasetExtractor._find_dataset_type(path_obj)
-        return Dataset(path_obj.name, dataframe_loader(path_obj), type=type_, preprocess_data=preprocess_data)
+        try:
+            categorical_data = json.load(open(path_obj / 'categorical_indicator.json'))
+            numerical_data = [not ind for ind in categorical_data]
+        except:
+            numerical_data = None
+        return Dataset(path_obj.name, dataframe_loader(path_obj), type=type_,
+                       numerical_indicator=numerical_data)
 
     def get_datasets(self, dataset_folder: Path, recursive: bool = False):
         datasets = []
@@ -188,6 +196,7 @@ class DatasetExtractor:
             elif part == 'clustering':
                 return DatasetType.CLUSTERING
         return DatasetType.CLASSIFICATION
+
 
 def arrf_loader(path: Path):
     """Loader method of arff files"""
@@ -222,28 +231,20 @@ def dataframe_loader(path: Path):
     """Loader method of json files to dataframes"""
     def wrapper(*args, **kwargs):
         try:
-            X = pd.read_json(path / 'X.json')
+            X = pd.read_json(path / 'X.json').to_numpy()
+            if X.dtype == 'O':
+                for col in range(X.shape[1]):
+                    column = X[:, col]
+                    column[column == np.array(None)] = 'None'
+                    if isinstance(column[0], str):
+                        X[:, col] = LabelEncoder().fit_transform(column)
+            X = np.array(X, dtype='float64')
         except:
             X = None
         try:
             # y = pd.read_json(path / 'y.json', typ='series').to_frame('y')
-            y = pd.read_json(path / 'y.json', typ='series')
+            y = pd.read_json(path / 'y.json', typ='series').to_numpy()
         except:
             y = None
         return X, y
     return wrapper
-
-
-def preprocess_data(X, y):
-    """Preprocess the data to fit in AutoGOAL"""
-    X = X.to_numpy()
-    y = y.to_numpy()
-    # fix the type
-    if X.dtype == 'O':
-        for col in range(X.shape[1]):
-            column = X[:, col]
-            column[column == np.array(None)] = 'None'
-            if isinstance(column[0], str):
-                X[:, col] = LabelEncoder().fit_transform(column)
-    X = np.array(X, dtype='float64')
-    return X, y

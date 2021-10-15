@@ -2,7 +2,7 @@
 from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
-from autogoal.experimental.metalearning.distance_measures import cosine_measure
+from autogoal.experimental.metalearning.distance_measures import cosine_measure, l1_distance, l2_distance
 from itertools import chain
 import pickle
 
@@ -54,9 +54,9 @@ class XGBRankerMetaLearner(MetaLearner):
         data_features = self.preprocess_metafeatures(dataset)
 
         # get the pipelines to test
-        datasets = self.get_similar_datasets(data_features, cosine_measure)
+        datasets = self.get_similar_datasets(data_features, l2_distance)
 
-        pipelines, files, _ = self.get_best_pipelines(datasets, 5, 5)
+        pipelines, files, _ = self.get_best_pipelines(datasets, self.n_results, self.n_results)
 
         features, _ = self.append_features_and_labels([data_features], [pipelines])
         y_hat = self.model.predict(features)

@@ -519,15 +519,20 @@ class MetaLearner:
         pipeline_updates, pipeline_model, _ = self.predict(dataset)
         return self.construct_initial_model(pipeline_updates, pipeline_model)
 
-    def get_similar_datasets(self, features, similarity_measure) -> List:
+    def get_similar_datasets(self, features, similarity_measure, *, return_similarity=False) -> List:
         """Get the pipelines of the datasets with similar features of actual dataset"""
         datasets = []
         for feat, scores, pipes, file in self.samples:
             sorted_pipes = [p for p, _ in sorted(zip(pipes, scores), key=lambda x: x[1])]
             similarity = similarity_measure(feat, features)
             datasets.append((similarity, scores, sorted_pipes, file))
+
         # Return the sorted list of the most similar datasets
-        return [d[1:] for d in sorted(datasets, key=lambda x: x[0], reverse=True)]
+        similar_datasets = [d for d in sorted(datasets, key=lambda x: x[0])]
+        if return_similarity:
+            return similar_datasets
+        else:
+            return [d[1:] for d in similar_datasets]
 
     def get_best_pipelines(self, similar_datasets: List, amount_datasets: int, amount_pipelines: int):
         """
@@ -543,6 +548,26 @@ class MetaLearner:
             pipelines.extend(pipes)
             files.extend([file]*len(pipes))
             scores.extend(score)
+        return pipelines, files, scores
+
+    def get_best_pipelines_aggregated_ranking(self, similar_datasets: List, amount_pipelines):
+        """
+        Get the pipeline ranking using an aggregated strategy between the similarity measure
+        and the score of the pipelines.
+        """
+        similarity_scores = []
+        for similarity, scores, pipes, file in similar_datasets:
+            for pipe, score in zip(pipes[:amount_pipelines], scores[:amount_pipelines]):
+                try:
+                    rank_score = score / similarity
+                except ZeroDivisionError:
+                    rank_score = 0
+                similarity_scores.append((rank_score, pipe, file, score))
+
+        ranking = [d[1:] for d in sorted(similarity_scores, key=lambda x: x[0], reverse=True)]
+        pipelines = [p for p, _, _ in ranking]
+        files = [f for _, f, _ in ranking]
+        scores = [s for _, _, s in ranking]
         return pipelines, files, scores
 
     def get_all_pipeline_info(self, pipelines, datasets_path):

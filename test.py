@@ -15,9 +15,10 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-from download_datasets import download_classification_datasets
+# from download_datasets import download_classification_datasets
 import os
 import json
+import numpy as np
 # from autogoal.experimental.metalearning.experiments import datasets_feat
 
 err_file_path: Path = Path(MTL_RESOURCES_PATH) / 'errors.txt'
@@ -39,7 +40,6 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                     evaluation_timeout=5 * Min,
                     search_timeout=30 * Min)
             name = f'automl_{dataset.name}_{i}'
-            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
             except Exception as e:
@@ -105,7 +105,6 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
-            X, y = dataset.preprocess_data(X, y)
             try:
                 automl.fit(X, y, name=dataset.name, logger=ResultsLogger(learner.name, name))
             except Exception as e:
@@ -146,7 +145,7 @@ def leave_one_out(datasets, learners):
 
 
 def cv(datasets, learners):
-    train_dataset, test_dataset = split_datasets(datasets, 0.75)
+    train_dataset, test_dataset = split_datasets(datasets, 0.75, random=False)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
     test_automl(test_dataset, 1)
@@ -160,16 +159,28 @@ def save_metafeatures(datasets: List[Dataset]):
     mfe = MetaFeatureExtractor()
     p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
     p.mkdir(exist_ok=True, parents=True)
+    visited_datasets = get_datasets_in_path(p)
     for ds in datasets:
         try:
+            if ds.name in visited_datasets:
+                continue
             X, y = ds.load()
             metafeatures = mfe.extract_features(X, y, ds)
             json.dump({
                 'meta_features': metafeatures
             }, open(f'{p / ds.name}.json', 'w'))
         except Exception as e:
+            print(e)
             with err_file_path.open('a') as fd:
                 fd.write(f'Error in {ds.name} in save_metafeatures method \n\t{e}\n\n')
+
+
+def get_datasets_in_path(path: Path):
+    """
+    Gets all the dataset with stored information in a specific path.
+    This is used to check which datasets has features extracted.
+    """
+    return set(file.name[:-5] for file in path.glob('*.json'))
 
 
 if __name__ == '__main__':
@@ -179,7 +190,7 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    download_classification_datasets()
+    # download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
 
@@ -190,13 +201,13 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    save_metafeatures(datasets)
+    # save_metafeatures(datasets)
 
     datasets, _ = split_datasets(datasets, 0.8, random=False)
+    nn_learner.predict(datasets[-1])
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [xgb_ranker, nn_learner])
+    # cv(datasets, [xgb_ranker, nn_learner])
 
     with err_file_path.open('a') as fd:
         fd.write(f'----------------------------------------------------')
-

@@ -1,13 +1,14 @@
 from typing import List
 from autogoal.experimental.metalearning.datasets import Dataset
 from autogoal.experimental.metalearning.metalearner import MetaLearner
-from autogoal.experimental.metalearning.distance_measures import cosine_measure
+from autogoal.experimental.metalearning.distance_measures import cosine_measure, l2_distance, l1_distance
 
 
 class NNMetaLearner(MetaLearner):
-    def __init__(self,  features_extractor=None, load=True, number_of_results: int = 15):
+    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, strategy='aggregated'):
         super().__init__(features_extractor, load, learner_name='nn_metalearner')
         self.n_results = number_of_results
+        self.strategy = strategy
 
     def _try_to_load_model(self, load):
         if load:
@@ -29,10 +30,14 @@ class NNMetaLearner(MetaLearner):
         data_features = self.preprocess_metafeatures(dataset)
 
         # get the pipelines to test
-        datasets = self.get_similar_datasets(data_features, cosine_measure)
-
-        pipelines, files, scores = self.get_best_pipelines(datasets, 5, 5)
-        pipelines, files, scores = self._sort_pipelines_by_score(pipelines, files, scores)
+        datasets = self.get_similar_datasets(data_features, l2_distance, return_similarity=True)
+        if self.strategy == 'aggregated':
+            pipelines, files, scores = self.get_best_pipelines_aggregated_ranking(datasets, self.n_results)
+        elif self.strategy == 'simple':
+            pipelines, files, scores = self.get_best_pipelines(datasets, self.n_results, self.n_results)
+            pipelines, files, scores = self._sort_pipelines_by_score(pipelines, files, scores)
+        else:
+            raise Exception('Not a valid strategy')
         pipelines, files, scores = pipelines[:self.n_results], files[:self.n_results], scores[:self.n_results]
 
         decode_pipeline = self.decode_pipelines(pipelines)
