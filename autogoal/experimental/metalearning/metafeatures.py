@@ -348,9 +348,9 @@ def noise_signal_ratio(X, y, features, **kwargs):
     return non_useful_information / useful_information
 
 
-# @feature_extractor
-# def pca(X, y, dataset, **kwargs):
-#     pca = PCA()
-#     pca.fit(X[:, dataset.numerical_indicator])
-#     first_pc = pca.components_[0]
-#     return stats.skew(first_pc), stats.kurtosis(first_pc)
+@feature_extractor
+def pca(X, y, dataset, **kwargs):
+    pca = PCA()
+    pca.fit(X[:, dataset.numerical_indicator])
+    first_pc = pca.components_[0]
+    return stats.skew(first_pc), stats.kurtosis(first_pc)

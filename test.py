@@ -15,7 +15,7 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-# from download_datasets import download_classification_datasets
+from download_datasets import download_classification_datasets
 import os
 import json
 import numpy as np
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    # download_classification_datasets()
+    download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
 
@@ -201,10 +201,10 @@ if __name__ == '__main__':
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    # save_metafeatures(datasets)
+    save_metafeatures(datasets)
 
-    datasets, _ = split_datasets(datasets, 0.8, random=False)
-    nn_learner.predict(datasets[-1])
+    # datasets, _ = split_datasets(datasets, 0.8, random=False)
+    # nn_learner.predict(datasets[-1])
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
     # cv(datasets, [xgb_ranker, nn_learner])
