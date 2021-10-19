@@ -197,17 +197,17 @@ if __name__ == '__main__':
     datasets = inspect_datasets(datasets)
 
     xgb_ranker = XGBRankerMetaLearner()
-    nn_learner = NNMetaLearner()
+    nn_learner = NNMetaLearner(strategy='simple')
     # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    save_metafeatures(datasets)
+    # save_metafeatures(datasets)
 
-    # datasets, _ = split_datasets(datasets, 0.8, random=False)
+    datasets, _ = split_datasets(datasets, 0.8, random=False)
     # nn_learner.predict(datasets[-1])
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    # cv(datasets, [xgb_ranker, nn_learner])
+    cv(datasets, [xgb_ranker, nn_learner])
 
     with err_file_path.open('a') as fd:
         fd.write(f'----------------------------------------------------')
