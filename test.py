@@ -15,7 +15,7 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-from download_datasets import download_classification_datasets
+# from download_datasets import download_classification_datasets
 import os
 import json
 import numpy as np
@@ -101,8 +101,8 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
             automl = AutoML(
                 input=dataset.input_type,
                 output=dataset.output_type,
-                evaluation_timeout=5 * Min,
-                search_timeout=30 * Min,
+                evaluation_timeout=1 * Min,
+                search_timeout=10 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             try:
@@ -190,16 +190,16 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    download_classification_datasets()
+    # download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
 
     datasets = inspect_datasets(datasets)
 
-    xgb_ranker = XGBRankerMetaLearner()
-    nn_learner = NNMetaLearner(strategy='simple')
+    # xgb_ranker = XGBRankerMetaLearner()
+    nn_learner = NNMetaLearner()
     # All datasets are trained to get the meta-features of the problem
-    xgb_ranker.train(datasets)
+    # xgb_ranker.train(datasets)
 
     # save_metafeatures(datasets)
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     # nn_learner.predict(datasets[-1])
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [xgb_ranker, nn_learner])
+    cv(datasets, [nn_learner])
 
     with err_file_path.open('a') as fd:
         fd.write(f'----------------------------------------------------')
