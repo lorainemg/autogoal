@@ -5,8 +5,9 @@ from autogoal.experimental.metalearning.distance_measures import cosine_measure,
 
 
 class NNMetaLearner(MetaLearner):
-    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, strategy='aggregated'):
-        super().__init__(features_extractor, load, learner_name='nn_metalearner')
+    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, strategy='aggregated',
+                 *, learner_name='nn_metalearner'):
+        super().__init__(features_extractor, load, learner_name=learner_name)
         self.n_results = number_of_results
         self.strategy = strategy
 
