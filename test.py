@@ -15,7 +15,7 @@ from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
 from autogoal.utils import Min
 
-# from download_datasets import download_classification_datasets
+from download_datasets import download_classification_datasets
 import os
 import json
 import numpy as np
@@ -148,7 +148,7 @@ def cv(datasets, learners):
     train_dataset, test_dataset = split_datasets(datasets, 0.75, random=False)
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    test_automl(test_dataset, 1)
+    # test_automl(test_dataset, 1)
     for learner in learners:
         learner.meta_train(train_dataset)
         # test_mtl(train_dataset, test_dataset, learner, 1)
@@ -190,16 +190,17 @@ if __name__ == '__main__':
 
     # datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
 
-    # download_classification_datasets()
+    download_classification_datasets()
     datasets = DatasetExtractor(Path('datasets/classification')).datasets
     print(len(datasets))
 
     datasets = inspect_datasets(datasets)
 
-    # xgb_ranker = XGBRankerMetaLearner()
+    xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
+    nn_learner_simple = NNMetaLearner(strategy='simple', learner_name='nn_metalearner_simple')
     # All datasets are trained to get the meta-features of the problem
-    # xgb_ranker.train(datasets)
+    xgb_ranker.train(datasets)
 
     # save_metafeatures(datasets)
 
@@ -207,7 +208,7 @@ if __name__ == '__main__':
     # nn_learner.predict(datasets[-1])
 
     # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [nn_learner])
+    cv(datasets, [xgb_ranker, nn_learner, nn_learner_simple])
 
     with err_file_path.open('a') as fd:
         fd.write(f'----------------------------------------------------')

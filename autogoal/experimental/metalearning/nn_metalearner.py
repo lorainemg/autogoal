@@ -5,8 +5,9 @@ from autogoal.experimental.metalearning.distance_measures import cosine_measure,
 
 
 class NNMetaLearner(MetaLearner):
-    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, strategy='aggregated'):
-        super().__init__(features_extractor, load, learner_name='nn_metalearner')
+    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, strategy='aggregated',
+                 *, learner_name='nn_metalearner'):
+        super().__init__(features_extractor, load, learner_name=learner_name)
         self.n_results = number_of_results
         self.strategy = strategy
 
@@ -30,10 +31,11 @@ class NNMetaLearner(MetaLearner):
         data_features = self.preprocess_metafeatures(dataset)
 
         # get the pipelines to test
-        datasets = self.get_similar_datasets(data_features, l2_distance, return_similarity=True)
         if self.strategy == 'aggregated':
+            datasets = self.get_similar_datasets(data_features, l2_distance, return_similarity=True)
             pipelines, files, scores = self.get_best_pipelines_aggregated_ranking(datasets, self.n_results)
         elif self.strategy == 'simple':
+            datasets = self.get_similar_datasets(data_features, l2_distance)
             pipelines, files, scores = self.get_best_pipelines(datasets, self.n_results, self.n_results)
             pipelines, files, scores = self._sort_pipelines_by_score(pipelines, files, scores)
         else:
