@@ -157,7 +157,7 @@ def cv(datasets, learners):
 
 def save_metafeatures(datasets: List[Dataset]):
     mfe = MetaFeatureExtractor()
-    p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
+    p = Path(MTL_RESOURCES_PATH) / "mfeat"
     p.mkdir(exist_ok=True, parents=True)
     visited_datasets = get_datasets_in_path(p)
     for ds in datasets:
@@ -165,10 +165,11 @@ def save_metafeatures(datasets: List[Dataset]):
             if ds.name in visited_datasets:
                 continue
             X, y = ds.load()
+            # metafeatures = number_of_classes(X, y)
             metafeatures = mfe.extract_features(X, y, ds)
             json.dump({
-                'meta_features': metafeatures
-            }, open(f'{p / ds.name}.json', 'w'))
+                'number of features': metafeatures
+            }, open(f'{p  / ds.name}.json', 'w'))
         except Exception as e:
             print(e)
             with err_file_path.open('a') as fd:
@@ -194,18 +195,18 @@ if __name__ == '__main__':
     # datasets = DatasetExtractor(Path('datasets/classification')).datasets
     # datasets = split_datasets(datasets, 0.8)
     print(len(datasets))
-    # save_metafeatures(datasets)
+    save_metafeatures(datasets)
     # datasets = inspect_datasets(datasets)
 
     # xgb_ranker = XGBRankerMetaLearner()
-    nn_learner = NNMetaLearner(learner_name='nn_learner_aggregated')
-    nn_learner.train(datasets)
+    # nn_learner = NNMetaLearner(learner_name='nn_learner_aggregated')
+    # nn_learner.train(datasets)
     #
     # All datasets are trained to get the meta-features of the problem
     # xgb_ranker.train(datasets)
 
     # # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    cv(datasets, [nn_learner])
+    # cv(datasets, [nn_learner])
 
     with err_file_path.open('a') as fd:
         fd.write(f'----------------------------------------------------')
