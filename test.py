@@ -101,8 +101,8 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
             automl = AutoML(
                 input=dataset.input_type,
                 output=dataset.output_type,
-                evaluation_timeout=1 * Min,
-                search_timeout=10 * Min,
+                evaluation_timeout=5 * Min,
+                search_timeout=30 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             try:
@@ -157,7 +157,7 @@ def cv(datasets, learners):
 
 def save_metafeatures(datasets: List[Dataset]):
     mfe = MetaFeatureExtractor()
-    p = Path(MTL_RESOURCES_PATH) / 'mtfeat'
+    p = Path(MTL_RESOURCES_PATH) / "mtfeat"
     p.mkdir(exist_ok=True, parents=True)
     visited_datasets = get_datasets_in_path(p)
     for ds in datasets:
@@ -167,8 +167,8 @@ def save_metafeatures(datasets: List[Dataset]):
             X, y = ds.load()
             metafeatures = mfe.extract_features(X, y, ds)
             json.dump({
-                'meta_features': metafeatures
-            }, open(f'{p / ds.name}.json', 'w'))
+                'number of features': metafeatures
+            }, open(f'{p  / ds.name}.json', 'w'))
         except Exception as e:
             print(e)
             with err_file_path.open('a') as fd:
@@ -199,10 +199,9 @@ if __name__ == '__main__':
     xgb_ranker = XGBRankerMetaLearner()
     nn_learner = NNMetaLearner()
     nn_learner_simple = NNMetaLearner(strategy='simple', learner_name='nn_metalearner_simple')
-    # All datasets are trained to get the meta-features of the problem
     xgb_ranker.train(datasets)
 
-    # save_metafeatures(datasets)
+    save_metafeatures(datasets)
 
     datasets, _ = split_datasets(datasets, 0.8, random=False)
     # nn_learner.predict(datasets[-1])

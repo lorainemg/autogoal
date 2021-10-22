@@ -144,6 +144,11 @@ def output_dimensionality(X, y, **kwargs):
 
 
 @feature_extractor
+def number_of_classes(X, y, **kwargs):
+    return len(np.unique(y))
+
+
+@feature_extractor
 def dataset_dimensionality(X, y, features, **kwargs):
     """
     It represents the ratio between the number of attributes
