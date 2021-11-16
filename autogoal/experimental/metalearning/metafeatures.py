@@ -6,6 +6,7 @@ from scipy import stats
 from autogoal.experimental.metalearning.utils import reduce_shape, get_numerical_features
 from autogoal.kb import SemanticType
 from sklearn.decomposition import PCA
+from collections import Counter
 _EXTRACTORS = []
 
 
@@ -144,8 +145,11 @@ def output_dimensionality(X, y, **kwargs):
 
 
 @feature_extractor
-def number_of_classes(X, y, *args):
-    return len(np.unique(y))
+def number_of_classes(X, y, **kwargs):
+    try:
+        return len(set(y))
+    except:
+        print('Error in dataset')
 
 
 @feature_extractor
@@ -353,9 +357,9 @@ def noise_signal_ratio(X, y, features, **kwargs):
     return non_useful_information / useful_information
 
 
-# @feature_extractor
-# def pca(X, y, dataset, **kwargs):
-#     pca = PCA()
-#     pca.fit(X[:, dataset.numerical_indicator])
-#     first_pc = pca.components_[0]
-#     return stats.skew(first_pc), stats.kurtosis(first_pc)
+@feature_extractor
+def pca(X, y, dataset, **kwargs):
+    pca = PCA()
+    pca.fit(X[:, dataset.numerical_indicator])
+    first_pc = pca.components_[0]
+    return stats.skew(first_pc), stats.kurtosis(first_pc)

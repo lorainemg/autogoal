@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from random import shuffle
 from typing import List
@@ -10,6 +11,8 @@ from autogoal.experimental.metalearning.nn_metalearner import NNMetaLearner
 from autogoal.experimental.metalearning.metafeatures import MetaFeatureExtractor
 from autogoal.experimental.metalearning.results_logger import ResultsLogger
 from autogoal.experimental.metalearning.utils import MTL_RESOURCES_PATH
+from autogoal.experimental.metalearning.distance_measures import l1_distance, l2_distance
+
 
 from autogoal.kb import Supervised, Tensor, Continuous, Dense, Categorical
 from autogoal.ml import AutoML
@@ -26,10 +29,14 @@ err_file_path: Path = Path(MTL_RESOURCES_PATH) / 'errors.txt'
 err_text = []
 
 
-def test_automl(datasets: List[Dataset], iterations: int = 1):
+def test_automl(datasets: List[Dataset], iterations: int = 1, visited_datasets=None):
     """Tests automl using autogoal"""
+    visited_datasets = visited_datasets or []
     for i in range(iterations):
         for dataset in datasets:
+            if dataset.name in visited_datasets:
+                continue
+
             X, y = dataset.load()
             # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
 
@@ -38,7 +45,7 @@ def test_automl(datasets: List[Dataset], iterations: int = 1):
                            Supervised[Tensor[1, Categorical, Dense]]),
                     output=Tensor[1, Categorical, Dense],
                     evaluation_timeout=5 * Min,
-                    search_timeout=30 * Min)
+                    search_timeout=10 * Min)
             name = f'automl_{dataset.name}_{i}'
             try:
                 automl.fit(X, y, logger=ResultsLogger('autogoal', name))
@@ -102,7 +109,7 @@ def test_autogoal_with_mtl(datasets: List[Dataset], learner: MetaLearner, iterat
                 input=dataset.input_type,
                 output=dataset.output_type,
                 evaluation_timeout=5 * Min,
-                search_timeout=30 * Min,
+                search_timeout=10 * Min,
                 metalearner=learner)
             name = f'mtl_{dataset.name}_{i}'
             try:
@@ -144,15 +151,32 @@ def leave_one_out(datasets, learners):
             test_autogoal_with_mtl([ds], learner, 1)
 
 
+def get_evaluated_datasets():
+    autogoal_path = Path(MTL_RESOURCES_PATH) / 'results' / 'autogoal'
+
+    visited_datasets = []
+    if autogoal_path.exists():
+        results = get_datasets_in_path(autogoal_path)
+        dataset_re = re.compile('\w+_(\d+)_\d+')
+        for ds in results:
+            m = dataset_re.match(ds)
+            if m is not None:
+                dataset = m.group(1)
+                visited_datasets.append(dataset)
+    return visited_datasets
+
+
 def cv(datasets, learners):
-    train_dataset, test_dataset = split_datasets(datasets, 0.75, random=False)
+    train_dataset, test_dataset = split_datasets(datasets, 0.75)
+
+    # visited_datasets = get_evaluated_datasets()
     # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    # test_automl(test_dataset, 1)
+    # test_automl(test_dataset, 1, visited_datasets)
     for learner in learners:
         learner.meta_train(train_dataset)
-        # test_mtl(train_dataset, test_dataset, learner, 1)
-        test_autogoal_with_mtl(test_dataset, learner, 1)
+        test_mtl(train_dataset, test_dataset, learner, 1)
+        # test_autogoal_with_mtl(test_dataset, learner, 3)
 
 
 def save_metafeatures(datasets: List[Dataset]):
@@ -168,7 +192,7 @@ def save_metafeatures(datasets: List[Dataset]):
             # metafeatures = number_of_classes(X, y)
             metafeatures = mfe.extract_features(X, y, ds)
             json.dump({
-                'number of features': metafeatures
+                'metafeatures': metafeatures
             }, open(f'{p  / ds.name}.json', 'w'))
         except Exception as e:
             print(e)
@@ -189,24 +213,30 @@ if __name__ == '__main__':
         Path(MTL_RESOURCES_PATH).mkdir(parents=True, exist_ok=True)
         err_file_path.open('x').close()
 
-    datasets = DatasetExtractor(Path('/home/coder/.autogoal/data/classification/lt 5000')).datasets
+    datasets = DatasetExtractor(Path('datasets')).datasets
+    print(len(datasets))
+
+    datasets = inspect_datasets(datasets)
+    print(len(datasets))
 
     # download_classification_datasets()
-    # datasets = DatasetExtractor(Path('datasets/classification')).datasets
-    # datasets = split_datasets(datasets, 0.8)
+    # save_metafeatures(datasets)
+
+    datasets, _ = split_datasets(datasets, 0.8)
     print(len(datasets))
-    save_metafeatures(datasets)
-    # datasets = inspect_datasets(datasets)
 
-    # xgb_ranker = XGBRankerMetaLearner()
-    # nn_learner = NNMetaLearner(learner_name='nn_learner_aggregated')
-    # nn_learner.train(datasets)
+    xgb_ranker_l2 = XGBRankerMetaLearner(distance_metric=l2_distance, load=False, learner_name='xgb_l2')
+    # xgb_ranker_l2 = XGBRankerMetaLearner(distance_metric=l2_distance, load=False, learner_name='xgb_l2')
     #
-    # All datasets are trained to get the meta-features of the problem
-    # xgb_ranker.train(datasets)
-
-    # # leave_one_out(datasets, [xgb_ranker, nn_learner])
-    # cv(datasets, [nn_learner])
-
-    with err_file_path.open('a') as fd:
-        fd.write(f'----------------------------------------------------')
+    nn_learner = NNMetaLearner(distance_metric=l2_distance, strategy='simple', learner_name='nn_simple_l2')
+    nn_learner_aggregated = NNMetaLearner(distance_metric=l2_distance, learner_name='nn_aggregated_l2')
+    # # nn_learner.train(datasets)
+    # #
+    # # All datasets are trained to get the meta-features of the problem
+    # # xgb_ranker.train(datasets)
+    #
+    # # # leave_one_out(datasets, [xgb_ranker, nn_learner])
+    cv(datasets, [xgb_ranker_l2, nn_learner, nn_learner_aggregated])
+    #
+    # with err_file_path.open('a') as fd:
+    #     fd.write(f'----------------------------------------------------')

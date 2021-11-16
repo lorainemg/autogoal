@@ -454,7 +454,10 @@ class MetaLearner:
         for dataset, (pipelines_info, _, y_hat) in zip(datasets, predictions):
             X, y = dataset.load()
             pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
-            scores[dataset.name] = self.evaluate(X, y, y_hat, pipelines, metric)
+            score = self.evaluate(X, y, y_hat, pipelines, metric)
+            if save:
+                json.dump(score, open(f'{self._results_path / dataset.name}.json'))
+            scores[dataset.name] = score
         scores['global'] = self.calculate_global_score(scores)
 
         if save:
@@ -505,13 +508,13 @@ class MetaLearner:
             p = None
         return p
 
-    def construct_initial_model(self, pipeline_updates, pipeline_models):
+    def construct_initial_model(self, pipeline_updates, pipeline_models, learning_factor=0.05):
         """Merges all previous experience to create a initial model"""
         merged_updates = merge_updates(*pipeline_updates)
         model = {}
         for pipeline_model in pipeline_models:
             model.update(pipeline_model)
-        return update_model(model, merged_updates)
+        return update_model(model, merged_updates, learning_factor)
 
     def create_initial_set(self, dataset: Dataset):
         """Creates initial set to warm start autogoal"""

@@ -11,12 +11,14 @@ import numpy as np
 
 
 class XGBRankerMetaLearner(MetaLearner):
-    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15):
+    def __init__(self, features_extractor=None, load=True, number_of_results: int = 15, distance_metric=l2_distance,
+                 *, learner_name='xgb_metalearner'):
         """
         number_of_results: number of results to return in each prediction
         """
-        super().__init__(features_extractor, load, learner_name="xgb_metalearner")
+        super().__init__(features_extractor, load, learner_name=learner_name)
         self.n_results = number_of_results
+        self.distance_metric = distance_metric
 
     def _try_to_load_model(self, load):
         if load:
@@ -32,11 +34,10 @@ class XGBRankerMetaLearner(MetaLearner):
                 objective='rank:pairwise',
                 random_state=42,
                 learning_rate=0.1,
-                colsample_bytree=0.9,
                 eta=0.05,
-                max_depth=6,
-                n_estimators=110,
-                subsample=0.75,
+                max_depth=10,
+                n_estimators=150,
+                subsample=0.95,
                 predictor='cpu_predictor',
             )
 
@@ -54,7 +55,7 @@ class XGBRankerMetaLearner(MetaLearner):
         data_features = self.preprocess_metafeatures(dataset)
 
         # get the pipelines to test
-        datasets = self.get_similar_datasets(data_features, l2_distance)
+        datasets = self.get_similar_datasets(data_features, self.distance_metric)
 
         pipelines, files, _ = self.get_best_pipelines(datasets, self.n_results, self.n_results)
 
