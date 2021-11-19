@@ -456,7 +456,7 @@ class MetaLearner:
             pipelines = self.construct_pipelines(pipelines_info, dataset.input_type)
             score = self.evaluate(X, y, y_hat, pipelines, metric)
             if save:
-                json.dump(score, open(f'{self._results_path / dataset.name}.json'))
+                json.dump(score, open(f'{self._results_path / dataset.name}.json', 'w+'))
             scores[dataset.name] = score
         scores['global'] = self.calculate_global_score(scores)
 

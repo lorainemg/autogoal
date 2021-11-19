@@ -53,17 +53,6 @@ def test_automl(datasets: List[Dataset], iterations: int = 1, visited_datasets=N
                 with err_file_path.open('a') as fd:
                     fd.write(f'Error in dataset {dataset.name} in test_automl method \n\t{e}\n')
 
-    # print(automl.best_pipeline_)
-    # print(automl.best_score_)
-    #
-    # score = automl.score(X_test, y_test)
-    # print(f"Score: {score:0.3f}")
-    #
-    # predictions = automl.predict(X_test)
-    #
-    # for sentence, real, predicted in zip(X_test[:10], y_test, predictions):
-    #     print(sentence, "-->", real, "vs", predicted)
-
 
 def split_datasets(datasets: List[Dataset], train_proportion: float, random=True):
     """Splits datasets """
@@ -170,13 +159,12 @@ def cv(datasets, learners):
     train_dataset, test_dataset = split_datasets(datasets, 0.75)
 
     # visited_datasets = get_evaluated_datasets()
-    # train_dataset, test_dataset = datasets[:60], datasets[60:]
 
-    # test_automl(test_dataset, 1, visited_datasets)
+    test_automl(test_dataset, 1)
     for learner in learners:
         learner.meta_train(train_dataset)
-        test_mtl(train_dataset, test_dataset, learner, 1)
-        # test_autogoal_with_mtl(test_dataset, learner, 3)
+        # test_mtl(train_dataset, test_dataset, learner, 1)
+        test_autogoal_with_mtl(test_dataset, learner, 3)
 
 
 def save_metafeatures(datasets: List[Dataset]):
@@ -226,17 +214,12 @@ if __name__ == '__main__':
     print(len(datasets))
 
     xgb_ranker_l2 = XGBRankerMetaLearner(distance_metric=l2_distance, load=False, learner_name='xgb_l2')
-    # xgb_ranker_l2 = XGBRankerMetaLearner(distance_metric=l2_distance, load=False, learner_name='xgb_l2')
-    #
     nn_learner = NNMetaLearner(distance_metric=l2_distance, strategy='simple', learner_name='nn_simple_l2')
     nn_learner_aggregated = NNMetaLearner(distance_metric=l2_distance, learner_name='nn_aggregated_l2')
-    # # nn_learner.train(datasets)
-    # #
-    # # All datasets are trained to get the meta-features of the problem
-    # # xgb_ranker.train(datasets)
-    #
-    # # # leave_one_out(datasets, [xgb_ranker, nn_learner])
+
+    # All datasets are trained to get the meta-features of the problem
+    # nn_learner.train(datasets)
     cv(datasets, [xgb_ranker_l2, nn_learner, nn_learner_aggregated])
-    #
-    # with err_file_path.open('a') as fd:
-    #     fd.write(f'----------------------------------------------------')
+
+    with err_file_path.open('a') as fd:
+        fd.write(f'----------------------------------------------------')
